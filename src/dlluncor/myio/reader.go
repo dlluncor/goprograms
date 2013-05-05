@@ -15,17 +15,17 @@ type myReader struct {
   reader *bufio.Reader
 }
 
-func (r myReader) Read() string {
+func (r *myReader) Read() string {
   return r.rawInput()
 }
 
 // Create a new reader which reads from standard in.
 func NewReader() Reader {
   in :=  bufio.NewReader(os.Stdin)
-  return myReader{in}
+  return &myReader{in}
 }
 
-func (r myReader) rawInput() string {
+func (r *myReader) rawInput() string {
   line, _ := r.reader.ReadString('\n')
   line = strings.Replace(line, "\n", "", -1)
   return line
