@@ -1,7 +1,6 @@
 package spoj
 
 import (
-        //"code.google.com/p/gomock/gomock"
 	"dlluncor/myio"
 	"fmt"
 	"math"
@@ -151,7 +150,8 @@ func (b *Bitmapper) Solve() string {
 
 func BitmapSolver(reader myio.Reader, bm BitmapperI) string {
   bm.ReadInput(reader)
-  return bm.Solve()
+  answer := bm.Solve()
+  return answer
 } 
 
 // Spoj problems.
@@ -165,9 +165,4 @@ func Bitmap() {
     answer := BitmapSolver(r, bm)
     fmt.Printf("%s", answer)
   }
-}
-
-func main() {
-	//GirlsBoys()
-  Bitmap()
 }

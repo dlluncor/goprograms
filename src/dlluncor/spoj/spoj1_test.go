@@ -38,7 +38,9 @@ func TestBitmapperSolver(t *testing.T) {
 
   r := &FakeReader{}
   mockBitmapper := mock_spoj.NewMockBitmapperI(mockCtrl)
-  mockBitmapper.EXPECT().ReadInput(r)
-  mockBitmapper.EXPECT().Solve()
+  gomock.InOrder(
+    mockBitmapper.EXPECT().ReadInput(r),
+    mockBitmapper.EXPECT().Solve(),
+  ) 
   spoj.BitmapSolver(r, mockBitmapper)
 }
