@@ -1,4 +1,4 @@
-package main
+package spoj
 
 import (
         //"code.google.com/p/gomock/gomock"
