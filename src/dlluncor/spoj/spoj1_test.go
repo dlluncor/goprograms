@@ -2,7 +2,9 @@ package spoj
 
 import (
   "dlluncor/spoj"
+  "dlluncor/mock_spoj"
   "testing"
+  "code.google.com/p/gomock/gomock"
 )
 
 type FakeReader struct {
@@ -28,4 +30,15 @@ func TestBitmapper(t *testing.T) {
   if actualAnswer != expectedAnswer {
     t.Errorf("Bitmapper solve method does not work. %v != %v", expectedAnswer, actualAnswer)
   }
+}
+
+func TestBitmapperSolver(t *testing.T) {
+  mockCtrl := gomock.NewController(t)
+  defer mockCtrl.Finish()
+
+  r := &FakeReader{}
+  mockBitmapper := mock_spoj.NewMockBitmapperI(mockCtrl)
+  mockBitmapper.EXPECT().ReadInput(r)
+  mockBitmapper.EXPECT().Solve()
+  spoj.BitmapSolver(r, mockBitmapper)
 }
