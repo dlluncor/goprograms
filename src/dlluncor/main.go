@@ -5,5 +5,9 @@ import(
 )
 
 func main() {
-  spoj.Bitmap()
+  //spoj.Bitmap()
+  //spoj.Recaman()
+  //spoj.EditDistance()
+  //spoj.Party()
+  spoj.GreatBall()
 }

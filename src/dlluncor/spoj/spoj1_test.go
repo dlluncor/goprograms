@@ -38,9 +38,13 @@ func TestBitmapperSolver(t *testing.T) {
 
   r := &FakeReader{}
   mockBitmapper := mock_spoj.NewMockBitmapperI(mockCtrl)
+  expected := "the answer"
   gomock.InOrder(
     mockBitmapper.EXPECT().ReadInput(gomock.Eq(r)),
-    mockBitmapper.EXPECT().Solve(),
+    mockBitmapper.EXPECT().Solve().Return(expected),
   ) 
-  spoj.BitmapSolver(r, mockBitmapper)
+  actual := spoj.BitmapSolver(r, mockBitmapper)
+  if actual != expected {
+    t.Errorf("Bitmap solver method is wrong. %v != %v", expected, actual)
+  }
 }
