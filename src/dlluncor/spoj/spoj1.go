@@ -393,3 +393,28 @@ func GreatBall() {
   }
 }
 
+var (
+ EPSILON = 0.00000001
+)
+
+func mysqrt(n float64) float64 {
+  x := n
+  err := x * x - n
+  move := 0.0
+  for ; err > EPSILON ; {
+    move = (x * x - n) / (2 * x)
+    x = x - move
+    err = x * x - n
+  }
+  return x
+}
+
+func Sqrt() {
+  r := myio.NewReader()
+  T, _ := strconv.Atoi(r.Read())
+  for i := 0; i < T; i++ {
+    n, _ := strconv.Atoi(r.Read())
+    fmt.Printf("%f\n", mysqrt(float64(n)))
+  }
+}
+

@@ -9,5 +9,6 @@ func main() {
   //spoj.Recaman()
   //spoj.EditDistance()
   //spoj.Party()
-  spoj.GreatBall()
+  //spoj.GreatBall()
+  spoj.Sqrt()
 }
