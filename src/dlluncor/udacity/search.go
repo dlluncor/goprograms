@@ -2,6 +2,8 @@ package udacity
 
 import (
   "dlluncor/myio"
+  "dlluncor/container"
+  "container/heap"
   "strconv"
   "fmt"
   "strings"
@@ -206,6 +208,7 @@ func (e *BExplored) Contains(node *BNode) bool {
 // Fronteir of what has not been explored yet.
 type BFronteir struct {
   boardMap map[string] *BNode // Map of boards to their state in the fronteir.
+  queue *container.PriorityQueue // Keeps track of the next node with the least cost.
 }
 
 // Adds a board to the fronteir.
@@ -217,6 +220,12 @@ func (b *BFronteir) Add(node *BNode) {
     node.cost = node.f + node.h
   }
   b.boardMap[node.state] = node
+  // Add the state to a priority queue as well.
+  item := &container.Item{
+    Value: node.state,
+    Priority: node.cost,
+  }
+  heap.Push(b.queue, item)
 }
 
 func (b *BFronteir) IsEmpty() bool {
@@ -231,14 +240,9 @@ func (b *BFronteir) Contains(node *BNode) bool {
 
 func(b *BFronteir) RemoveChoice() *BNode {
   before := time.Now()
-  lowestCost := -1
-  lNode := &BNode{}
-  for _, node := range b.boardMap {
-    if lowestCost == -1 || node.cost < lowestCost {
-      lowestCost = node.cost
-      lNode = node
-    }
-  }
+  // Pop the item with the lowest cost from the heap, fast!!!
+  item := heap.Pop(b.queue).(*container.Item)
+  lNode := b.boardMap[item.Value] // Node with the lowest cost.
   fmt.Printf("Fronteir size: %v\n", len(b.boardMap))
   fmt.Printf("Best choice. Cost: %v. H: %v\n", lNode.cost, lNode.h)
   PrintBoard(lNode.state)
@@ -259,7 +263,9 @@ func (bs *BoardSolver) Init(board string) {
   // Fronteir consists of current board.
   bs.fronteir = &BFronteir{
     boardMap: make(map[string] *BNode),
+    queue: &container.PriorityQueue{},
   }
+  heap.Init(bs.fronteir.queue)
   node := &BNode{
     parent: nil,
     state: board,
