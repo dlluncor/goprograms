@@ -10,26 +10,27 @@ import (
   //"time"
 )
 
+// Interfaces here are really nodes which the implementation should pass around.
 type Fronteir interface {
   IsEmpty() bool
-  RemoveChoice() *BNode
-  Contains(node *BNode) bool
-  Add(node *BNode)
+  RemoveChoice() interface{}
+  Contains(node interface{}) bool
+  Add(node interface{})
 }
 
 type Explored interface {
-  Add(node *BNode)
-  Contains(node *BNode) bool
+  Add(node interface{})
+  Contains(node interface{}) bool
 }
 
 type Searcher interface {
-  IsGoal(node *BNode) bool
-  NextActions(node *BNode) []*BNode
+  IsGoal(node interface{}) bool
+  NextActions(node interface{}) []interface{}
 }
 
 // GraphSearch implements a general graph search application, such as A* or BFS
 // or DFS.
-func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) *BNode {
+func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) interface{} {
   var i = 0
   for {
     //if i == 100000 {
@@ -39,8 +40,9 @@ func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) *BNode
     	return nil
     }
     node := fronteir.RemoveChoice()
+    mnode := node.(*BNode)
     if i % 10000 == 0 {
-      fmt.Printf("At node. Cost: %v F: %v H: %v\n", node.cost, node.f, node.h)
+      fmt.Printf("At node. Cost: %v F: %v H: %v\n", mnode.cost, mnode.f, mnode.h)
     }
     explored.Add(node) // We've now seen this node.
     if searcher.IsGoal(node) {
@@ -126,7 +128,7 @@ func PrintBoard(board string) {
     }
     output += line + "\n"
   }
-  //fmt.Printf(output)
+  fmt.Printf(output)
 }
 
 // Path we took to solve the puzzle.
@@ -198,13 +200,15 @@ type BExplored struct {
   boardMap map[string] bool // Whether this board state has already been explored.
 }
 
-func (e *BExplored) Add(node *BNode) {
-  e.boardMap[node.state] = true
+func (e *BExplored) Add(node interface{}) {
+  anode := node.(*BNode)
+  e.boardMap[anode.state] = true
 }
 
-func (e *BExplored) Contains(node *BNode) bool {
+func (e *BExplored) Contains(node interface{}) bool {
   //fmt.Printf("Explored size: %v\n", len(e.boardMap))
-  _, ok := e.boardMap[node.state]
+  anode := node.(*BNode)
+  _, ok := e.boardMap[anode.state]
   return ok 
 }
 
@@ -215,8 +219,9 @@ type BFronteir struct {
 }
 
 // Adds a board to the fronteir.
-func (b *BFronteir) Add(node *BNode) {
+func (b *BFronteir) Add(inode interface{}) {
   // Calculate costs before adding to the fronteir.
+  node := inode.(*BNode)
   if node.parent != nil {
     node.f = node.parent.f + 1  // We took one more hop, or step to get here.
     node.h = H1Dist(node.state)
@@ -235,20 +240,21 @@ func (b *BFronteir) IsEmpty() bool {
   return len(b.boardMap) == 0
 }
 
-func (b *BFronteir) Contains(node *BNode) bool {
+func (b *BFronteir) Contains(inode interface{}) bool {
+  node := inode.(*BNode)
   _, ok := b.boardMap[node.state]
   return ok
 }
 
 
-func(b *BFronteir) RemoveChoice() *BNode {
+func(b *BFronteir) RemoveChoice() interface{} {
   //before := time.Now()
   // Pop the item with the lowest cost from the heap, fast!!!
   item := heap.Pop(b.queue).(*container.Item)
   lNode := b.boardMap[item.Value] // Node with the lowest cost.
   //fmt.Printf("Fronteir size: %v\n", len(b.boardMap))
   //fmt.Printf("Best choice. Cost: %v. H: %v\n", lNode.cost, lNode.h)
-  PrintBoard(lNode.state)
+  //PrintBoard(lNode.state)
   delete(b.boardMap, lNode.state)
   //fmt.Printf("Time elapsed: %v\n", time.Since(before))
   return lNode
@@ -282,13 +288,15 @@ func (bs *BoardSolver) Init(board string) {
   }
 }
 
-func (bs *BoardSolver) IsGoal(node *BNode) bool {
+func (bs *BoardSolver) IsGoal(inode interface{}) bool {
+  node := inode.(*BNode)
   return H1Dist(node.state) == 0
 }
 
-func (bs *BoardSolver) NextActions(node *BNode) []*BNode {
+func (bs *BoardSolver) NextActions(inode interface{}) []interface{} {
   // Returns the list of BNodes to explore next.
-  nextNodes := make([]*BNode, 0)
+  node := inode.(*BNode)
+  nextNodes := make([]interface{}, 0)
   adjacentStates := FindAdjacents(node.state)
   //fmt.Println("Next states:")
   for _, state := range adjacentStates {
@@ -312,7 +320,8 @@ type Board struct {
 func (b *Board) Solve() {
   bs := &BoardSolver{}
   bs.Init(b.board)
-  dest := GraphSearch(bs.fronteir, bs.explored, bs)
+  idest := GraphSearch(bs.fronteir, bs.explored, bs)
+  dest := idest.(*BNode)
   if dest != nil {
     fmt.Printf("***********")
     fmt.Printf("Solved it with cost %v. f: %v\n", dest.cost, dest.f)
@@ -346,7 +355,7 @@ func FifteenNums() {
   for i := 0; i < T; i++ {
     board := &Board{}
     board.Create(r)
-    PrintBoard(board.board)
+    //PrintBoard(board.board)
     board.Solve()
   }
 }
