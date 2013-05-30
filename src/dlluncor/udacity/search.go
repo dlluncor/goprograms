@@ -7,7 +7,7 @@ import (
   "strconv"
   "fmt"
   "strings"
-  "time"
+  //"time"
 )
 
 type Fronteir interface {
@@ -32,13 +32,16 @@ type Searcher interface {
 func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) *BNode {
   var i = 0
   for {
-    if i == 100000 {
-      break
-    }
+    //if i == 100000 {
+    //  break
+   // }
     if fronteir.IsEmpty() {
     	return nil
     }
     node := fronteir.RemoveChoice()
+    if i % 10000 == 0 {
+      fmt.Printf("At node. Cost: %v F: %v H: %v\n", node.cost, node.f, node.h)
+    }
     explored.Add(node) // We've now seen this node.
     if searcher.IsGoal(node) {
     	return node
@@ -123,7 +126,7 @@ func PrintBoard(board string) {
     }
     output += line + "\n"
   }
-  fmt.Printf(output)
+  //fmt.Printf(output)
 }
 
 // Path we took to solve the puzzle.
@@ -200,7 +203,7 @@ func (e *BExplored) Add(node *BNode) {
 }
 
 func (e *BExplored) Contains(node *BNode) bool {
-  fmt.Printf("Explored size: %v\n", len(e.boardMap))
+  //fmt.Printf("Explored size: %v\n", len(e.boardMap))
   _, ok := e.boardMap[node.state]
   return ok 
 }
@@ -239,15 +242,15 @@ func (b *BFronteir) Contains(node *BNode) bool {
 
 
 func(b *BFronteir) RemoveChoice() *BNode {
-  before := time.Now()
+  //before := time.Now()
   // Pop the item with the lowest cost from the heap, fast!!!
   item := heap.Pop(b.queue).(*container.Item)
   lNode := b.boardMap[item.Value] // Node with the lowest cost.
-  fmt.Printf("Fronteir size: %v\n", len(b.boardMap))
-  fmt.Printf("Best choice. Cost: %v. H: %v\n", lNode.cost, lNode.h)
+  //fmt.Printf("Fronteir size: %v\n", len(b.boardMap))
+  //fmt.Printf("Best choice. Cost: %v. H: %v\n", lNode.cost, lNode.h)
   PrintBoard(lNode.state)
   delete(b.boardMap, lNode.state)
-  fmt.Printf("Time elapsed: %v\n", time.Since(before))
+  //fmt.Printf("Time elapsed: %v\n", time.Since(before))
   return lNode
 }
 
@@ -287,7 +290,7 @@ func (bs *BoardSolver) NextActions(node *BNode) []*BNode {
   // Returns the list of BNodes to explore next.
   nextNodes := make([]*BNode, 0)
   adjacentStates := FindAdjacents(node.state)
-  fmt.Println("Next states:")
+  //fmt.Println("Next states:")
   for _, state := range adjacentStates {
     nextNode := &BNode{
       parent: node,
