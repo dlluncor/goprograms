@@ -418,3 +418,25 @@ func Sqrt() {
   }
 }
 
+func invTriangle(n int) int {
+  if n == 0 {
+    return 0
+  } else if n == 1 {
+    return 0
+  } else if n == 2 {
+    return 1
+  }
+  return 2 + (n - 3) * (n - 2) / 2
+}
+
+// MINCOUNT
+func MoveToInvert() {
+  r := myio.NewReader()
+  T, _ := strconv.Atoi(r.Read())
+  for i := 0; i < T; i++ {
+    N, _ := strconv.Atoi(r.Read())
+    fmt.Printf("%d\n", invTriangle(N))
+  }
+
+}
+

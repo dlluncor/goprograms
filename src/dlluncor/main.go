@@ -1,7 +1,8 @@
 package main
 
 import(
-  "dlluncor/spoj"
+  //"dlluncor/spoj"
+  "dlluncor/udacity"
 )
 
 func main() {
@@ -10,5 +11,8 @@ func main() {
   //spoj.EditDistance()
   //spoj.Party()
   //spoj.GreatBall()
-  spoj.Sqrt()
+  //spoj.Sqrt()
+  //spoj.MoveToInvert()
+  //udacity.Search()
+  udacity.FifteenNums()
 }
