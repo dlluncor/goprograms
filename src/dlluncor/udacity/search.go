@@ -2,12 +2,9 @@ package udacity
 
 import (
   "dlluncor/myio"
-  "dlluncor/container"
-  "container/heap"
   "strconv"
   "fmt"
   "strings"
-  //"time"
 )
 
 // Interfaces here are really nodes which the implementation should pass around.
@@ -30,14 +27,14 @@ type Searcher interface {
 
 // GraphSearch implements a general graph search application, such as A* or BFS
 // or DFS.
-func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) interface{} {
+func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) (interface{}, int) {
   var i = 0
   for {
     //if i == 100000 {
     //  break
    // }
     if fronteir.IsEmpty() {
-    	return nil
+    	return nil, i
     }
     node := fronteir.RemoveChoice()
     mnode := node.(*BNode)
@@ -46,7 +43,7 @@ func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) interf
     }
     explored.Add(node) // We've now seen this node.
     if searcher.IsGoal(node) {
-    	return node
+    	return node, i
     }
     actions := searcher.NextActions(node)
     for _, a := range actions {
@@ -56,33 +53,10 @@ func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) interf
     }
     i += 1
   }
-  return nil
+  return nil, i
 }
 
- // The number 16 indicates blank.
-var (
-  BLANK = 16
-  BLANK_TO_ADJACENTS = map[int][]int{
-    0: {1, 4},
-    1: {0, 2, 5},
-    2: {1, 3, 6},
-    3: {2, 7},
-    4: {0, 5, 8},
-    5: {1, 4, 6, 9},
-    6: {2, 5, 7, 10},
-    7: {3, 6, 11},
-    8: {4, 9, 12},
-    9: {5, 8, 10, 13},
-    10: {6, 9, 11, 14},
-    11: {7, 10, 15},
-    12: {8, 13},
-    13: {9, 12, 14},
-    14: {10, 13, 15},
-    15: {11, 14},
-  }
-)
-
-// General utilities.
+// General utilities for the 15 tile problem.
 
 // FromBoard returns the board as a string.
 func FromBoard(board []int) string{
@@ -141,18 +115,7 @@ func PrintPath(node *BNode) {
   PrintPath(node.parent)
 }
 
-// The distance this board is from being the correct answer. Just count the 
-// number of misplaced tiles.
-func H1Dist(board string) int {
-  numArr := ToBoard(board)
-  distance := 0
-  for index, tileVal := range numArr {
-    if tileVal - 1 != index {
-      distance += 1
-    }
-  }
-  return distance
-}
+
 
 // Takes two indices and swaps their values, returning a new board.
 
@@ -164,6 +127,28 @@ func SwapThem(blankIndex int, filledIndex int, board []int) []int {
   return newBoard
 }
 
+// The number 16 indicates blank.
+var (
+  BLANK = 16
+  BLANK_TO_ADJACENTS = map[int][]int{
+    0: {1, 4},
+    1: {0, 2, 5},
+    2: {1, 3, 6},
+    3: {2, 7},
+    4: {0, 5, 8},
+    5: {1, 4, 6, 9},
+    6: {2, 5, 7, 10},
+    7: {3, 6, 11},
+    8: {4, 9, 12},
+    9: {5, 8, 10, 13},
+    10: {6, 9, 11, 14},
+    11: {7, 10, 15},
+    12: {8, 13},
+    13: {9, 12, 14},
+    14: {10, 13, 15},
+    15: {11, 14},
+  }
+)
 
 // Returns an array of possible new boards given the current board state.
 func FindAdjacents(board string) []string {
@@ -187,151 +172,27 @@ func FindAdjacents(board string) []string {
   return newBoards
 }
 
-
-type BNode struct {
-  parent *BNode // which state did I eminate from.
-  state string // string representation of the board.
-  cost int
-  f int // number of hops to get to this state.
-  h int // how far am I from my goal.
-}
-
-type BExplored struct {
-  boardMap map[string] bool // Whether this board state has already been explored.
-}
-
-func (e *BExplored) Add(node interface{}) {
-  anode := node.(*BNode)
-  e.boardMap[anode.state] = true
-}
-
-func (e *BExplored) Contains(node interface{}) bool {
-  //fmt.Printf("Explored size: %v\n", len(e.boardMap))
-  anode := node.(*BNode)
-  _, ok := e.boardMap[anode.state]
-  return ok 
-}
-
-// Fronteir of what has not been explored yet.
-type BFronteir struct {
-  boardMap map[string] *BNode // Map of boards to their state in the fronteir.
-  queue *container.PriorityQueue // Keeps track of the next node with the least cost.
-}
-
-// Adds a board to the fronteir.
-func (b *BFronteir) Add(inode interface{}) {
-  // Calculate costs before adding to the fronteir.
-  node := inode.(*BNode)
-  if node.parent != nil {
-    node.f = node.parent.f + 1  // We took one more hop, or step to get here.
-    node.h = H1Dist(node.state)
-    node.cost = node.f + node.h
-  }
-  b.boardMap[node.state] = node
-  // Add the state to a priority queue as well.
-  item := &container.Item{
-    Value: node.state,
-    Priority: node.cost,
-  }
-  heap.Push(b.queue, item)
-}
-
-func (b *BFronteir) IsEmpty() bool {
-  return len(b.boardMap) == 0
-}
-
-func (b *BFronteir) Contains(inode interface{}) bool {
-  node := inode.(*BNode)
-  _, ok := b.boardMap[node.state]
-  return ok
-}
-
-
-func(b *BFronteir) RemoveChoice() interface{} {
-  //before := time.Now()
-  // Pop the item with the lowest cost from the heap, fast!!!
-  item := heap.Pop(b.queue).(*container.Item)
-  lNode := b.boardMap[item.Value] // Node with the lowest cost.
-  //fmt.Printf("Fronteir size: %v\n", len(b.boardMap))
-  //fmt.Printf("Best choice. Cost: %v. H: %v\n", lNode.cost, lNode.h)
-  //PrintBoard(lNode.state)
-  delete(b.boardMap, lNode.state)
-  //fmt.Printf("Time elapsed: %v\n", time.Since(before))
-  return lNode
-}
-
-
-// Helps solve the board problem.
-type BoardSolver struct {
-  fronteir *BFronteir
-  explored *BExplored
-}
-
-// Init initializes the board solver given the first state.
-func (bs *BoardSolver) Init(board string) {
-  // Fronteir consists of current board.
-  bs.fronteir = &BFronteir{
-    boardMap: make(map[string] *BNode),
-    queue: &container.PriorityQueue{},
-  }
-  heap.Init(bs.fronteir.queue)
-  node := &BNode{
-    parent: nil,
-    state: board,
-    f: 0,
-    h: H1Dist(board), 
-  }
-  node.cost = node.f + node.h
-  bs.fronteir.Add(node)
-  bs.explored = &BExplored{
-    boardMap: make(map[string] bool),
-  }
-}
-
-func (bs *BoardSolver) IsGoal(inode interface{}) bool {
-  node := inode.(*BNode)
-  return H1Dist(node.state) == 0
-}
-
-func (bs *BoardSolver) NextActions(inode interface{}) []interface{} {
-  // Returns the list of BNodes to explore next.
-  node := inode.(*BNode)
-  nextNodes := make([]interface{}, 0)
-  adjacentStates := FindAdjacents(node.state)
-  //fmt.Println("Next states:")
-  for _, state := range adjacentStates {
-    nextNode := &BNode{
-      parent: node,
-      state: state,
-    }
-    //PrintBoard(state)
-    nextNodes = append(nextNodes, nextNode)
-  }
-  return nextNodes
-}
-
 // General board problem driver.
 
 type Board struct {
   board string
 }
 
-
 func (b *Board) Solve() {
   bs := &BoardSolver{}
   bs.Init(b.board)
-  idest := GraphSearch(bs.fronteir, bs.explored, bs)
+  idest, numGuesses := GraphSearch(bs.fronteir, bs.explored, bs)
   dest := idest.(*BNode)
   if dest != nil {
     fmt.Printf("***********")
-    fmt.Printf("Solved it with cost %v. f: %v\n", dest.cost, dest.f)
+    fmt.Printf("Solved it with cost %v. f: %v. Guesses: %v\n", 
+               dest.cost, dest.f, numGuesses)
     fmt.Printf("Path to get there:\n")
     PrintPath(dest)
   } else {
     fmt.Println("There is no way to solve this puzzle.\n")
   }
 }
-
 
 func (b *Board) Create(r myio.Reader) {
   boardArr := make([]int, 16)
@@ -349,6 +210,7 @@ func (b *Board) Create(r myio.Reader) {
   b.board = FromBoard(boardArr)
 }
 
+// Solve the problem of putting 15 tiles in order when you only have one blank space.
 func FifteenNums() {
   r := myio.NewReader()
   T, _ := strconv.Atoi(r.Read())
