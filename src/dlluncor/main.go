@@ -1,8 +1,8 @@
 package main
 
 import(
-  //"dlluncor/spoj"
-  "dlluncor/udacity"
+  "dlluncor/spoj"
+  //"dlluncor/udacity"
   //"dlluncor/server"
 )
 
@@ -15,6 +15,7 @@ func main() {
   //spoj.Sqrt()
   //spoj.MoveToInvert()
   //udacity.Search()
-  udacity.FifteenNums()
+  //udacity.FifteenNums()
   //server.Serve()
+  spoj.Concurrency()
 }
