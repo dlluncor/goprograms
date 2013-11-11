@@ -30,3 +30,21 @@ func (r *myReader) rawInput() string {
   line = strings.Replace(line, "\n", "", -1)
   return line
 }
+
+func ReadLines(path string) ([]string, error) {
+  file, err := os.Open(path)
+  if err != nil {
+    return nil, err
+  }
+  defer file.Close()
+
+  var lines []string
+  r := bufio.NewReader(file)
+  myErr := error(nil)
+  for myErr == nil {
+    line, _, err := r.ReadLine()
+    myErr = err 
+    lines = append(lines, string(line))
+  }
+  return lines, nil
+}

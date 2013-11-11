@@ -9,6 +9,19 @@ func print(val string) {
   fmt.Println(val)
 }
 
+type Hi struct {
+  val string
+}
+
+func (h *Hi) print() {
+  fmt.Printf("%v\n", h.val)
+}
+
+func Akiva() {
+  hi := &Hi{"yo"}
+  hi.print()
+}
+
 // Learning about how channels work in go. Essentially put each
 // function you want to execute in parallel inside of a go func()
 // call it, put a value on a channel, and then pull from that channel

@@ -17,5 +17,7 @@ func main() {
   //udacity.Search()
   //udacity.FifteenNums()
   //server.Serve()
-  spoj.Concurrency()
+  //spoj.Concurrency()
+  //spoj.WordRacer()
+  spoj.Scrabble()
 }
