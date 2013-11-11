@@ -1,5 +1,8 @@
 package spoj
 
+// Solves Word Racer boards.
+// Solves Scrabble as well.
+
 import (
   "dlluncor/myio"
   "fmt"
