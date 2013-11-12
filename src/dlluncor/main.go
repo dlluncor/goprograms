@@ -18,6 +18,6 @@ func main() {
   //udacity.FifteenNums()
   //server.Serve()
   //spoj.Concurrency()
-  //spoj.WordRacer()
-  spoj.Scrabble()
+  spoj.WordRacer()
+  //spoj.Scrabble()
 }

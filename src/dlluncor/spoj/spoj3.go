@@ -9,6 +9,7 @@ import (
   "strconv"
   "strings"
   "sort"
+  "log"
   //"unicode/utf8"
 )
 const (
@@ -250,16 +251,14 @@ func (g *graph) customSort(words []string) {
 }
 
 // Answer prints out the words we found. 
-func (g *graph) Answer() {
+func (g *graph) Answer() []string {
   fmt.Println("Words:")
   words := []string{}
   for word, _ := range g.words {
     words = append(words, word)
   }
   g.customSort(words)
-  for _, word := range words {
-    defer fmt.Printf("%v\n", word)
-  }
+  return words
 }
 
 // Filters. 
@@ -270,34 +269,29 @@ func noShortWords(word string) bool {
   return true
 }
 
-func CreateWordRacerGraph() *graph {
-  checker := newChecker()
+// CreateWordRacerGraph constructs a graph given a representation
+// of a board as an array of strings where each line
+// corresponds to a set of characters spread out horizontally.
+func CreateWordRacerGraph(fileName string, lines []string) *graph {
+  checker := newChecker(fileName)
   filters := defaultFilters(checker)
   // Construct the graph from the lines.
   g := newGraph(checker, filters)
   g.wordVal = func(word string) int {
     return len(word)
   } 
-  // Read the board and save them as strings.
-  r := myio.NewReader()
-  num, _ := strconv.Atoi(r.Read())
-  lines := []string{}
-  for i := 0; i < num; i++ {
-    chars := r.Read()
-    fmt.Printf("%v\n", chars)
-    lines = append(lines, chars)
-  }
   g.ConnectLines(lines)
   fmt.Println("Word racer graph in memory.")
   return g
 }
 
-func newChecker() *Checker {
+func newChecker(fileName string) *Checker {
   // Initialize a checker object that validates whether words
   // are words or not.
   checker := &Checker{
     wordMap:make(map[string]bool),
     prefixes:make(prefixMapType),
+    filePath:fileName,
   }
   checker.Initialize()
   fmt.Println("Checker initialized.")
@@ -379,7 +373,8 @@ func scrabbleWordVal (word string) int {
 }
 
 func CreateScrabbleGraph() *graph {
-  checker := newChecker()
+  fileName := "dlluncor/spoj/allWords.txt" 
+  checker := newChecker(fileName)
   filters := defaultFilters(checker)
   g := newGraph(checker, filters)
   g.wordVal = func(word string) int {
@@ -396,10 +391,14 @@ type prefixMapType map[int]map[string]bool
 type Checker struct {
   wordMap map[string]bool
   prefixes prefixMapType
+  filePath string
 }
 
 func (c *Checker) Initialize() {
-  lines, _ := myio.ReadLines("dlluncor/spoj/allWords.txt")
+  lines, err := myio.ReadLines(c.filePath)
+  if err != nil {
+    log.Fatalf("Could not read all words text file! %v", err)
+  }
   //fmt.Printf("%v", lines)
   for _, line := range lines {
     // Keep track of what are actual words.
@@ -435,15 +434,44 @@ func (c *Checker) IsValidPrefix(word string) bool {
 }
 
 
+func linesFromFile() []string {
+  // Read the board and save them as strings.
+  r := myio.NewReader()
+  num, _ := strconv.Atoi(r.Read())
+  lines := []string{}
+  for i := 0; i < num; i++ {
+    chars := r.Read()
+    fmt.Printf("%v\n", chars)
+    lines = append(lines, chars)
+  }
+  return lines
+} 
 
 func WordRacer() {
-  g := CreateWordRacerGraph()
+  lines := linesFromFile()
+  fileName := "dlluncor/spoj/allWords.txt" 
+  g := CreateWordRacerGraph(fileName, lines)
   g.Solve()
-  g.Answer()
+  words := g.Answer()
+  for _, word := range words {
+    defer fmt.Printf("%v\n", word)
+  }
+}
+
+// Takes in a board and returns a list of words that solves the
+// puzzle.
+func WordRacerFromServer(lines []string) []string {
+  fileName := "static/allWords.txt" 
+  g := CreateWordRacerGraph(fileName, lines)
+  g.Solve()
+  return g.Answer()
 }
 
 func Scrabble() {
   g := CreateScrabbleGraph()
   g.Solve()
-  g.Answer()
+  words := g.Answer()
+  for _, word := range words {
+    defer fmt.Printf("%v\n", word)
+  }
 }

@@ -13,13 +13,13 @@ type Hi struct {
   val string
 }
 
-func (h *Hi) print() {
-  fmt.Printf("%v\n", h.val)
+func (h *Hi) print() string {
+  return fmt.Sprintf("%v\n", h.val)
 }
 
-func Akiva() {
+func Akiva() string {
   hi := &Hi{"yo"}
-  hi.print()
+  return hi.print()
 }
 
 // Learning about how channels work in go. Essentially put each
