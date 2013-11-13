@@ -32,7 +32,7 @@ func (r *myReader) rawInput() string {
 }
 
 func ReadLines(path string) ([]string, error) {
-  file, err := os.Open(path)
+  file, err := os.OpenFile(path, os.O_RDONLY, 0666)
   if err != nil {
     return nil, err
   }

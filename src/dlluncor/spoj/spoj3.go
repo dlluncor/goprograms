@@ -461,7 +461,7 @@ func WordRacer() {
 // Takes in a board and returns a list of words that solves the
 // puzzle.
 func WordRacerFromServer(lines []string) []string {
-  fileName := "static/allWords.txt" 
+  fileName := "allWords.txt" 
   g := CreateWordRacerGraph(fileName, lines)
   g.Solve()
   return g.Answer()

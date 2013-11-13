@@ -1,8 +1,8 @@
 package hello
 
 import (
+    "appengine"
     "fmt"
-    "log"
     "net/http"
     "dlluncor/myio"
     "dlluncor/spoj"
@@ -11,32 +11,50 @@ import (
 )
 
 func init() {
-    http.HandleFunc("/", handler)
+    http.HandleFunc("/hello", handler)
     http.HandleFunc("/wordracer_json", handlerWordRacer)
-    http.HandleFunc("/wordracer", handlerWrPage)
+    http.HandleFunc("/", handlerWrPage)
 }
 
-var(
-  puzzle = []string{
-    "Qtrfen",
-    "ppmite",
-    "tiXXow",
-    "asXXmt",
-    "phsehw",
-    "ijrlnm",
-  }
-)
+type mywriter struct {
+  lines []string
+}
 
-func staticPage(fileName string) string {
+func (w *mywriter) Write(p []byte) (n int, err error) {
+  w.lines = append(w.lines, string(p))
+  return len(p), nil
+}
+
+/*
+// Another way to read files if ever need be.
+func ReadLines(path string) ([]string, error) {
+  t, err := template.ParseFiles(path)
+  mysaver := &mywriter{
+    lines: []string{},
+  }
+  t.Execute(mysaver, "")
+  if err != nil {
+    return nil, err
+  }
+  return mysaver.lines, nil
+}
+*/
+
+func staticPage(fileName string) (string, error) {
   lines, err := myio.ReadLines(fileName)
   if err != nil {
-    log.Fatalf("Could not find static page: %v", err)
+    return "", err
+    //log.Fatalf("Could not find static page: %v", err)
   }
-  return strings.Join(lines, "\n")
+  return strings.Join(lines, "\n"), nil
 }
 
 func handlerWrPage(w http.ResponseWriter, r *http.Request) {
-  content := staticPage("static/word_racer.html")
+  c := appengine.NewContext(r)
+  content, err := staticPage("word_racer.html")
+  if err != nil {
+    c.Criticalf("Could not not serve static page: %v", err)
+  }
   fmt.Fprintf(w, content)
 }
 
@@ -54,10 +72,12 @@ func getLines(content, length string) []string{
 
 // JSON handler.
 func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
+    //c := appengine.NewContext(r)
     queryMap := r.URL.Query()
     content := queryMap.Get("board")
     length := queryMap.Get("length")
     lines := getLines(content, length)
+    //words := lines
     words := spoj.WordRacerFromServer(lines)
     // Should use JSON here.
     output := strings.Join(words, ",")
