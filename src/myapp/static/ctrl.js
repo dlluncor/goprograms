@@ -334,7 +334,6 @@ BoardC.prototype.roundStart = function(curRound) {
   this.renderBoard(this.lines);
 };
 
-// TODO: Ask other views to contribute knowledge to their system.
 BoardC.prototype.updateUi = function() {
   if (this.state == 'NEW_BOARD') {
   	$('#discovererList').find('tr:gt(0)').remove();
