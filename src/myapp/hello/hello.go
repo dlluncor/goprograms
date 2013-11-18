@@ -11,8 +11,12 @@ import (
 )
 
 func init() {
-    http.HandleFunc("/hello", handler)
+
+    // JSON handlers.
     http.HandleFunc("/wordracer_json", handlerWordRacer)
+    http.HandleFunc("/getallwords", handleGetAllWords)
+
+    // HTML pages.
     http.HandleFunc("/", handlerWrPage)
     http.HandleFunc("/sockets", handlerSocketPage)
 }
@@ -25,21 +29,6 @@ func (w *mywriter) Write(p []byte) (n int, err error) {
   w.lines = append(w.lines, string(p))
   return len(p), nil
 }
-
-/*
-// Another way to read files if ever need be.
-func ReadLines(path string) ([]string, error) {
-  t, err := template.ParseFiles(path)
-  mysaver := &mywriter{
-    lines: []string{},
-  }
-  t.Execute(mysaver, "")
-  if err != nil {
-    return nil, err
-  }
-  return mysaver.lines, nil
-}
-*/
 
 func staticPage(fileName string) (string, error) {
   lines, err := myio.ReadLines(fileName)
@@ -83,21 +72,25 @@ func handlerSocketPage(w http.ResponseWriter, r *http.Request) {
 
 // JSON handler.
 func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
+    checker := spoj.NewChecker("allWords.txt")
     //c := appengine.NewContext(r)
     queryMap := r.URL.Query()
     content := queryMap.Get("board")
     length := queryMap.Get("length")
     lines := getLines(content, length)
     //words := lines
-    words := spoj.WordRacerFromServer(lines)
+    words := spoj.WordRacerFromServer(checker, lines)
     // Should use JSON here.
     output := strings.Join(words, ",")
     fmt.Fprintf(w, output)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "Hello, world!")
-}
-
 // Useful notes.
 // JS beautifier: http://jsbeautifier.org/ 
+
+func handleGetAllWords(w http.ResponseWriter, r *http.Request) {
+    checker := spoj.NewChecker("allWords.txt")
+    words := checker.AllWords()
+    output := strings.Join(words, ",")
+    fmt.Fprintf(w, output)
+}

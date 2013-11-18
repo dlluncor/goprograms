@@ -1,18 +1,28 @@
 
+// Connection to the backend and its info.
+var backend = {};
+
+// Returns to the callback a list of words.
+backend.getAllWords = function(callback) {
+  $.ajax('/getallwords')
+      .done(function(data) {
+     // Server sends back text a words separated by a comma.
+     var words = data.split(',');
+     callback(words);
+  });
+}
+
 BoardSolver = function(text) {
 	this.text = text;
 };
 
 BoardSolver.prototype.parseAnswersData = function(linesAsText) {
 	var words = linesAsText.split(',');
-	//var html = '';
 	var answers = [];
 	for (var i = words.length -1; i >= 0; i--) {
 		var word = words[i];
-		//html += '<div>' + word + '</div>';
 		answers.push(word);
 	}
-	//$('#answers').html(html);
 	return answers;
 };
 
@@ -46,9 +56,9 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 5, // Seconds between rounds.
-    eachRound: 2  // Each round is this many seconds.
-  }
+  	betweenRound: 10, // Seconds between rounds.
+    eachRound: 10  // Each round is this many seconds.
+  };
 };
 
 Round.prototype.start = function() {
@@ -138,6 +148,9 @@ BoardC = function(boardEl, solvedWordHandler) {
 
   // Lots of this stuff will have to be distributed...
   this.solvedWords = {}; // Map of word to true. Only solved words are in this map.
+  
+  // Only need to fetch this once...
+  this.allPossible = {}; // Map of word to true. All possible words in English.
 };
 
 BoardC.prototype.createLine = function(emptyIndices, width) {
@@ -238,6 +251,13 @@ BoardC.prototype.renderBoard = function(lines) {
 
 // Called once when the entire game starts.
 BoardC.prototype.start = function() {
+
+  backend.getAllWords(function(words) {
+    for (var i = 0; i < words.length; i++) {
+      this.allPossible[words[i]] = true;
+    }
+  }.bind(this));
+
 	this.solvedWordHandler.addDiscoverer({
       word: '<b>Word</b>',
       points: '<b>Pts</b>',
@@ -311,7 +331,16 @@ BoardC.prototype.clearDevelConsole = function() {
 };
 
 BoardC.prototype.submitWord = function(word) {
+  var quote = function(val) {
+    return "'" + val + "'";
+  };
   var msgEl = $('#msgAfterWordEntry');
+  var clearMsg = function() {
+    msgEl.html('');
+  };
+
+  clearMsg();
+
   var wordIsValid = word in this.curAnswers;
   if (wordIsValid) {
     var wordIsSeen = word in this.solvedWords;
@@ -321,18 +350,24 @@ BoardC.prototype.submitWord = function(word) {
       msgEl.html(word + ' is already found.');
     } else {
       // Give this guy some points...
-      msgEl.html('Points for finding ' + word);
+      msgEl.html(Word.getPoints(word) + 'points for finding ' + quote(word));
       this.solvedWords[word] = true;
       this.solvedWordHandler.addWord(word);
     }
   } else {
+  	var wordIsEnglish = word in this.allPossible;
+  	if (wordIsEnglish) {
+      var span = $('<span>' + quote(word) + ' is not in the puzzle.' + '</span>');
+      span.addClass('redText');
+      msgEl.append(span);
+  	} else {
+     var span = $('<span>' + quote(word) + ' is not a word.' + '</span>');
       // Word is not valid!
-      msgEl.html(word + ' is not a valid word.');
+      span.addClass('redText');
+      msgEl.append(span);
+    }
   }
 
-  var clearMsg = function() {
-    msgEl.html('');
-  };
   window.setTimeout(clearMsg, 2000);
 };
 
@@ -375,15 +410,23 @@ WordHandler = function(usersHandler) {
 
 WordHandler.prototype.addDiscoverer = function(inf) {
   var aDiv = function(val, width) {
-    var div = '<div style="width:' + width + 'px;">' + val + '</div>';
+    var div = $('<div>' + val + '</div>');
+    div.css('width', width + 'px');
+    div.addClass('noOverflow');
     return div;
+  };
+
+  var aTd = function(el) {
+    var td = $('<td></td>');
+    td.append(el);
+    return td;
   };
   
   // Draw entry to discoverers board.
   var row = $('<tr></tr>');
-  row.append('<td>' + aDiv(inf.word, 60) + '</td>');
-  row.append('<td>' + aDiv(inf.user, 80) + '</td>');
-  row.append('<td>' + aDiv(inf.points, 30) + '</td>');
+  row.append(aTd(aDiv(inf.word, 60)));
+  row.append(aTd(aDiv(inf.user, 80)));
+  row.append(aTd(aDiv(inf.points, 30)));
   if (inf.user == '') {
   	row.addClass('greyText');
   }

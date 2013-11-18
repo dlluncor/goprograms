@@ -272,8 +272,7 @@ func noShortWords(word string) bool {
 // CreateWordRacerGraph constructs a graph given a representation
 // of a board as an array of strings where each line
 // corresponds to a set of characters spread out horizontally.
-func CreateWordRacerGraph(fileName string, lines []string) *graph {
-  checker := newChecker(fileName)
+func CreateWordRacerGraph(checker *Checker, lines []string) *graph {
   filters := defaultFilters(checker)
   // Construct the graph from the lines.
   g := newGraph(checker, filters)
@@ -285,7 +284,7 @@ func CreateWordRacerGraph(fileName string, lines []string) *graph {
   return g
 }
 
-func newChecker(fileName string) *Checker {
+func NewChecker(fileName string) *Checker {
   // Initialize a checker object that validates whether words
   // are words or not.
   checker := &Checker{
@@ -372,6 +371,7 @@ func scrabbleWordVal (word string) int {
   return val
 }
 
+/*
 func CreateScrabbleGraph() *graph {
   fileName := "dlluncor/spoj/allWords.txt" 
   checker := newChecker(fileName)
@@ -385,6 +385,7 @@ func CreateScrabbleGraph() *graph {
   scrabbleGraph(g, word)
   return g
 }
+*/
 
 type prefixMapType map[int]map[string]bool
 
@@ -419,6 +420,14 @@ func (c *Checker) Initialize() {
   }
 }
 
+func (c *Checker) AllWords() []string {
+  words := []string{}
+  for word, _ := range c.wordMap {
+    words = append(words, word)
+  }
+  return words
+}
+
 func (c *Checker) IsWord(word string) bool {
   _, ok := c.wordMap[word]
   return ok
@@ -447,6 +456,8 @@ func linesFromFile() []string {
   return lines
 } 
 
+/*
+Doesn't work have to fix later.
 func WordRacer() {
   lines := linesFromFile()
   fileName := "dlluncor/spoj/allWords.txt" 
@@ -457,16 +468,17 @@ func WordRacer() {
     defer fmt.Printf("%v\n", word)
   }
 }
+*/
 
 // Takes in a board and returns a list of words that solves the
 // puzzle.
-func WordRacerFromServer(lines []string) []string {
-  fileName := "allWords.txt" 
-  g := CreateWordRacerGraph(fileName, lines)
+func WordRacerFromServer(checker *Checker, lines []string) []string {
+  g := CreateWordRacerGraph(checker, lines)
   g.Solve()
   return g.Answer()
 }
 
+/*
 func Scrabble() {
   g := CreateScrabbleGraph()
   g.Solve()
@@ -475,3 +487,4 @@ func Scrabble() {
     defer fmt.Printf("%v\n", word)
   }
 }
+*/
