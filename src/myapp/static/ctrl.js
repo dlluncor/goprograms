@@ -380,17 +380,31 @@ Word.getPoints = function(word) {
 // Keeps track of user leader boards and this current user.
 UsersHandler = function(curUser) {
   this.curUser = curUser;
+  this.register('<b>User</b>', '<b>Points</b>');
 }
 
 // Add a user to the list with zero points.
-UsersHandler.prototype.register = function(user) {
+UsersHandler.prototype.register = function(user, points) {
   var userList = $('#usersList');
+
+  var aDiv = function(val, width) {
+    var div = $('<div>' + val + '</div>');
+    div.css('width', width + 'px');
+    div.addClass('noOverflow');
+    return div;
+  };
+
+  var aTd = function(el) {
+    var td = $('<td></td>');
+    td.append(el);
+    return td;
+  };
 
   // Add a row.
   var row = $('<tr></tr>');
   var td0 = $('<td>' + user + '</td>');
-  row.append(td0);
-  var td1 = $('<td>' + 0 + '</td>');
+  row.append(aTd(aDiv(user, 90)));
+  var td1 = aTd(aDiv(points, 50));
   td1.attr('id', 'userPoints' + user);
   row.append(td1);
   userList.append(row);
@@ -464,7 +478,7 @@ ctrl.init_ = function() {
     window.console.log("ready for damage");
     var curUser = 'sportsguy560';
     var usersHandler = new UsersHandler(curUser);
-    usersHandler.register(curUser);
+    usersHandler.register(curUser, 0);
     var solvedWordHandler = new WordHandler(usersHandler);
 	// Couple components to this game.
 	var boardC = new BoardC(
