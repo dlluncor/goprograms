@@ -439,9 +439,9 @@ UsersHandler.prototype.register = function(user, points) {
   var row = $('<tr></tr>');
   var td0 = $('<td>' + user + '</td>');
   row.append(aTd(aDiv(user, 90)));
-  var td1 = aTd(aDiv(points, 50));
-  td1.attr('id', 'userPoints' + user);
-  row.append(td1);
+  var div1 = aDiv(points, 50);
+  div1.attr('id', 'userPoints' + user);
+  row.append(aTd(div1));
   userList.append(row);
 };
 
