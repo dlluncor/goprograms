@@ -4,27 +4,66 @@
       width: 150px;
       height: 150px;
     }
+    .boardTable {
+      table-layout:fixed;
+    }
+    .boardTable div {
+      width: 20px;
+    }
+    .boardLetters {
+      letter-spacing: 3px;
+      font-size: 16px;
+    }
     #answers {
-      border-top: 1px solid black;
       padding-top: 10px;
+    }
+    .col {
+      display: inline-block;
+    }
+    .vtop {
+      vertical-align: top;
     }
   </style>
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="/static/ctrl.js"></script>
   </head>
-  <div>Let's solve some word racer problems!</div>
-  <div>Create your puzzle below.</div>
-  <textarea id="wordRacerBoard">
-abcdXXe&#13;
-efghXXf&#13;
-ijelXgh&#13;
-mnozema&#13;
-</textarea>
+  <div><h1>Word racer</h1></div>
+  <div> <!-- Start game area. -->
+    <div class="col vtop">
+      <table id="usersList">
+        <thead><th>Users</th><th>Points</th></thead>
+      </table>
+    </div>
+    <div class="col">
+    <div>
+    <div id="wordRacerBoard">
+    </div>
+</div>
   <div>
-  <input type="Submit" onclick="ctrl.submitBoard();" value="Submit"></input>
+    <span>
+      <b>Round: </b><span id="roundNum"></span>
+      <b id="timeLeftText">Time: </b><span id="timeLeft"></span>
+    </span>
   </div>
-  <div>Answers below :)</div>
-  <div id="answers">
+    </div>
+  <div class="col vtop">
+    <table>
+      <thead><th>Word</th><th>Discoverer</th><th>Pts</th></thead>
+    </table>
+  </div>
+  <!-- End game area. -->
+  <div>
+  Type word:
+  <input id="submissionText" width="200px;"></input>
+  <input type="Submit" value="Submit"></input>
+  <input type="Submit" value="Clear"></input>
+  </div>
+  <hr>
+  <div id="develConsole">
+    <h3>Devel console</h3>
+    <input type="Submit" id ="solveBoardBtn" value="Solve all"></input>
+    <div id="answers">
+    </div>
   </div>
 </html>
