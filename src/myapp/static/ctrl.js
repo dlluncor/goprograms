@@ -16,7 +16,9 @@ Jax.ajax = function(url, doneCallback) {
   $.ajax(url)
     .done(function(data) {
       	var after = new Date();
-      	var afterMsg = 'Rec. ' + urlToDisp + ' at ' + after.toLocaleString();
+      	var seconds = (after - before) / 1000;
+      	var afterMsg = 'Rec. ' + urlToDisp + ' at ' + after.toLocaleString() +
+      	  ' (' + seconds + ' secs)';
       	div.append(aDiv(afterMsg));
       	doneCallback(data);
   });
