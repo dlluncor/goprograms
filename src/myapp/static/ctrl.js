@@ -46,8 +46,8 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 5, // Seconds between rounds.
-    eachRound: 30  // Each round is this many seconds.
+  	betweenRound: 10, // Seconds between rounds.
+    eachRound: 60  // Each round is this many seconds.
   }
 };
 
@@ -234,6 +234,8 @@ BoardC.prototype.renderBoard = function(lines) {
 // to the round starting and save your state.
 BoardC.prototype.getReadyForRound = function(curRound) {
   window.console.log('Round about to start in 10 seconds.');
+  this.state = 'IN_BETWEEN';
+  this.updateUi();
   var lines = this.generateBoard(curRound);  // renders as well.
   // Solve the board and store the results locally for now...
   var b = new BoardSolver(this.curBoard);
@@ -262,6 +264,18 @@ BoardC.prototype.updateUi = function() {
   if (this.state == 'NEW_BOARD') {
   	$('#discovererList').find('tr:gt(0)').remove();
     this.clearDevelConsole();
+  } else if (this.state == 'IN_BETWEEN') {
+  	// Show the list of words which were not solved.
+  	for (var word in this.curAnswers) {
+      if (!(word in this.solvedWords)) {
+      	// User has not found these words but list them anyway.
+      	this.solvedWordHandler.addDiscoverer({
+          user: '',
+          word: word,
+          points: Word.getPoints(word)
+      	});
+      }
+  	} 
   }
 };
 
@@ -340,16 +354,28 @@ WordHandler = function(usersHandler) {
   this.usersHandler = usersHandler;
 };
 
+WordHandler.prototype.addDiscoverer = function(inf) {
+  // Draw entry to discoverers board.
+  var row = $('<tr></tr>');
+  row.append('<td>' + inf.word + '</td>');
+  row.append('<td>' + inf.user + '</td>');
+  row.append('<td>' + inf.points + '</td>');
+  if (inf.user == '') {
+  	// TODO(dlluncor): Make unsolved text grey.
+  	row.css('greyText');
+  }
+  $('#discovererList').append(row);
+};
+
 WordHandler.prototype.addWord = function(word) {
   var points = Word.getPoints(word);
   var user = this.usersHandler.curUser;
 
-  // Draw entry to discoverers board.
-  var row = $('<tr></tr>');
-  row.append('<td>' + word + '</td>');
-  row.append('<td>' + user + '</td>');
-  row.append('<td>' + points + '</td>');
-  $('#discovererList').append(row);
+  this.addDiscoverer({
+  	word: word,
+  	points: points,
+  	user: user
+  });
 
   // Update the points for the user who scored.
   this.usersHandler.update(user, points);

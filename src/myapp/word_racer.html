@@ -27,44 +27,65 @@
     #msgAfterWordEntry {
       height: 30px;
     }
+
+    .centerSecondCol {
+      margin-left: 100px; /* Wish there was a way to center...*/
+    }
+
+    .discoverersContainer {
+      overflow: scroll;
+      height: 200px;
+    }
+
+    .greyText {
+      color: grey;
+    }
   </style>
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="/static/ctrl.js"></script>
   </head>
   <div><h1>Word racer</h1></div>
-  <div> <!-- Start game area. -->
-    <div class="col vtop">
+  <table id="entireGameArena">
+  <tr>
+
+  <td class="vtop">
       <table id="usersList">
         <thead><th>User</th><th>Points</th></thead>
       </table>
-    </div>
-    <div class="col">
-    <div>
+  </td>
+
+  <td> <!-- Second col -->
+  <div class="centerSecondCol">
     <div id="wordRacerBoard">
     </div>
-</div>
-  <div>
-    <span>
-      <b>Round: </b><span id="roundNum"></span>
-      <b id="timeLeftText">Time: </b><span id="timeLeft"></span>
-    </span>
-  </div>
-  <div id="msgAfterWordEntry">
-  </div>
+    <div>
+      <span>
+        <b>Round: </b><span id="roundNum"></span>
+        <b id="timeLeftText">Time: </b><span id="timeLeft"></span>
+      </span>
     </div>
-  <div class="col vtop">
-    <table id="discovererList">
-      <thead><th>Word</th><th>Discoverer</th><th>Pts</th></thead>
-    </table>
+    <div id="msgAfterWordEntry">
+    </div>
   </div>
-  <!-- End game area. -->
-  <div>
-  Type word:
-  <input id="submissionText" width="200px;"></input>
-  <input type="Submit" id="submitWordBtn" value="Submit"></input>
-  <input type="Submit" id="clearWordBtn" value="Clear"></input>
+  <div> <!-- User entry. -->
+    Type word:
+    <input id="submissionText" width="200px;"></input>
+    <input type="Submit" id="submitWordBtn" value="Submit"></input>
+    <input type="Submit" id="clearWordBtn" value="Clear"></input>
   </div>
+  </td>
+
+  <td class="vtop">
+    <div class="discoverersContainer">
+      <table id="discovererList">
+        <thead><th>Word</th><th>Discoverer</th><th>Pts</th></thead>
+      </table>
+    </div>
+  </td>
+  </tr>
+  </table> <!-- End game area. -->
+
   <hr>
   <div id="develConsole">
     <h3>Devel console</h3>
