@@ -14,6 +14,7 @@ func init() {
     http.HandleFunc("/hello", handler)
     http.HandleFunc("/wordracer_json", handlerWordRacer)
     http.HandleFunc("/", handlerWrPage)
+    http.HandleFunc("/sockets", handlerSocketPage)
 }
 
 type mywriter struct {
@@ -49,15 +50,6 @@ func staticPage(fileName string) (string, error) {
   return strings.Join(lines, "\n"), nil
 }
 
-func handlerWrPage(w http.ResponseWriter, r *http.Request) {
-  c := appengine.NewContext(r)
-  content, err := staticPage("word_racer.html")
-  if err != nil {
-    c.Criticalf("Could not not serve static page: %v", err)
-  }
-  fmt.Fprintf(w, content)
-}
-
 // Transforms the puzzle passed in to a valid puzzle.
 func getLines(content, length string) []string{
   l, _ := strconv.Atoi(length)
@@ -68,6 +60,25 @@ func getLines(content, length string) []string{
     i += l
   }
   return lines
+}
+
+func handleStaticPage(w http.ResponseWriter, r *http.Request, page string) {
+  c := appengine.NewContext(r)
+  content, err := staticPage(page)
+  if err != nil {
+    c.Criticalf("Could not not serve static page: %v", err)
+  }
+  fmt.Fprintf(w, content)
+}
+
+// Handlers.
+
+func handlerWrPage(w http.ResponseWriter, r *http.Request) {
+  handleStaticPage(w, r, "word_racer.html")
+}
+
+func handlerSocketPage(w http.ResponseWriter, r *http.Request) {
+  handleStaticPage(w, r, "websocket.html")
 }
 
 // JSON handler.
@@ -87,3 +98,6 @@ func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
 func handler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(w, "Hello, world!")
 }
+
+// Useful notes.
+// JS beautifier: http://jsbeautifier.org/ 
