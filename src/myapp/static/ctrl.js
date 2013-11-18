@@ -46,8 +46,8 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 5, // Seconds between rounds.
-    eachRound: 5  // Each round is this many seconds.
+  	betweenRound: 2, // Seconds between rounds.
+    eachRound: 2  // Each round is this many seconds.
   }
 };
 
@@ -99,6 +99,7 @@ Round.prototype.startRoundTimer = function() {
 
 Round.prototype.roundOver = function() {
   this.curRound++;
+  this.boardC.startInBetween();
   if (this.curRound == 5) {
   	this.timeLeftTextEl.text('Game over.');
   	this.timeLeftEl.text('');
@@ -234,12 +235,16 @@ BoardC.prototype.renderBoard = function(lines) {
   this.boardEl.append(table);
 };
 
+// Updates the UI and sets the state to in between.
+BoardC.prototype.startInBetween = function() {
+  this.state = 'IN_BETWEEN';
+  this.updateUi();
+};
+
 // Prepare everything for the 10 seconds you have leading up
 // to the round starting and save your state.
 BoardC.prototype.getReadyForRound = function(curRound) {
   window.console.log('Round about to start in 10 seconds.');
-  this.state = 'IN_BETWEEN';
-  this.updateUi();
   var lines = this.generateBoard(curRound);  // renders as well.
   // Solve the board and store the results locally for now...
   var b = new BoardSolver(this.curBoard);
