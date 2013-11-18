@@ -23,6 +23,10 @@
     .vtop {
       vertical-align: top;
     }
+
+    #msgAfterWordEntry {
+      height: 30px;
+    }
   </style>
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -32,7 +36,7 @@
   <div> <!-- Start game area. -->
     <div class="col vtop">
       <table id="usersList">
-        <thead><th>Users</th><th>Points</th></thead>
+        <thead><th>User</th><th>Points</th></thead>
       </table>
     </div>
     <div class="col">
@@ -46,9 +50,11 @@
       <b id="timeLeftText">Time: </b><span id="timeLeft"></span>
     </span>
   </div>
+  <div id="msgAfterWordEntry">
+  </div>
     </div>
   <div class="col vtop">
-    <table>
+    <table id="discovererList">
       <thead><th>Word</th><th>Discoverer</th><th>Pts</th></thead>
     </table>
   </div>
@@ -56,13 +62,13 @@
   <div>
   Type word:
   <input id="submissionText" width="200px;"></input>
-  <input type="Submit" value="Submit"></input>
-  <input type="Submit" value="Clear"></input>
+  <input type="Submit" id="submitWordBtn" value="Submit"></input>
+  <input type="Submit" id="clearWordBtn" value="Clear"></input>
   </div>
   <hr>
   <div id="develConsole">
     <h3>Devel console</h3>
-    <input type="Submit" id ="solveBoardBtn" value="Solve all"></input>
+    <input type="Submit" id ="showSolutionBtn" value="Show solution"></input>
     <div id="answers">
     </div>
   </div>
