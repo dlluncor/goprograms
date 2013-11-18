@@ -46,12 +46,13 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 2, // Seconds between rounds.
+  	betweenRound: 5, // Seconds between rounds.
     eachRound: 2  // Each round is this many seconds.
   }
 };
 
 Round.prototype.start = function() {
+  this.boardC.start();
   this.curRound = 1;
   this.startRound(this.curRound);
 };
@@ -235,6 +236,15 @@ BoardC.prototype.renderBoard = function(lines) {
   this.boardEl.append(table);
 };
 
+// Called once when the entire game starts.
+BoardC.prototype.start = function() {
+	this.solvedWordHandler.addDiscoverer({
+      word: '<b>Word</b>',
+      points: '<b>Pts</b>',
+      user: '<b>Discoverer</b>'
+  	});
+}
+
 // Updates the UI and sets the state to in between.
 BoardC.prototype.startInBetween = function() {
   this.state = 'IN_BETWEEN';
@@ -364,13 +374,17 @@ WordHandler = function(usersHandler) {
 };
 
 WordHandler.prototype.addDiscoverer = function(inf) {
+  var aDiv = function(val, width) {
+    var div = '<div style="width:' + width + 'px;">' + val + '</div>';
+    return div;
+  };
+  
   // Draw entry to discoverers board.
   var row = $('<tr></tr>');
-  row.append('<td>' + inf.word + '</td>');
-  row.append('<td>' + inf.user + '</td>');
-  row.append('<td>' + inf.points + '</td>');
+  row.append('<td>' + aDiv(inf.word, 60) + '</td>');
+  row.append('<td>' + aDiv(inf.user, 80) + '</td>');
+  row.append('<td>' + aDiv(inf.points, 30) + '</td>');
   if (inf.user == '') {
-  	// TODO(dlluncor): Make unsolved text grey.
   	row.addClass('greyText');
   }
   $('#discovererList').append(row);
@@ -410,8 +424,8 @@ ctrl.init_ = function() {
     usersHandler.register(curUser);
     var solvedWordHandler = new WordHandler(usersHandler);
 	// Couple components to this game.
-	var boardC = new BoardC($('#wordRacerBoard'),
-	  solvedWordHandler); // board controller.
+	var boardC = new BoardC(
+      $('#wordRacerBoard'), solvedWordHandler); // board controller.
     var rounder = new Round(boardC);
     rounder.start();
 
