@@ -232,16 +232,14 @@ RndLetter.getLetterMix = function() {
   return RndLetter.letterMix;
 };
 
-BoardC = function(boardEl, solvedWordHandler) {
+BoardC = function(board, solvedWordHandler) {
   this.solvedWordHandler = solvedWordHandler;
-  this.boardEl = boardEl;
+  this.board = board;
   // Valid states: 
   //   'IN_BETWEEN' - during the 10 second period of waiting time.
   //   'NEW_BOARD' - new board just shown.
   this.state = '';
 
-  this.curBoard = null; // 'ab\nXc' Cur board as a string joined by \n lines.
-  this.lines = null; // [['a', 'b'], ['X', 'c']]An array of the board where each letter is an element.
   this.curAnswers = {}; // Map of word to true. Only valid words are in map.
 
   // Lots of this stuff will have to be distributed...
@@ -313,38 +311,7 @@ BoardC.prototype.generateBoard = function(curRound) {
   	  this.createLine([], width)
   	];
   }
-
-  // Create board and write it to the display.
-  var boardTextLines = [];
-  for (var j = 0; j < lines.length; j++) {
-  	var lineArr = lines[j];
-  	var lineText = lineArr.join('');
-    boardTextLines.push(lineText);
-  }
-  this.curBoard = boardTextLines.join('\n');
   return lines;
-};
-
-BoardC.prototype.renderBoard = function(lines) {
-  // Create board and write it to the display.
-  var boardTextLines = [];
-  var table = $('<table class="boardTable"></table>');
-  for (var j = 0; j < lines.length; j++) {
-  	var lineArr = lines[j];
-  	var lineText = lineArr.join('');
-  	var row = $('<tr></tr>');
-  	for (var c = 0; c < lineArr.length; c++) {
-  	  var character = lineArr[c];
-  	  if (character == RndLetter.emptySpace) {
-  	  	character = ' ';
-  	  }
-      var td = $('<td><div>' + character + '</div></td>');
-      row.append(td);
-  	}
-  	table.append(row);
-    boardTextLines.push(lineText);
-  }
-  this.boardEl.append(table);
 };
 
 // Called once when the entire game starts.
@@ -375,9 +342,9 @@ BoardC.prototype.getReadyForRound = function(curRound) {
   window.console.log('Round about to start in 10 seconds.');
   var lines = this.generateBoard(curRound);  // renders as well.
   // Solve the board and store the results locally for now...
-  var b = new BoardSolver(this.curBoard);
+  this.board.resetBoard(lines);
+  var b = new BoardSolver(this.board.asStringToSolve());
   this.curAnswers = {};
-  this.lines = lines;
   var answersCb = function(answers) {
     // Store the words locally.
     for (var i = 0; i < answers.length; i++) {
@@ -391,10 +358,10 @@ BoardC.prototype.getReadyForRound = function(curRound) {
 BoardC.prototype.roundStart = function(curRound) {
   this.state = 'NEW_BOARD';
   this.updateUi();
-  this.boardEl.html('');
+  this.board.destroy();
   // Now we can render the table b/c we are ready with the
   // information...
-  this.renderBoard(this.lines);
+  this.board.renderBoard();
 };
 
 BoardC.prototype.updateUi = function() {
@@ -577,12 +544,13 @@ ctrl.initGame = function(curUser, table) {
    // Wait for the user to click join table.
 
     window.console.log("ready for damage");
+    var path = new Path();
     var usersHandler = new UsersHandler(curUser);
     usersHandler.register(curUser, 0);
     var solvedWordHandler = new WordHandler(usersHandler);
 	// Couple components to this game.
-	var boardC = new BoardC(
-      $('#wordRacerBoard'), solvedWordHandler); // board controller.
+	var board = new Board($('#wordRacerBoard'));
+	var boardC = new BoardC(board, solvedWordHandler); // board controller.
     var rounder = new Round(boardC);
     rounder.start();
 
@@ -614,7 +582,12 @@ ctrl.initGame = function(curUser, table) {
 
     $('#submissionText').keypress(function(e) {
       if (e.which == 13) {
+      	path.clearWord();
       	submitWord();
+      } else {
+      	// Draw the path up until this point in the UI.
+      	var letter = String.fromCharCode(e.which);
+        path.addLetter(letter);
       }
     });
     $('#submitWordBtn').click(function(e) {
