@@ -1,45 +1,78 @@
 
+// Ajax with some printing.
+var Jax = {};
+
+
+Jax.ajax = function(url, doneCallback) {
+  var aDiv = function(text) {
+    return $('<div>' + text + '</div>');
+  };
+
+  var div = $('#rpcs');
+  var before = new Date();
+  var urlToDisp = url.substring(0, 11);
+  var b4msg = 'Sent ' + urlToDisp + ' at ' + before.toLocaleString();
+  div.append(aDiv(b4msg));
+  $.ajax(url)
+    .done(function(data) {
+      	var after = new Date();
+      	var afterMsg = 'Rec. ' + urlToDisp + ' at ' + after.toLocaleString();
+      	div.append(aDiv(afterMsg));
+      	doneCallback(data);
+  });
+
+};
+
 // Connection to the backend and its info.
 var backend = {};
 
 // Returns to the callback a list of words.
 backend.getAllWords = function(callback) {
-  $.ajax('/getallwords')
-      .done(function(data) {
+  var before = new Date();
+
+  var doneCallback = function(data) {
+     var after = new Date();
      // Server sends back text a words separated by a comma.
      var words = data.split(',');
      callback(words);
-  });
+  };
+
+  Jax.ajax('/getallwords', doneCallback);
 }
 
-BoardSolver = function(text) {
-	this.text = text;
-};
+backend.solvePuzzle = function(answersCb, board, length) {
 
-BoardSolver.prototype.parseAnswersData = function(linesAsText) {
+  var parseAnswersData = function(linesAsText) {
 	var words = linesAsText.split(',');
 	var answers = [];
 	for (var i = words.length -1; i >= 0; i--) {
 		var word = words[i];
 		answers.push(word);
-	}
+    }
 	return answers;
+  };
+
+  var doneCallback = function(data) {
+    var answers = parseAnswersData(data);
+	window.console.log('success');
+	window.console.log(data);
+	answersCb(answers);
+  };
+  Jax.ajax('/wordracer_json?board=' + board + '&length=' + length,
+      doneCallback);
+};
+
+BoardSolver = function(text) {
+	this.text = text;
 };
 
 BoardSolver.prototype.solve = function(answersCb) {
-	var text = this.text;
-	var lines = text.split('\n');
-	// Validate the board works.
-	var length = lines[0].length;
-	window.console.log(this.text);
-	var that = this;
-	$.ajax('/wordracer_json?board=' + text + '&length=' + length)
-		.done(function(data) {
-			    var answers = that.parseAnswersData(data);
-				window.console.log('success');
-				window.console.log(data);
-				answersCb(answers);
-				});
+  var text = this.text;
+  var lines = text.split('\n');
+  // Validate the board works.
+  var length = lines[0].length;
+  window.console.log(this.text);
+  backend.solvePuzzle(answersCb, text, length);
 };
 
 // Round object to control keeping track of the
@@ -285,6 +318,7 @@ BoardC.prototype.getReadyForRound = function(curRound) {
     for (var i = 0; i < answers.length; i++) {
       this.curAnswers[answers[i]] = true;
     }
+    this.fillSolution();
   }.bind(this);
   b.solve(answersCb);
 };
@@ -318,7 +352,7 @@ BoardC.prototype.updateUi = function() {
   }
 };
 
-BoardC.prototype.showSolution = function() {
+BoardC.prototype.fillSolution = function() {
   var html = '';
   for (word in this.curAnswers) {
     html += '<div>' + word + '</div>';
@@ -327,7 +361,7 @@ BoardC.prototype.showSolution = function() {
 };
 
 BoardC.prototype.clearDevelConsole = function() {
-  $('#answers').html('');
+  //$('#answers').html('');
 };
 
 BoardC.prototype.submitWord = function(word) {
@@ -486,9 +520,16 @@ ctrl.init_ = function() {
     var rounder = new Round(boardC);
     rounder.start();
 
+    // Hide dev console.
+    $('#answers').hide();
+    $('#rpcs').hide();
+
     // Handlers.
     $('#showSolutionBtn').click(function(e) {
-      boardC.showSolution();
+      $('#answers').toggle();
+    });
+    $('#showRpcsBtn').click(function(e) {
+      $('#rpcs').toggle();
     });
 
     var clearWord = function() {
