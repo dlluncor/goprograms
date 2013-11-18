@@ -91,7 +91,7 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 10, // Seconds between rounds.
+  	betweenRound: 1, // Seconds between rounds.
     eachRound: 10  // Each round is this many seconds.
   };
 };
@@ -158,8 +158,10 @@ RndLetter = function() {
 };
 
 RndLetter.randLetter = function() {
-  var ind = Math.floor((Math.random() * 25));
-  return RndLetter.letters[ind];
+  var letters = RndLetter.getLetterMix();
+  var possib = letters.length-1;
+  var ind = Math.floor((Math.random() * possib));
+  return letters[ind];
 };
 
 RndLetter.emptySpace = 'X';
@@ -167,7 +169,68 @@ RndLetter.letters = [
   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
   'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
   'Q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
- ];
+];
+
+RndLetter.boosts = null;
+RndLetter.letterMix = null;
+
+RndLetter.createBoosts = function() {
+  if (RndLetter.boosts) {
+  	return RndLetter.boosts;
+  }
+
+  var tiers = {
+  	 3: 'Q x z',
+     6: 'j v y',
+     8: 'k w',
+    10: 'b c',
+    12: 'f g h m n p',
+    16: 'd',
+    18: 'l r',
+    26: 's t u o',
+    30: 'a e i'
+  };
+
+  // Tiers to boost (prob that we get that letter).
+  var boosts = {};
+  var numLetters = 0;
+  for (var tier in tiers) {
+  	var letters = tiers[tier].split(' ');
+  	for (var l = 0; l < letters.length; l++) {
+      boosts[letters[l]] = tier;
+      numLetters++;
+  	}
+  }
+  if (numLetters != 26) {
+  	alert('Mapping is wrong needs 26 characters!');
+  }
+  RndLetter.boosts = boosts;
+  return boosts;
+};
+
+RndLetter.getLetterMix = function() {
+  if (RndLetter.letterMix) {
+  	return RndLetter.letterMix;
+  }
+
+  var letters = [];
+  var boosts = RndLetter.createBoosts();
+  // Add letters with boosts that many extra times.
+  for (var i = 0; i < RndLetter.letters.length; i++) {
+  	var letter = RndLetter.letters[i];
+  	var repeat = 1;
+  	if (letter in boosts) {
+  		repeat = boosts[letter];
+  	}
+
+  	// Now put that letter into the mix that many times.
+  	for (var j = 0; j < repeat; j++) {
+  		letters.push(letter);
+  	}
+  }
+  RndLetter.letterMix = letters;
+  return RndLetter.letterMix;
+};
 
 BoardC = function(boardEl, solvedWordHandler) {
   this.solvedWordHandler = solvedWordHandler;
