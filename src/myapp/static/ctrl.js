@@ -46,8 +46,8 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 10, // Seconds between rounds.
-    eachRound: 60  // Each round is this many seconds.
+  	betweenRound: 5, // Seconds between rounds.
+    eachRound: 5  // Each round is this many seconds.
   }
 };
 
@@ -72,7 +72,9 @@ Round.prototype.startRound = function(roundNum) {
       window.console.log('Go start game!');
       this.boardC.roundStart(this.curRound);
     }
-    start--;
+    if (!ctrl.STOP_TIMERS) {
+      start--;
+    }
   }.bind(this);
   updateTime();
 };
@@ -88,7 +90,9 @@ Round.prototype.startRoundTimer = function() {
     } else {
       window.setTimeout(roundTimer, 1000);
     }
-    left--;
+    if (!ctrl.STOP_TIMERS) {
+      left--;
+    }
   }.bind(this);
   roundTimer();
 };
@@ -362,7 +366,7 @@ WordHandler.prototype.addDiscoverer = function(inf) {
   row.append('<td>' + inf.points + '</td>');
   if (inf.user == '') {
   	// TODO(dlluncor): Make unsolved text grey.
-  	row.css('greyText');
+  	row.addClass('greyText');
   }
   $('#discovererList').append(row);
 };
@@ -381,7 +385,18 @@ WordHandler.prototype.addWord = function(word) {
   this.usersHandler.update(user, points);
 };
 
-var ctrl = {};
+var ctrl = {
+  STOP_TIMERS: false
+};
+
+ctrl.stopTimers = function() {
+  var text = 'Stop timers';
+  if (!ctrl.STOP_TIMERS) {
+    text = 'Start timers';
+  }
+  $('#stopTimerBtn').val(text);
+  ctrl.STOP_TIMERS = !ctrl.STOP_TIMERS;
+};
 
 ctrl.init_ = function() {
     window.console.log("ready for damage");
