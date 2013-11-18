@@ -544,7 +544,6 @@ ctrl.initGame = function(curUser, table) {
    // Wait for the user to click join table.
 
     window.console.log("ready for damage");
-    var path = new Path();
     var usersHandler = new UsersHandler(curUser);
     usersHandler.register(curUser, 0);
     var solvedWordHandler = new WordHandler(usersHandler);
@@ -582,12 +581,13 @@ ctrl.initGame = function(curUser, table) {
 
     $('#submissionText').keypress(function(e) {
       if (e.which == 13) {
-      	path.clearWord();
+      	board.clearPaths();
       	submitWord();
       } else {
       	// Draw the path up until this point in the UI.
-      	var letter = String.fromCharCode(e.which);
-        path.addLetter(letter);
+      	var word = $('#submissionText').val();
+      	word += String.fromCharCode(e.which);
+        board.drawPaths(word);
       }
     });
     $('#submitWordBtn').click(function(e) {
