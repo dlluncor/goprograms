@@ -572,9 +572,11 @@ ctrl.stopTimers = function() {
   ctrl.STOP_TIMERS = !ctrl.STOP_TIMERS;
 };
 
-ctrl.init_ = function() {
+// Initialize a game with a user name and a table id.
+ctrl.initGame = function(curUser, table) {
+   // Wait for the user to click join table.
+
     window.console.log("ready for damage");
-    var curUser = 'sportsguy560';
     var usersHandler = new UsersHandler(curUser);
     usersHandler.register(curUser, 0);
     var solvedWordHandler = new WordHandler(usersHandler);
@@ -617,6 +619,17 @@ ctrl.init_ = function() {
     });
     $('#submitWordBtn').click(function(e) {
       submitWord();
+    });
+}
+
+ctrl.init_ = function() {
+    $('#entireGameArena').hide();
+
+    $('#joinTableBtn').click(function(e) {
+      var user = $('#loginUser').val();
+      var table = $('#tableId').val();
+      ctrl.initGame(user, table);
+      $('#entireGameArena').show();
     });
 };
 
