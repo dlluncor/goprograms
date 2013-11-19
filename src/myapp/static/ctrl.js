@@ -579,14 +579,13 @@ ctrl.initGame = function(curUser, table) {
       clearWord();
     };
 
-    $('#submissionText').keypress(function(e) {
+    $('#submissionText').keyup(function(e) {
+      board.clearPaths();
       if (e.which == 13) {
-      	board.clearPaths();
       	submitWord();
       } else {
       	// Draw the path up until this point in the UI.
       	var word = $('#submissionText').val();
-      	word += String.fromCharCode(e.which);
         board.drawPaths(word);
       }
     });
