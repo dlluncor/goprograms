@@ -126,8 +126,9 @@ Graph.prototype.accruePaths = function(
 };
 
 Graph.prototype.findPaths = function(characters) {
+  // TODO(dlluncor): Keeping no state about previous paths seen so this
+  // could be inefficient if we don't maintain some delay on keyup.
   var listOfPaths = [];
-  // TODO(dlluncor): Keep track of visited can't go back!!
   for (var v = 0; v < this.vertices.length; v++) {
   	var vertex = this.vertices[v];
   	var curPath = [];
@@ -138,8 +139,13 @@ Graph.prototype.findPaths = function(characters) {
 
   var pathObjs = [];
   for (var p = 0; p < listOfPaths.length; p++) {
+  	var path = listOfPaths[p];
+  	if (path.length != characters.length) {
+  		// Only found a partial path.
+  		continue;
+  	}
   	pathObjs.push({
-  	  path: listOfPaths[p]
+  	  path: path
   	});
   }
   return pathObjs;
