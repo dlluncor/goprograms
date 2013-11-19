@@ -1,0 +1,74 @@
+<html>
+<style>
+
+.line {
+  position: absolute;
+  display: inline-block;
+}
+
+.vertical { 
+   width: 1px;
+   height: 10px;
+   margin-top: -4px; /* Depends on height of space between row. */
+   margin-left: -10px; /* Depends on width of characters. */
+   border-left: 1px solid black;
+}
+
+.horizontal {
+   width: 10px;
+   height: 1px; 
+   margin-top: 10px; /* Depends on height of the characters. */
+   border-bottom: 1px solid black;
+}
+
+/* for added rotation effects */
+.diag-down-right {
+   -moz-transform: rotate(45deg);
+   -webkit-transform: rotate(45deg);
+   width: 15px;
+   margin-left: -5px;
+   margin-top: 24px; /* Depends on heigh of the characters and space. */
+}
+
+.diag-up-right {
+   -moz-transform: rotate(-45deg);
+   -webkit-transform: rotate(-45deg);
+   width: 15px;
+   margin-left: -5px;
+   margin-top: -2px; /* Depends on heigh of the characters and space. */
+}
+
+.circle {
+      width: 20px;
+      border: 2px solid black;
+      border-radius:12px;
+      text-align: center;
+      float: left;
+    }
+
+</style>
+<div>
+  <table>
+    <tr>
+      <td>
+        <div class="circle">A</div>
+        <div class="line horizontal"></div>
+        <div class="line horizontal diag-down-right"></div>
+      </td>
+      <td>
+        <div class="circle">B</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="circle">A</div>
+        <div class="line horizontal diag-up-right"></div>
+        <div class="line vertical"></div>
+      </td>
+      <td>
+        <div class="circle">B</div>
+      </td>
+    </tr>
+  </table>
+</div>
+</html>
