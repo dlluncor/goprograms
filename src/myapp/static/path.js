@@ -5,7 +5,7 @@ Board = function(el) {
   this.boardEl = el;
   this.lines = null;
   this.graph = null; // Graph used to represent these lines.
-  this.positionToEl = {}; // {{row: 0, col: 0}: HTMLDiv}  // for nodes.
+  this.edgeToEl = {}; // {{row: 0, col: 0}: HTMLDiv}  // for nodes.
 };
 
 Board.prototype.renderBoard = function() {
@@ -36,8 +36,48 @@ Board.prototype.renderBoard = function() {
   	}
   	table.append(row);
   }
+
   this.graph = new Graph(this.lines);
   // Draw edges between nodes.
+  for (var v = 0; v < this.graph.vertices.length; v++) {
+  	var vertex = this.graph.vertices[v];
+  	for (var e = 0; e < vertex.edges.length; e++) {
+  	  var edgeVertex = vertex.edges[e];
+      // Should be an edge between these two positions.
+      // Since vertices go from left to right and top to bottom
+      // We know we can just grab this first vertex and edge
+      // and grab a node from there.
+
+      var fromKey = JSON.stringify(vertex.position);
+      // Make sure we haven't added this edge already.
+      var toKey = JSON.stringify(edgeVertex.position);
+      var edgeKey = fromKey + toKey;
+      if (edgeKey in this.edgeToEl) {
+      	continue;
+      }
+
+      var div = this.positionToEl[fromKey];
+      var td = div.parent();
+      var edgeDiv = $('<div class="line"></div>');
+      this.edgeToEl[edgeKey] = edgeDiv;
+      this.edgeToEl[toKey + fromKey] = edgeDiv; // Reverse direction will be the same edge.
+      // Need to add an edge to this td depending on the direction
+      // of this edge connection.
+      var edgeType = Graph.direction(vertex, edgeVertex); // 0 - horiz.
+      if (edgeType == 'right') {
+      	edgeDiv.addClass('horizontal');
+      } else if (edgeType == 'down') {
+        edgeDiv.addClass('vertical');
+      } else if (edgeType == 'diagDown') {
+      	edgeDiv.addClass('horizontal');
+        edgeDiv.addClass('diag-down-right');
+      } else if (edgeType == 'diagUp') {
+      	edgeDiv.addClass('horizontal');
+      	edgeDiv.addClass('diag-up-right');
+      }
+      td.append(edgeDiv);
+  	}
+  }
 
   this.boardEl.append(table);
 };
@@ -46,6 +86,7 @@ Board.prototype.renderBoard = function() {
 // the board.
 Board.prototype.resetBoard = function(lines) {
   this.positionToEl = {};
+  this.edgeToEl = {};
   this.lines = lines;
   this.graph = null;
 };
@@ -102,6 +143,36 @@ Graph = function(lines) {
   this.vertices = this.createGraph_(lines);
 };
 
+// Direction between two different vertices, from the fromVertex
+// perspective.
+// Valid values: ['down', 'right', 'diagDown', 'diagUp'] or ''
+// if we don't care about this direction.
+Graph.direction = function(from, to) {
+  var fromRow = from.position.row;
+  var toRow = to.position.row;
+  var fromCol = from.position.col;
+  var toCol = to.position.col;
+
+  if (fromCol+1 == toCol) {
+  	// pointing to the right.
+  	if (fromRow == toRow) {
+  		return 'right';
+  	} else if (fromRow+1 == toRow) {
+  		return 'diagDown';
+  	}
+  } else if (fromCol == toCol) {
+  	if (fromRow+1 == toRow) {
+  		return 'down';
+  	}
+  	// don't care about up.
+  } else if (fromCol-1 == toCol) {
+  	// pointing to the left or diagonal down.
+  	if (fromRow+1 == toRow) {
+  	  return 'diagUp';
+  	}
+  }
+  return '';
+};
 
 Graph.prototype.accruePaths = function(
 	curChars, curVertices, curPath, listOfPaths,

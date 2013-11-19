@@ -10,6 +10,7 @@
     }
     .boardTable td {
       padding-right: 5px;
+      padding-bottom: 5px;
     }
     .boardTable .character {
       width: 25px;
@@ -17,6 +18,7 @@
       border-radius:12px;
       text-align: center;
       font-size: 20px;
+      float: left;
     }
     .boardTable .blank {
       border: 2px solid white;
@@ -34,9 +36,9 @@
 
     .vertical { 
        width: 1px;
-       height: 10px;
-       margin-top: -4px; /* Depends on height of space between row. */
-       margin-left: -10px; /* Depends on width of characters. */
+       height: 9px;
+       margin-top: 26px; /* Depends on height of space between row. */
+       margin-left: -15px; /* Depends on width of characters. */
        border-left: 1px solid black;
     }
 
@@ -51,17 +53,17 @@
     .diag-down-right {
        -moz-transform: rotate(45deg);
        -webkit-transform: rotate(45deg);
-       width: 15px;
+       width: 20px;
        margin-left: -5px;
-       margin-top: 24px; /* Depends on heigh of the characters and space. */
+       margin-top: 29px; /* Depends on heigh of the characters and space. */
     }
 
     .diag-up-right {
        -moz-transform: rotate(-45deg);
        -webkit-transform: rotate(-45deg);
-       width: 15px;
-       margin-left: -5px;
-       margin-top: -2px; /* Depends on heigh of the characters and space. */
+       width: 20px;
+       margin-left: -44px;
+       margin-top: 28px; /* Depends on heigh of the characters and space. */
     }
 
     /* End of main board style. */
