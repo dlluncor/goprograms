@@ -90,8 +90,8 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 2, // Seconds between rounds.
-    eachRound: 2  // Each round is this many seconds.
+    betweenRound: 10, // Seconds between rounds.
+    eachRound: 90  // Each round is this many seconds.
   };
 };
 
