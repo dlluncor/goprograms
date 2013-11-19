@@ -81,7 +81,7 @@ Board.prototype.drawPaths = function(word) {
 
 Board.prototype.clearPaths = function() {
   for (var positionStr in this.positionToEl) {
-  	this.positionToEl[positionStr].css('border', '2px solid white');
+  	this.positionToEl[positionStr].css('border', '2px solid black');
   }
 };
 
