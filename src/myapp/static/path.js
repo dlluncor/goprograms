@@ -120,23 +120,39 @@ Board.prototype.drawPaths = function(word) {
   var pathObjs = this.graph.findPaths(characters);
   for (var i = 0; i < pathObjs.length; i++) {
   	var pathObj = pathObjs[i];
-  	for (var p = 0; p < pathObj.path.length; p++) {
+  	var pathLen = pathObj.path.length;
+  	for (var p = 0; p < pathObj.path.length - 1; p++) {
   	  var position = pathObj.path[p];
+  	  var nextPos = pathObj.path[p+1];
   	  this.highlightPosition(position);
+  	  this.highlightEdge(position, nextPos);
   	}
+  	// No edges emitted from the last character.
+  	this.highlightPosition(pathObj.path[pathLen - 1]);
   }
 };
 
 Board.prototype.clearPaths = function() {
+  // TODO(dlluncor): Possibly slow just find elements with yellowBorder.
   for (var positionStr in this.positionToEl) {
-  	this.positionToEl[positionStr].css('border', '2px solid black');
+  	this.positionToEl[positionStr].removeClass('yellowBorder');
+  }
+  for (var keyStr in this.edgeToEl) {
+    this.edgeToEl[keyStr].removeClass('yellowLine');
   }
 };
 
 Board.prototype.highlightPosition = function(position) {
   var el = this.positionToEl[JSON.stringify(position)];
-  el.css('border', '2px solid yellow');
+  el.addClass('yellowBorder');
 };
+
+Board.prototype.highlightEdge = function(fromPos, toPos) {
+  var key0 = JSON.stringify(fromPos) + JSON.stringify(toPos);
+  if (key0 in this.edgeToEl) {
+  	this.edgeToEl[key0].addClass('yellowLine');
+  }
+}
 
 // A graph to represent the board.
 Graph = function(lines) {
