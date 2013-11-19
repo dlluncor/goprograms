@@ -87,7 +87,8 @@ func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
 
 // Useful notes.
 // JS beautifier: http://jsbeautifier.org/ 
-
+// Channels: https://developers.google.com/appengine/docs/go/channel/
+ 
 func handleGetAllWords(w http.ResponseWriter, r *http.Request) {
     checker := spoj.NewChecker("allWords.txt")
     words := checker.AllWords()
