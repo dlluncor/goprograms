@@ -5,7 +5,7 @@ Board = function(el) {
   this.boardEl = el;
   this.lines = null;
   this.graph = null; // Graph used to represent these lines.
-  this.positionToEl = {}; // {{row: 0, col: 0}: HTMLDiv}
+  this.positionToEl = {}; // {{row: 0, col: 0}: HTMLDiv}  // for nodes.
 };
 
 Board.prototype.renderBoard = function() {
@@ -21,6 +21,10 @@ Board.prototype.renderBoard = function() {
   	  	character = ' ';
   	  }
   	  var div = $('<div>' + character + '</div>');
+  	  if (character == ' ') {
+  	  	div.addClass('blank');
+  	  }
+  	  div.addClass('character');
   	  var position = {
         row: j,
         col: c
@@ -32,6 +36,9 @@ Board.prototype.renderBoard = function() {
   	}
   	table.append(row);
   }
+  this.graph = new Graph(this.lines);
+  // Draw edges between nodes.
+
   this.boardEl.append(table);
 };
 
@@ -40,7 +47,7 @@ Board.prototype.renderBoard = function() {
 Board.prototype.resetBoard = function(lines) {
   this.positionToEl = {};
   this.lines = lines;
-  this.graph = new Graph(this.lines);
+  this.graph = null;
 };
 
 Board.prototype.destroy = function() {

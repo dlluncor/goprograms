@@ -22,7 +22,6 @@ Jax.ajax = function(url, doneCallback) {
       	div.append(aDiv(afterMsg));
       	doneCallback(data);
   });
-
 };
 
 // Connection to the backend and its info.
@@ -91,8 +90,8 @@ Round = function(boardC) {
 
   // Game config.
   this.config = {
-  	betweenRound: 3, // Seconds between rounds.
-    eachRound: 60  // Each round is this many seconds.
+  	betweenRound: 1, // Seconds between rounds.
+    eachRound: 2  // Each round is this many seconds.
   };
 };
 

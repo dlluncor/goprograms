@@ -1,22 +1,71 @@
 <html>
   <style>
+    /* Style for the Word racer main board. */
     #wordRacerBoard {
       width: 150px;
-      height: 150px;
+      /*height: 150px; */
     }
     .boardTable {
       table-layout:fixed;
     }
-    .boardTable div {
-      width: 20px;
+    .boardTable td {
+      padding-right: 5px;
+    }
+    .boardTable .character {
+      width: 25px;
       border: 2px solid black;
       border-radius:12px;
       text-align: center;
+      font-size: 20px;
     }
+    .boardTable .blank {
+      border: 2px solid white;
+    }
+
     .boardLetters {
-      letter-spacing: 3px;
-      font-size: 16px;
+      letter-spacing: 4px;
     }
+
+    /* Styles for drawing lines. */
+    .line {
+    position: absolute;
+    display: inline-block;
+    }
+
+    .vertical { 
+       width: 1px;
+       height: 10px;
+       margin-top: -4px; /* Depends on height of space between row. */
+       margin-left: -10px; /* Depends on width of characters. */
+       border-left: 1px solid black;
+    }
+
+    .horizontal {
+       width: 10px;
+       height: 1px; 
+       margin-top: 10px; /* Depends on height of the characters. */
+       border-bottom: 1px solid black;
+    }
+
+    /* for added rotation effects */
+    .diag-down-right {
+       -moz-transform: rotate(45deg);
+       -webkit-transform: rotate(45deg);
+       width: 15px;
+       margin-left: -5px;
+       margin-top: 24px; /* Depends on heigh of the characters and space. */
+    }
+
+    .diag-up-right {
+       -moz-transform: rotate(-45deg);
+       -webkit-transform: rotate(-45deg);
+       width: 15px;
+       margin-left: -5px;
+       margin-top: -2px; /* Depends on heigh of the characters and space. */
+    }
+
+    /* End of main board style. */
+
     #answers {
       padding-top: 10px;
     }
