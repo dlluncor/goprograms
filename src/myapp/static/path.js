@@ -223,6 +223,9 @@ Graph.prototype.findPaths = function(characters) {
   // TODO(dlluncor): Keeping no state about previous paths seen so this
   // could be inefficient if we don't maintain some delay on keyup.
   var listOfPaths = [];
+  // TODO(dllunor): There is a bug where the paths have a dependency
+  // on each other. Try to type a really long word and some letters
+  // stay highlighted when they should not be.
   for (var v = 0; v < this.vertices.length; v++) {
   	var vertex = this.vertices[v];
   	var curPath = [];
