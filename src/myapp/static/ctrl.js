@@ -602,6 +602,15 @@ ctrl.init_ = function() {
       ctrl.initGame(user, table);
       $('#entireGameArena').show();
     });
+
+    // Control what gets shown to the user.
+    if (ctrl.isLocal()) {
+      $('#develConsole').show();
+    }
+};
+
+ctrl.isLocal = function() {
+  return document.location.hostname == 'localhost';
 };
 
 $(document).ready(ctrl.init_);
