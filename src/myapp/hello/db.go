@@ -24,7 +24,6 @@ func (m DbMap) Load(c <-chan datastore.Property) error {
 }
  
 func (m DbMap) Save(c chan<- datastore.Property) error {
-    defer close(c)
     for k, v := range m {
         c <- datastore.Property {
             Name: k,
@@ -39,16 +38,57 @@ type User struct {
   Token string
 }
 
+// This map will now contain everything b/c I don't know how to save
+// or retrieve any other fields from this stupid struct besides the
+// map values WTF!!!
 type MyGame struct {
    Users DbMap
 }
 
 func (g MyGame) Load(c <-chan datastore.Property) error {
-  g.Users.Load(c)
+  err := g.Users.Load(c)
+  if err != nil {
+    return err
+  }
   return nil
 }
 
 func (g MyGame) Save(c chan<- datastore.Property) error {
-  g.Users.Save(c)
+  defer close(c)
+  err := g.Users.Save(c)
+  if err != nil {
+    return err
+  }
   return nil
+}
+
+var notUserKeys = map[string]bool{
+  "isStarted": true,
+}
+
+func (g MyGame) IsStarted() bool {
+  val, ok := g.Users["isStarted"]
+  if !ok {
+    return false
+  }
+  return val.(bool)
+}
+
+func (g MyGame) SetIsStarted(started bool) {
+    g.Users["isStarted"] = started
+}
+
+func (g MyGame) AddUserToken(user, token string) {
+    g.Users[user] = token
+}
+
+func (g MyGame) GetUserTokens() []string {
+    users := []string{}
+    for key, val := range g.Users {
+       if _, ok := notUserKeys[key]; ok {
+        continue
+       }
+       users = append(users, val.(string))
+    }
+    return users
 }

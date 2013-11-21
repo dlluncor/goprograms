@@ -30,6 +30,11 @@ type Game struct {
     Winner string
 }
 
+type Resp struct {
+    Action string
+    Payload interface{}
+}
+
 // Might have to store this stuff as a property list.
 /*
 func defaultProps() datastore.PropertyList {
@@ -96,7 +101,7 @@ func opened(w http.ResponseWriter, r *http.Request) {
     }
     // Now write this user to the list of connect users to this table.
     user := r.FormValue("u")
-    g.Users[user] = token
+    g.AddUserToken(user, token)
     if _, err := datastore.Put(c, k, g); err != nil {
       return err
     }
@@ -106,9 +111,15 @@ func opened(w http.ResponseWriter, r *http.Request) {
   if err != nil {
     c.Errorf("Error in db with connect to table. %v", err)
   }
+  resp := &Resp{
+    Action: "join",
+    Payload: g,
+  }
   //c.Infof("Users in table: %v", g.Users)
   // Return the game state to the user.
-  channel.SendJSON(c, token, g)
+  // TOOD(dlluncor): Might want to strip game depending on what needs to get
+  // send to the user.
+  channel.SendJSON(c, token, resp)
 }
 
 func startGame(w http.ResponseWriter, r *http.Request) {
@@ -118,28 +129,45 @@ func startGame(w http.ResponseWriter, r *http.Request) {
   // Need to keep track of all users associated with the games, then
   // we must broadcast an update to all of them.
   tableKey := r.FormValue("g")
+  isStarted := false
+  g := defaultGame()
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
     k := datastore.NewKey(c, "WrGame", tableKey, 0, nil)
-    g := new(MyGame)
     if err := datastore.Get(c, k, g); err != nil {
+      return err
+    }
+    c.Infof("MADE IT HERE 0")
+    isStarted = g.IsStarted()
+    c.Infof("MADE IT HERE 1")
+    g.SetIsStarted(true)  // Set to true when a user first starts the game.
+    c.Infof("MADE IT HERE 2")
+    if _, err := datastore.Put(c, k, g); err != nil {
       return err
     }
     return nil
   }, nil)
-
-  /*
-  myg := MyGame{
-    Msg: "hello",
-  }
-  // Send the game state to both clients.
-  for _, token := range tokens {
-     err := channel.SendJSON(c, token, myg)
-     if err != nil {
-         c.Errorf("sending Game: %v", err)
-     }
-  }*/
+  
   if err != nil {
-    c.Errorf("Error in start game. %v", err)
+    c.Errorf("Error in start game db call. %v", err)
+    return
+  }
+
+  if isStarted {
+    // Do nothing if the game is already started.
+    c.Infof("Game has already started!!!")
+    return
+  }
+
+  resp := &Resp{
+    Action: "startGame",
+    Payload: "start",
+  }
+  c.Infof("Map of users: %v", g.Users)
+  for _, token := range g.GetUserTokens() {
+    err := channel.SendJSON(c, token, resp)
+    if err != nil {
+      c.Errorf("sending Start game updates: %v", err)
+    }
   }
   return
 }

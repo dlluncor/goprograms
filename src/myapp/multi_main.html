@@ -8,8 +8,24 @@
     <span>Table:</span><input type="text" value="table0" id="tablename">
     <button id="enterTable">Enter Table</button>
     <button id="startGame">Start Game</button>
+    <div id="gameStatus">
+    </div>
   </div>
   <script>
+
+      updateStatus = function(str) {
+        $('#gameStatus').append('<div>' + str + '</div>');
+      };
+      // Logic that deals with responding to user requests.
+      handleMessage = function(resp) {
+        if (resp.Action == 'join') {
+          updateStatus('Set up initial state of the table for the user.');
+        }
+        else if (resp.Action == 'startGame') {
+          updateStatus('Game starting.');
+        }
+      };
+
       var state = {
         table: '',
         token: '',
@@ -53,8 +69,9 @@
       };
       
       onMessage = function(m) {
-        newState = JSON.parse(m.data);
-        window.console.log(newState);
+        msg = JSON.parse(m.data);
+        window.console.log(msg);
+        handleMessage(msg);
       }
       
       openChannel = function(token) {
