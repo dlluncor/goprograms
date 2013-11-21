@@ -1,0 +1,103 @@
+<html>
+<body>
+ <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src='/_ah/channel/jsapi'></script>
+
+  <div>
+    <span>User:</span><input type="text" value="sportsguy560" id="username">
+    <span>Table:</span><input type="text" value="table0" id="tablename">
+    <button id="enterTable">Enter Table</button>
+    <button id="startGame">Start Game</button>
+  </div>
+  <script>
+      var state = {
+        table: '',
+        token: '',
+        username: ''
+      };
+
+      onOpened = function() {
+        sendMessage('/opened');
+      };
+
+      isMyMove = function() {
+        return (state.winner == "") && 
+            (state.moveX == (state.userX == state.me));
+      }
+
+      myPiece = function() {
+        return state.userX == state.me ? 'X' : 'O';
+      }
+
+      sendMessage = function(path, opt_param) {
+        path += '?g=' + state.table;
+        path += '&t=' + state.token;
+        path += '&u=' + state.username;
+        if (opt_param) {
+          path += '&' + opt_param;
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', path, true);
+        xhr.send();
+      };
+
+      moveInSquare = function(id) {
+        if (isMyMove() && state.board[id] == ' ') {
+          sendMessage('/move', 'i=' + id);
+        }
+      }
+
+      onOpened = function() {
+      	window.console.log('Client channel opened.');
+        sendMessage('/opened');
+      };
+      
+      onMessage = function(m) {
+        newState = JSON.parse(m.data);
+        window.console.log(newState);
+      }
+      
+      openChannel = function(token) {
+      	state.token = token;
+        var channel = new goog.appengine.Channel(token);
+        var handler = {
+          'onopen': onOpened,
+          'onmessage': onMessage,
+          'onerror': function() {
+          	window.console.log('Error with the channel.');
+          },
+          'onclose': function() {
+          	window.console.log('Channel closing.');
+          }
+        };
+        var socket = channel.open(handler);
+        socket.onopen = onOpened;
+        socket.onmessage = onMessage;
+      }
+
+      init = function() {
+        var params = '?';
+        params += 'u=' + state.username;
+        params += '?g=' + state.table;
+        $.ajax('/getToken' + params).done(function(data) {
+          openChannel(data);
+        });
+      };
+
+      var ctrl = {};
+      ctrl.init_ = function() {
+        
+        $('#enterTable').click(function() {
+          state.username = $('#username').val();
+          state.table = $('#tablename').val();
+          init();
+        });
+
+        $('#startGame').click(function() {
+          sendMessage('startGame');
+        });
+      };
+      $(document).ready(ctrl.init_);
+  </script>
+</body>
+</html>

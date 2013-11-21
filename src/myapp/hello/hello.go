@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-
+    InitMulti()
     // JSON handlers.
     http.HandleFunc("/wordracer_json", handlerWordRacer)
     http.HandleFunc("/getallwords", handleGetAllWords)
