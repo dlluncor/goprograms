@@ -33,11 +33,6 @@ func (m DbMap) Save(c chan<- datastore.Property) error {
     return nil
 }
 
-// Token associated with this particular user.
-type User struct {
-  Token string
-}
-
 // This map will now contain everything b/c I don't know how to save
 // or retrieve any other fields from this stupid struct besides the
 // map values WTF!!!
