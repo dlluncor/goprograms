@@ -42,6 +42,9 @@ type MyGame struct {
    Tokens []string
    States []string
    Tables []string
+   // Current Table Info.
+   CurTable string
+   CurRound int // Starts off at 1, ends at 4. (not used kept by client!)
 }
 
 func defaultGame() *MyGame {
@@ -104,4 +107,24 @@ func (g *MyGame) SetTable(tableRoundKey, tableVal string) {
 
 func (g *MyGame) GetUserTokens() []string {
   return g.Tokens
+}
+
+type TableInfo struct {
+  Table string
+  Round int
+}
+
+func (g *MyGame) CreateTableInfo(round int) {
+  // Keep track of a new slate of data for this particular round.
+  g.CurTable = g.Tables[round-1]
+  g.CurRound = round
+}
+
+// Gets the table information for this round.
+func (g *MyGame) GetTableInfo() *TableInfo {
+  info := &TableInfo{
+    Table: g.CurTable,
+    Round: g.CurRound, 
+  }
+  return info
 }

@@ -1,6 +1,7 @@
 package hello
 
 import (
+    "strconv"
     "net/http"
 
     "appengine"
@@ -38,7 +39,7 @@ func sendTables(w http.ResponseWriter, r *http.Request) {
   if timerStarted {
     return
   }
-  
+
   resp := &Resp{
     Action: "startTimers",
     Payload: "",
@@ -53,7 +54,42 @@ func sendTables(w http.ResponseWriter, r *http.Request) {
   }
 }
 
+func getRoundInfo(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  tableKey := r.FormValue("g")
+  round := r.FormValue("r")
+  isRoundFetched := false
+  gameChanger := func(g *MyGame) bool {
+    val := "roundFetched" + round
+    isRoundFetched = g.HadState(val)
+    if isRoundFetched {
+      return false
+    }
+    roundInt, _ := strconv.Atoi(round)
+    g.CreateTableInfo(roundInt)
+    g.AddState(val)
+    return true
+  }
+  g := ChangeGame(c, tableKey, gameChanger)   // Just need to read the game.
 
+  if isRoundFetched {
+    // We can only fetch a round once...
+    return
+  }
+  tableInfo := g.GetTableInfo()
+  resp := &Resp{
+    Action: "aboutToStartRound",
+    Payload: tableInfo,
+  }
+  // Send table information to everyone in the room (need a solution
+  // for when someone randomly jumps into the game).
+  for _, token := range g.GetUserTokens() {
+    err := channel.SendJSON(c, token, resp)
+    if err != nil {
+      c.Errorf("Err with sendTables response: %v", err)
+    }
+  }
+}
 
 
 // Utility function for reading from and updating a game before then
