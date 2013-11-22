@@ -8,10 +8,21 @@
     <span>Table:</span><input type="text" value="table0" id="tablename">
     <button id="enterTable">Enter Table</button>
     <button id="startGame">Start Game</button>
+    <div>
+      <span>Submit word:</span><input type="text" value="" id="curWord">
+    </div>
     <div id="gameStatus">
     </div>
   </div>
   <script>
+
+      Game = function(json) {
+        this.obj = json; // JSON which underlies the game object.
+      };
+
+      Game.prototype.isStarted = function() {
+        return this.obj.Users['isStarted'];
+      };
 
       updateStatus = function(str) {
         $('#gameStatus').append('<div>' + str + '</div>');
@@ -20,37 +31,78 @@
       handleMessage = function(resp) {
         if (resp.Action == 'join') {
           updateStatus('Set up initial state of the table for the user.');
+          var gameM = new Game(resp.Payload);
+
+          // Update the UI given the game state.
+          $('#startGame').prop('disabled', gameM.isStarted());
+          // For example we can give the user all known words as well as part
+          // of this payload.
+
+          // We can also give the user all of the points that everyone has thus
+          // far at this snapshot.
+
+          // Fast forward to the appropriate round and amount of time left
+          // in the round. (server keeps track of when game started and what
+          // time it is when the user gets a response?)
         }
         else if (resp.Action == 'startGame') {
           updateStatus('Game starting.');
+          // This guy can generate the tables for everyone for each round for now
+          // even though the backend should be doing that, and then the server
+          // can notify everyone when to start the round 1 (everyone should
+          // be synchronized at that point).
+        }
+        else if (resp.Action == 'startTimers') {
+          updateStatus('Starting my timers.');
+          // Now everyone can request the round 1 puzzle and all solvable info
+          // needed.
+          sendMessage('getRoundInfo');
+        }
+        else if (resp.Action == 'startRound') {
+          // The timer is still counting down to 10...but now we have all
+          // the solutions for the puzzle, what are complete words.
+        }
+        else if (resp.Action == 'endRound') {
+          // The round just ended for someone, so we all end the round at the
+          // same time and then start our counters at 10.
+        }
+        else if (resp.Action == 'wordUpdate') {
+          // Here we can handle situations such as:
+          // Who is the update for (user - string).
+          // What happened - "rejected" means your word got rejected.
+          // Points - this is the delta for what the consequence of this action
+          // is.
+          // Cur points - the points that the user as a result of this action
+          // (better than returning deltas in case clients don't get all
+          //  the messages.)
+          // So we can handle other users giving us updates or we can handle
+          // just us getting these updates.
+        } else if (resp.Action == 'gameEnded') {
+          // Enable the "Start game" button again and provide some message
+          // of how the users did.
         }
       };
 
       var state = {
         table: '',
         token: '',
-        username: ''
+        username: '',
+        round: 1
       };
 
       onOpened = function() {
         sendMessage('/opened');
       };
 
-      isMyMove = function() {
-        return (state.winner == "") && 
-            (state.moveX == (state.userX == state.me));
-      }
-
-      myPiece = function() {
-        return state.userX == state.me ? 'X' : 'O';
-      }
-
-      sendMessage = function(path, opt_param) {
+      sendMessage = function(path, opt_params) {
         path += '?g=' + state.table;
         path += '&t=' + state.token;
         path += '&u=' + state.username;
-        if (opt_param) {
-          path += '&' + opt_param;
+        path += '&r=' + state.round;
+        if (opt_params) {
+          for (var param in opt_params) {
+            path += '&' + param + '=' + opt_params[param];	
+          }
         }
         var xhr = new XMLHttpRequest();
         xhr.open('POST', path, true);
@@ -112,6 +164,13 @@
 
         $('#startGame').click(function() {
           sendMessage('startGame');
+        });
+
+        $('#curWord').keypress(function(e) {
+          var word = $('#curWord').val();
+          if (e.which == 13) {
+          	sendMessage('submitWord', {'word': word});
+          }
         });
       };
       $(document).ready(ctrl.init_);

@@ -20,6 +20,9 @@ func InitMulti() {
     http.HandleFunc("/opened", opened)
     http.HandleFunc("/getToken", getToken)
     http.HandleFunc("/startGame", startGame)
+
+    // Debug.
+    http.HandleFunc("/clearAll", clearAll)
 }
 
 type Game struct {
@@ -33,6 +36,30 @@ type Game struct {
 type Resp struct {
     Action string
     Payload interface{}
+}
+
+func clearAll(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  // table Id's I'm futzing with.
+  tableKeys := []string{}
+  for i := 0; i < 50; i++ {
+    tableKeys = append(tableKeys, fmt.Sprintf("table%d", i))
+  }
+
+  // Clear all tables in the DB.
+  err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+    c.Infof("Deleting all keys in database.")
+    for _, tableKey := range tableKeys {
+        k := datastore.NewKey(c, "WrGame", tableKey, 0, nil)
+        // Delete each ones.
+        datastore.Delete(c, k)
+    }
+    return nil
+  }, nil)
+
+  if err != nil {
+    
+  }
 }
 
 // Might have to store this stuff as a property list.
@@ -64,9 +91,11 @@ func getToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func defaultGame() *MyGame {
-    return &MyGame{
+    g := &MyGame{
         Users: make(DbMap),
     }
+    g.SetIsStarted(false)
+    return g
 }
 
 func opened(w http.ResponseWriter, r *http.Request) {
@@ -136,11 +165,8 @@ func startGame(w http.ResponseWriter, r *http.Request) {
     if err := datastore.Get(c, k, g); err != nil {
       return err
     }
-    c.Infof("MADE IT HERE 0")
     isStarted = g.IsStarted()
-    c.Infof("MADE IT HERE 1")
     g.SetIsStarted(true)  // Set to true when a user first starts the game.
-    c.Infof("MADE IT HERE 2")
     if _, err := datastore.Put(c, k, g); err != nil {
       return err
     }
