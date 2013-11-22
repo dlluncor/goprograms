@@ -105,7 +105,6 @@ func opened(w http.ResponseWriter, r *http.Request) {
       c.Infof("We have never entered this game into the database so create a new one.")
       // Put the game in the database, this should basically happen only once.
       if _, err := datastore.Put(c, k, g); err != nil {
-        //http.Error(w, err.Error(), 500)
         return err
       }
     }
@@ -125,6 +124,7 @@ func opened(w http.ResponseWriter, r *http.Request) {
     Action: "join",
     Payload: g,
   }
+  c.Infof("Notifying these tokens that a user entered: %v", g.GetUserTokens())
   // Let everyone know that they joined the game!
   for _, token := range g.GetUserTokens() {
     err := channel.SendJSON(c, token, resp)
