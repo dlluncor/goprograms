@@ -2,10 +2,8 @@ package hello
 
 import (
     "fmt"
-    "errors"
     "html/template"
     "net/http"
-    "strconv"
     "strings"
 
     "appengine"
@@ -16,10 +14,14 @@ import (
 
 func InitMulti() {
     http.HandleFunc("/multi", main)
-    http.HandleFunc("/move", move)
+
+    // Getting ready to start the game.
     http.HandleFunc("/opened", opened)
     http.HandleFunc("/getToken", getToken)
     http.HandleFunc("/startGame", startGame)
+
+    // Starting round 0.
+    http.HandleFunc("/sendTables", sendTables)
 
     // Debug.
     http.HandleFunc("/clearAll", clearAll)
@@ -58,7 +60,7 @@ func clearAll(w http.ResponseWriter, r *http.Request) {
   }, nil)
 
   if err != nil {
-    
+
   }
 }
 
@@ -88,14 +90,6 @@ func getToken(w http.ResponseWriter, r *http.Request) {
   } else {
     fmt.Fprintf(w, tok)
   }
-}
-
-func defaultGame() *MyGame {
-    g := &MyGame{
-        Users: make(DbMap),
-    }
-    g.SetIsStarted(false)
-    return g
 }
 
 func opened(w http.ResponseWriter, r *http.Request) {
@@ -144,7 +138,6 @@ func opened(w http.ResponseWriter, r *http.Request) {
     Action: "join",
     Payload: g,
   }
-  //c.Infof("Users in table: %v", g.Users)
   // Return the game state to the user.
   // TOOD(dlluncor): Might want to strip game depending on what needs to get
   // send to the user.
@@ -165,8 +158,11 @@ func startGame(w http.ResponseWriter, r *http.Request) {
     if err := datastore.Get(c, k, g); err != nil {
       return err
     }
-    isStarted = g.IsStarted()
-    g.SetIsStarted(true)  // Set to true when a user first starts the game.
+    isStarted = g.HadState("justStarted")
+    if isStarted {
+        return nil
+    }
+    g.AddState("justStarted")  // Set to true when a user first starts the game.
     if _, err := datastore.Put(c, k, g); err != nil {
       return err
     }
@@ -180,6 +176,7 @@ func startGame(w http.ResponseWriter, r *http.Request) {
 
   if isStarted {
     // Do nothing if the game is already started.
+    // TODO(dlluncor): Update the user's UI that the game is already started.
     c.Infof("Game has already started!!!")
     return
   }
@@ -188,7 +185,7 @@ func startGame(w http.ResponseWriter, r *http.Request) {
     Action: "startGame",
     Payload: "start",
   }
-  c.Infof("Map of users: %v", g.Users)
+  c.Infof("Tokens: %v", g.Tokens)
   for _, token := range g.GetUserTokens() {
     err := channel.SendJSON(c, token, resp)
     if err != nil {
@@ -196,51 +193,6 @@ func startGame(w http.ResponseWriter, r *http.Request) {
     }
   }
   return
-}
-
-// Second part.
-
-func move(w http.ResponseWriter, r *http.Request) {
-    c := appengine.NewContext(r)
-
-    // Get the user and their proposed move.
-    pos, err := strconv.Atoi(r.FormValue("i"))
-    if err != nil {
-        http.Error(w, "Invalid move", http.StatusBadRequest)
-        return
-    }
-    key := r.FormValue("gamekey")
-
-    g := new(Game)
-    err = datastore.RunInTransaction(c, func(c appengine.Context) error {
-        // Retrieve the game from the Datastore.
-        k := datastore.NewKey(c, "Game", key, 0, nil)
-        if err := datastore.Get(c, k, g); err != nil {
-            return err
-        }
-
-        // Make the move (mutating g).
-        if !g.Move("", pos) {
-            return errors.New("Invalid move")
-        }
-
-        // Update the Datastore.
-        _, err := datastore.Put(c, k, g)
-        return err
-    }, nil)
-    if err != nil {
-        http.Error(w, "Couldn't make move", http.StatusInternalServerError)
-        c.Errorf("move: %v", err)
-        return
-    }
-
-    // Send the game state to both clients.
-    for _, uID := range []string{g.UserX, g.UserO} {
-        err := channel.SendJSON(c, uID+key, g)
-        if err != nil {
-            c.Errorf("sending Game: %v", err)
-        }
-    }
 }
 
 // Need to start a table and broadcast it to all users.

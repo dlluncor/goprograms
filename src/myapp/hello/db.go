@@ -36,10 +36,25 @@ func (m DbMap) Save(c chan<- datastore.Property) error {
 // This map will now contain everything b/c I don't know how to save
 // or retrieve any other fields from this stupid struct besides the
 // map values WTF!!!
+// TODO(dlluncor): Figure out how to get a map type in here. For now,
+// not worth it!!
 type MyGame struct {
-   Users DbMap
+   Tokens []string
+   States []string
+   Tables []string
 }
 
+func defaultGame() *MyGame {
+    g := &MyGame{
+        Tokens: []string{},
+        States: []string{},
+        Tables: []string{},
+    }
+    g.AddState("notStarted")
+    return g
+}
+
+/*
 func (g MyGame) Load(c <-chan datastore.Property) error {
   err := g.Users.Load(c)
   if err != nil {
@@ -56,34 +71,37 @@ func (g MyGame) Save(c chan<- datastore.Property) error {
   }
   return nil
 }
+*/
 
-var notUserKeys = map[string]bool{
-  "isStarted": true,
-}
-
-func (g MyGame) IsStarted() bool {
-  val, ok := g.Users["isStarted"]
-  if !ok {
-    return false
-  }
-  return val.(bool)
-}
-
-func (g MyGame) SetIsStarted(started bool) {
-    g.Users["isStarted"] = started
-}
-
-func (g MyGame) AddUserToken(user, token string) {
-    g.Users[user] = token
-}
-
-func (g MyGame) GetUserTokens() []string {
-    users := []string{}
-    for key, val := range g.Users {
-       if _, ok := notUserKeys[key]; ok {
-        continue
-       }
-       users = append(users, val.(string))
+// TODO(dlluncor): Pretty inefficient, but oh well! Go is fast I think...
+func inArr(items []string, item string) bool {
+  has := false
+  for _, aItem := range items {
+    if aItem == item {
+        return true
     }
-    return users
+  }
+  return has
+}
+
+func (g *MyGame) AddState(state string) {
+  g.States = append(g.States, state)
+}
+
+func (g *MyGame) HadState(state string) bool {
+  return inArr(g.States, state)
+}
+
+func (g *MyGame) AddUserToken(user, token string) {
+  g.Tokens = append(g.Tokens, token)
+}
+
+// SetTable("table1", "dsdfsdfs\nXXXX\nDDFD")
+// We'll use the index for now to generate which table to serve up.
+func (g *MyGame) SetTable(tableRoundKey, tableVal string) {
+  g.Tables = append(g.Tables, tableVal)
+}
+
+func (g *MyGame) GetUserTokens() []string {
+  return g.Tokens
 }

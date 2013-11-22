@@ -20,9 +20,20 @@
         this.obj = json; // JSON which underlies the game object.
       };
 
-      Game.prototype.isStarted = function() {
-        return this.obj.Users['isStarted'];
+      Game.inArr = function(arr, el) {
+        for (var i = 0; i < arr.length; i++) {
+          if (arr[i] == el) {
+          	return true;
+          }	
+        }
+        return false;
       };
+
+      Game.prototype.isStarted = function() {
+        return Game.inArr(this.obj.States, 'justStarted');
+      };
+
+
 
       updateStatus = function(str) {
         $('#gameStatus').append('<div>' + str + '</div>');
@@ -46,11 +57,18 @@
           // time it is when the user gets a response?)
         }
         else if (resp.Action == 'startGame') {
-          updateStatus('Game starting.');
+          updateStatus('Game about to start once we generate tables.');
           // This guy can generate the tables for everyone for each round for now
           // even though the backend should be doing that, and then the server
           // can notify everyone when to start the round 1 (everyone should
           // be synchronized at that point).
+          var params = {
+          	'table1': state.username + 'thisistable1',
+          	'table2': state.username + 'thisistable2',
+          	'table3': state.username + 'thisistable3',
+          	'table4': state.username + 'thisistable4'
+          };
+          sendMessage('sendTables', params);
         }
         else if (resp.Action == 'startTimers') {
           updateStatus('Starting my timers.');
@@ -155,7 +173,10 @@
 
       var ctrl = {};
       ctrl.init_ = function() {
-        
+      	var ind = Math.floor(Math.random() * 100);
+        var user = 'sportsguy' + ind;
+        $('#username').val(user);
+
         $('#enterTable').click(function() {
           state.username = $('#username').val();
           state.table = $('#tablename').val();
