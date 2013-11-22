@@ -4,7 +4,6 @@ import (
     "fmt"
     "html/template"
     "net/http"
-    "strings"
 
     "appengine"
     "appengine/datastore"
@@ -26,14 +25,6 @@ func InitMulti() {
 
     // Debug.
     http.HandleFunc("/clearAll", clearAll)
-}
-
-type Game struct {
-    UserX  string
-    UserO  string
-    MoveX  bool
-    Board  string
-    Winner string
 }
 
 type Resp struct {
@@ -115,13 +106,6 @@ func opened(w http.ResponseWriter, r *http.Request) {
         //http.Error(w, err.Error(), 500)
         return err
       }
-    } else {
-      // TODO(dlluncor):
-      // Always write a new default game if need be when changing the schema
-      // constantly.
-    }
-    if g == nil {
-      c.Errorf("Game should never be null here.")
     }
     // Now write this user to the list of connect users to this table.
     user := r.FormValue("u")
@@ -202,68 +186,8 @@ var mainTemplate = template.Must(template.ParseFiles("multi_main.html"))
 
 func main(w http.ResponseWriter, r *http.Request) {
     c := appengine.NewContext(r)
-    //user.Current(c) // assumes 'login: required' set in app.yaml
-    key := r.FormValue("gamekey")
-  
-    id := "myid"
-    newGame := key == ""
-    if newGame {
-        key = id
-    }
-    err := datastore.RunInTransaction(c, func(c appengine.Context) error {
-        k := datastore.NewKey(c, "Game", key, 0, nil)
-        g := new(Game)
-        if newGame {
-            // No game specified.
-            // Create a new game and make this user the 'X' player.
-            g.UserX = id
-            g.MoveX = true
-            g.Board = strings.Repeat(" ", 9)
-        } else {
-            // Game key specified, load it from the Datastore.
-            if err := datastore.Get(c, k, g); err != nil {
-                return err
-            }
-            if g.UserO != "" {
-                // Both players already in game, skip the Put below.
-                return nil
-            }
-            if g.UserX != id {
-                // This game has no 'O' player.
-                // Make the current user the 'O' player.
-                g.UserO = id
-            }
-        }
-        // Store the created or updated Game to the Datastore.
-        _, err := datastore.Put(c, k, g)
-        return err
-    }, nil)
-    if err != nil {
-        http.Error(w, "Couldn't load Game", http.StatusInternalServerError)
-        c.Errorf("setting up: %v", err)
-        return
-    }
-
-    tok, err := channel.Create(c, id+key)
-    if err != nil {
-        http.Error(w, "Couldn't create Channel", http.StatusInternalServerError)
-        c.Errorf("channel.Create: %v", err)
-        return
-    }
-
-    err = mainTemplate.Execute(w, map[string]string{
-        "token":    tok,
-        "me":       id,
-        "game_key": key,
-    })
+    err := mainTemplate.Execute(w, map[string]string{})
     if err != nil {
         c.Errorf("mainTemplate: %v", err)
     }
-}
-
-func (g *Game) Move(uID string, pos int) (ok bool) {
-    // validate the move and update the board
-    // (implementation omitted in this example)
-    ok = true
-    return
 }
