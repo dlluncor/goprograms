@@ -70,6 +70,9 @@ func (g *MyGame) Clear() {
   g.Points = []int{}
   g.Tables = []string{}
   g.States = []string{}
+  g.CurTable = ""
+  g.CurWords = []string{}
+  g.CurRound = -1
   for _, _ = range g.Users {
     g.Points = append(g.Points, 0)
   }

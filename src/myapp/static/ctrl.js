@@ -525,9 +525,41 @@ WordHandler.prototype.addWord = function(word) {
   this.usersHandler.update(user, points);
 };
 
+Console = function() {
+
+};
+
+Console.prototype.init = function() {
+  // Hide dev console.
+  $('#answers').hide();
+  $('#rpcs').hide();
+  $('#multiPostRpcs').hide();
+
+  // Handlers.
+  $('#showSolutionBtn').click(function(e) {
+    $('#answers').toggle();
+  });
+  $('#showRpcsBtn').click(function(e) {
+    $('#rpcs').toggle();
+  });
+  $('#showMultiRpcsBtn').click(function(e) {
+    $('#multiPostRpcs').toggle();
+  });
+
+  // Control what gets shown to the user.
+  if (ctrl.isLocal()) {
+    $('#develConsole').show();
+  }
+};
+
+Console.prototype.multiPrint = function(str) {
+  $('#multiPostRpcs').append('<div>Handle: ' + str + '</div>');
+};
+
 var ctrl = {
   STOP_TIMERS: false,
-  table: null // Current table user is part of.
+  table: null, // Current table user is part of.
+  console: null // devel console to print to.
 };
 
 ctrl.stopTimers = function() {
@@ -567,18 +599,6 @@ Table.prototype.create = function() {
   this.rounder = new Round(boardC);
 
   multi.initConnection(this.user, this.table);
-
-    // Hide dev console.
-    $('#answers').hide();
-    $('#rpcs').hide();
-
-    // Handlers.
-    $('#showSolutionBtn').click(function(e) {
-      $('#answers').toggle();
-    });
-    $('#showRpcsBtn').click(function(e) {
-      $('#rpcs').toggle();
-    });
 
     var clearWord = function() {
       $('#submissionText').val('');
@@ -624,12 +644,9 @@ ctrl.init_ = function() {
       ctrl.table.startGame();
     });
 
-    // Control what gets shown to the user.
-    if (ctrl.isLocal()) {
-      $('#develConsole').show();
-    }
-
     multi.initState();
+    ctrl.console = new Console();
+    ctrl.console.init();
 };
 
 ctrl.isLocal = function() {

@@ -11,11 +11,28 @@ multi.initState = function() {
    };
 };
 
+GameModel = function(json) {
+    this.obj = json; // JSON which underlies the game object.
+};
+
+GameModel.inArr = function(arr, el) {
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] == el) {
+      	return true;
+      }	
+    }
+    return false;
+};
+
+GameModel.prototype.isStarted = function() {
+  return GameModel.inArr(this.obj.States, 'justStarted');
+};
+
  // Logic that deals with responding to user requests.
 multi.handleMessage = function(resp) {
     if (resp.Action == 'join') {
-      updateStatus('Set up initial state of the table for the user.');
-      var gameM = new Game(resp.Payload);
+      ctrl.console.multiPrint('Set up initial state of the table for the user.');
+      var gameM = new GameModel(resp.Payload);
 
       // Update the UI given the game state.
       $('#startGame').prop('disabled', gameM.isStarted());
@@ -30,7 +47,7 @@ multi.handleMessage = function(resp) {
       // time it is when the user gets a response?)
     }
     else if (resp.Action == 'startGame') {
-      updateStatus('Game about to start once we generate tables.');
+      ctrl.console.multiPrint('Game about to start once we generate tables.');
       // This guy can generate the tables for everyone for each round for now
       // even though the backend should be doing that, and then the server
       // can notify everyone when to start the round 1 (everyone should
@@ -49,7 +66,7 @@ multi.handleMessage = function(resp) {
     }
     else if (resp.Action == 'aboutToStartRound') {
       var info = resp.Payload;
-      updateStatus('Got info for round ' + JSON.stringify(info));
+      ctrl.console.multiPrint('Got info for round ' + JSON.stringify(info));
       // The timer is still counting down to 10...but now we have all
       // the solutions for the puzzle, what are complete words.
       state.round++;
