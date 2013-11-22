@@ -150,7 +150,17 @@ func submitWord(w http.ResponseWriter, r *http.Request) {
   }
   g := ChangeGame(c, tableKey, gameChanger)
   if hasWord {
-    // User did not get any points. TOOD(dlluncor): Just notify that user.
+    wordUpdate := &WordUpdate{
+      User: user,
+      Word: word,
+      TotalPoints: -1,
+    }
+    resp := &Resp{
+      Action: "wordUpdate",
+      Payload: wordUpdate,
+    }
+    myToken := r.FormValue("t")
+    channel.SendJSON(c, myToken, resp)
     return
   }
 

@@ -264,13 +264,15 @@ BoardC.prototype.wordUpdate = function(wordUpdateObj) {
   var quote = function(val) {
     return "'" + val + "'";
   };
-  var wordIsSeen = false; // only handling successful updates right now.
+  var wordIsSeen = wordUpdateObj.TotalPoints == -1;
   var word = wordUpdateObj.Word;
   var user = wordUpdateObj.User;
   var totalPoints = wordUpdateObj.TotalPoints;
   if (wordIsSeen) {
     // Already found.
-    msgEl.html(word + ' is already found.');
+    var span = $('<span>' + word + ' is already found.' + '</span>');
+    span.addClass('redText');
+    msgEl.append(span);
   } else {
     // If this is my update, notify myself that I got points.
     if (user == ctrl.getUser()) {
