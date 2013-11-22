@@ -146,20 +146,20 @@ BoardGen.generateBoard = function(curRound) {
 };
 
 // Join lines for a table, what the server expects as one string
-// [['a', 'b'], ['X', 'b']] -> 'ab\nXb'
+// [['a', 'b'], ['X', 'b']] -> 'ab*Xb'
 BoardGen.join = function(lines) {
   var charLines = [];
   for (var i = 0; i < lines.length; i++) {
     charLines.push(lines[i].join(''));
   }
-  return charLines.join('\n');
+  return charLines.join('*');
 };
 
 // Reverse of join. From the server we get one string and need to
 // conver it back to an array of strings.
 BoardGen.unjoin = function(str) {
   var lines = [];
-  var lineStrs = str.split('\n');
+  var lineStrs = str.split('*');
   for (var i = 0; i < lineStrs.length; i++) {
   	var lineStr = lineStrs[i];
   	var line = [];
