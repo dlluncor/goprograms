@@ -54,6 +54,8 @@ func sendTables(w http.ResponseWriter, r *http.Request) {
   }
 }
 
+// One user can request for the entire group all the information for
+// a round like the words to solve and the actual puzzle.
 func getRoundInfo(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
   tableKey := r.FormValue("g")
@@ -83,6 +85,56 @@ func getRoundInfo(w http.ResponseWriter, r *http.Request) {
   }
   // Send table information to everyone in the room (need a solution
   // for when someone randomly jumps into the game).
+  for _, token := range g.GetUserTokens() {
+    err := channel.SendJSON(c, token, resp)
+    if err != nil {
+      c.Errorf("Err with sendTables response: %v", err)
+    }
+  }
+}
+
+type WordUpdate struct {
+  Word string
+  User string
+  TotalPoints int
+}
+
+func submitWord(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  tableKey := r.FormValue("g")
+  user := r.FormValue("u")
+  word := r.FormValue("word")
+  points, _ := strconv.Atoi(r.FormValue("points"))
+  hasWord := false
+  totalPoints := 0
+  gameChanger := func(g *MyGame) bool {
+    // In our current model, users can only submit valid words since their
+    // clients have the solutions.
+    hasWord = g.HasWord(word)
+    if g.HasWord(word) {
+      return false
+    }
+    totalPoints = g.AddWord(user, word, points) // user found a word congrats, store it.
+    return true
+  }
+  g := ChangeGame(c, tableKey, gameChanger)
+  if hasWord {
+    // User did not get any points. TOOD(dlluncor): Just notify that user.
+    return
+  }
+
+  wordUpdate := &WordUpdate {
+    User: user,
+    Word: word,
+    TotalPoints: totalPoints,
+  }
+
+  resp := &Resp{
+    Action: "wordUpdate",
+    Payload: wordUpdate,
+  }
+  // Send table information to everyone in the room about what the result
+  // was.
   for _, token := range g.GetUserTokens() {
     err := channel.SendJSON(c, token, resp)
     if err != nil {

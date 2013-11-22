@@ -39,17 +39,25 @@ func (m DbMap) Save(c chan<- datastore.Property) error {
 // TODO(dlluncor): Figure out how to get a map type in here. For now,
 // not worth it!!
 type MyGame struct {
-   Tokens []string
    States []string
-   Tables []string
+   Tables []string  // Only 4.
+   // Running total for the game. Token[0] corresponds to Points[0] for a user,
+   // as does Users[0]
+   // If a user leaves, then oh well no one can get those points.
+   Users  []string
+   Tokens []string
+   Points []int
    // Current Table Info.
    CurTable string
+   CurWords []string // List of words found this round.
    CurRound int // Starts off at 1, ends at 4. (not used kept by client!)
 }
 
 func defaultGame() *MyGame {
     g := &MyGame{
+        Users:  []string{},
         Tokens: []string{},
+        Points: []int{},
         States: []string{},
         Tables: []string{},
     }
@@ -97,6 +105,8 @@ func (g *MyGame) HadState(state string) bool {
 
 func (g *MyGame) AddUserToken(user, token string) {
   g.Tokens = append(g.Tokens, token)
+  g.Points = append(g.Points, 0)
+  g.Users = append(g.Users, user)
 }
 
 // SetTable("table1", "dsdfsdfs\nXXXX\nDDFD")
@@ -118,6 +128,7 @@ func (g *MyGame) CreateTableInfo(round int) {
   // Keep track of a new slate of data for this particular round.
   g.CurTable = g.Tables[round-1]
   g.CurRound = round
+  g.CurWords = []string{}
 }
 
 // Gets the table information for this round.
@@ -127,4 +138,27 @@ func (g *MyGame) GetTableInfo() *TableInfo {
     Round: g.CurRound, 
   }
   return info
+}
+
+func (g *MyGame) HasWord(word string) bool {
+  return inArr(g.CurWords, word)
+}
+
+
+func indexOf(els []string, el string) int {
+  for index, aEl := range els {
+    if aEl == el {
+        return index
+    }
+  }
+  return -1
+}
+
+func (g *MyGame) AddWord(user, word string, points int) int {
+  // TODO(dlluncor): Store the entire state of round for an incoming observer.
+  // aka, the words and who has found them.
+  index := indexOf(g.Users, user)
+  g.Points[index] = g.Points[index] + points
+  g.CurWords = append(g.CurWords, word)
+  return g.Points[index]
 }

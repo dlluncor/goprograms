@@ -59,13 +59,13 @@
 
       var playRound = function() {
       	  var prefix = 'round ' + state.round + ' ends in ';
-          timer.start(5, prefix, startRound);
+          timer.start(30, prefix, startRound);
       };
 
       var startRound = function() {
         // Now everyone can request the round 1 puzzle and all solvable info
         // needed.
-        timer.start(10, 'starting in ', playRound);
+        timer.start(2, 'starting in ', playRound);
         sendMessage('getRoundInfo', {'r': state.round});
       };
 
@@ -224,7 +224,10 @@
         $('#curWord').keypress(function(e) {
           var word = $('#curWord').val();
           if (e.which == 13) {
-          	sendMessage('submitWord', {'word': word});
+          	sendMessage('submitWord', {
+          		'word': word,
+          		'points': 20,
+          	});
           }
         });
       };
