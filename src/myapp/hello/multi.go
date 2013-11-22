@@ -125,10 +125,13 @@ func opened(w http.ResponseWriter, r *http.Request) {
     Action: "join",
     Payload: g,
   }
-  // Return the game state to the user.
-  // TOOD(dlluncor): Might want to strip game depending on what needs to get
-  // send to the user.
-  channel.SendJSON(c, token, resp)
+  // Let everyone know that they joined the game!
+  for _, token := range g.GetUserTokens() {
+    err := channel.SendJSON(c, token, resp)
+    if err != nil {
+      c.Errorf("sending Start game updates: %v", err)
+    }
+  }
 }
 
 func startGame(w http.ResponseWriter, r *http.Request) {

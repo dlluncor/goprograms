@@ -481,7 +481,11 @@ UsersHandler.prototype.update = function(user, points) {
     // points since it doesn't exist yet.
     this.register(user, points);
   } else {
-    pointsEl.html(points);
+    // Don't redraw if we have the same number of points.
+    var curPoints = pointsEl.html();
+    if (curPoints != points) {
+      pointsEl.html(points);
+    }
   }
 };
 
