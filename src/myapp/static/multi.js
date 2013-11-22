@@ -98,6 +98,7 @@ multi.handleMessage = function(resp) {
       //  the messages.)
       // So we can handle other users giving us updates or we can handle
       // just us getting these updates.
+      ctrl.table.boardC.wordUpdate(resp.Payload);
     } else if (resp.Action == 'gameEnded') {
       // Enable the "Start game" button again and provide some message
       // of how the users did.

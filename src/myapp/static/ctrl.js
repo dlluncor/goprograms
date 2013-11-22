@@ -163,8 +163,8 @@ BoardC = function(board, solvedWordHandler) {
 
   this.curAnswers = {}; // Map of word to true. Only valid words are in map.
 
-  // Lots of this stuff will have to be distributed...
   this.solvedWords = {}; // Map of word to true. Only solved words are in this map.
+  // Used to show the words which were not found at the end.
   
   // Only need to fetch this once...
   this.allPossible = {}; // Map of word to true. All possible words in English.
@@ -199,7 +199,9 @@ BoardC.prototype.getReadyForRound = function(curRound) {
   multi.sendMessage('getRoundInfo', {'r': curRound});
 };
 
-// TODO(dlluncor): broken.
+// Gets the board from the server, and then asks the server yet
+// again to solve this board. Silly, but only way I can get this to
+// work....
 BoardC.prototype.useSolutions = function(solutionM) {
   // Solve the board and store the results locally for now...
   this.board.resetBoard(solutionM.getLines());
@@ -256,6 +258,29 @@ BoardC.prototype.clearDevelConsole = function() {
   //$('#answers').html('');
 };
 
+// TODO(dlluncor): broken.
+BoardC.prototype.wordUpdate = function(wordUpdateObj) {
+  var msgEl = $('#msgAfterWordEntry');
+  var quote = function(val) {
+    return "'" + val + "'";
+  };
+  var wordIsSeen = false; // only handling successful updates right now.
+  var word = wordUpdateObj.Word;
+  var user = wordUpdateObj.User;
+  var totalPoints = wordUpdateObj.TotalPoints;
+  if (wordIsSeen) {
+    // Already found.
+    msgEl.html(word + ' is already found.');
+  } else {
+    // If this is my update, notify myself that I got points.
+    if (user == ctrl.getUser()) {
+      msgEl.html(Word.getPoints(word) + ' points for finding ' + quote(word));
+    }
+    this.solvedWordHandler.addWord(user, word, totalPoints);
+    this.solvedWords[word] = true;
+  }
+};
+
 BoardC.prototype.submitWord = function(word) {
   var quote = function(val) {
     return "'" + val + "'";
@@ -269,17 +294,12 @@ BoardC.prototype.submitWord = function(word) {
 
   var wordIsValid = word in this.curAnswers;
   if (wordIsValid) {
-    var wordIsSeen = word in this.solvedWords;
-    // Distributed.
-    if (wordIsSeen) {
-      // Already found.
-      msgEl.html(word + ' is already found.');
-    } else {
-      // Give this guy some points...
-      msgEl.html(Word.getPoints(word) + 'points for finding ' + quote(word));
-      this.solvedWords[word] = true;
-      this.solvedWordHandler.addWord(word);
-    }
+    var params = {
+      'word': word,
+      'points': Word.getPoints(word),
+    };
+    multi.sendMessage('submitWord', params);
+    // Need to wait to find out whether this submission was valid.
   } else {
   	var wordIsEnglish = word in this.allPossible;
   	if (wordIsEnglish) {
@@ -381,9 +401,8 @@ WordHandler.prototype.addDiscoverer = function(inf) {
   $('#discovererList').append(row);
 };
 
-WordHandler.prototype.addWord = function(word) {
+WordHandler.prototype.addWord = function(user, word, totalPoints) {
   var points = Word.getPoints(word);
-  var user = this.usersHandler.curUser;
 
   this.addDiscoverer({
   	word: word,
@@ -392,7 +411,7 @@ WordHandler.prototype.addWord = function(word) {
   });
 
   // Update the points for the user who scored.
-  this.usersHandler.update(user, points);
+  this.usersHandler.update(user, totalPoints);
 };
 
 Console = function() {
@@ -439,6 +458,11 @@ ctrl.stopTimers = function() {
   }
   $('#stopTimerBtn').val(text);
   ctrl.STOP_TIMERS = !ctrl.STOP_TIMERS;
+};
+
+// We need to know who THIS user is.
+ctrl.getUser = function() {
+  return ctrl.table.user;
 };
 
 Table = function(curUser, table) {
