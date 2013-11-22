@@ -597,10 +597,14 @@ ctrl.init_ = function() {
     $('#entireGameArena').hide();
 
     $('#joinTableBtn').click(function(e) {
+      window.console.log('Joining the table.');
+      $('#entireGameArena').show();
+    });
+
+    $('#startGameBtn').click(function(e) {
       var user = $('#loginUser').val();
       var table = $('#tableId').val();
       ctrl.initGame(user, table);
-      $('#entireGameArena').show();
     });
 
     // Control what gets shown to the user.
