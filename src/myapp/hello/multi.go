@@ -23,6 +23,7 @@ func InitMulti() {
     http.HandleFunc("/sendTables", sendTables)
     http.HandleFunc("/getRoundInfo", getRoundInfo)
     http.HandleFunc("/submitWord", submitWord)
+    http.HandleFunc("/gameOver", gameOver)
 
     // Debug.
     http.HandleFunc("/clearAll", clearAll)

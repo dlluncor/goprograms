@@ -54,6 +54,37 @@ func sendTables(w http.ResponseWriter, r *http.Request) {
   }
 }
 
+// Reset the state of the game and let all users know about that.
+func gameOver(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  tableKey := r.FormValue("g")
+  justEnded := false
+  gameChanger := func(g *MyGame) bool {
+    justEnded = g.HadState("justEnded")
+    if justEnded {
+      return false
+    }
+    g.Clear()
+    g.AddState("justEnded")
+    return true
+  }
+  g := ChangeGame(c, tableKey, gameChanger)
+  if justEnded {
+    return 
+  }
+  resp := &Resp{
+    Action: "gameEnded",
+    Payload: g,
+  }
+  // Send update to people letting them know the game is over.
+  for _, token := range g.GetUserTokens() {
+    err := channel.SendJSON(c, token, resp)
+    if err != nil {
+      c.Errorf("Err with gameOver response: %v", err)
+    }
+  }
+}
+
 // One user can request for the entire group all the information for
 // a round like the words to solve and the actual puzzle.
 func getRoundInfo(w http.ResponseWriter, r *http.Request) {

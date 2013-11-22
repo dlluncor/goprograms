@@ -65,6 +65,16 @@ func defaultGame() *MyGame {
     return g
 }
 
+// Delete the session state of the game but keep the users and tokens.
+func (g *MyGame) Clear() {
+  g.Points = []int{}
+  g.Tables = []string{}
+  g.States = []string{}
+  for _, _ = range g.Users {
+    g.Points = append(g.Points, 0)
+  }
+}
+
 /*
 func (g MyGame) Load(c <-chan datastore.Property) error {
   err := g.Users.Load(c)

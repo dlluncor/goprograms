@@ -59,14 +59,19 @@
 
       var playRound = function() {
       	  var prefix = 'round ' + state.round + ' ends in ';
-          timer.start(30, prefix, startRound);
+          timer.start(5, prefix, startRound);
       };
 
       var startRound = function() {
         // Now everyone can request the round 1 puzzle and all solvable info
         // needed.
         timer.start(2, 'starting in ', playRound);
-        sendMessage('getRoundInfo', {'r': state.round});
+        if (state.round != 5) {
+          sendMessage('getRoundInfo', {'r': state.round});
+        } else {
+          // Game is over.
+          sendMessage('gameOver');
+        }
       };
 
       updateStatus = function(str) {
@@ -115,10 +120,10 @@
           // the solutions for the puzzle, what are complete words.
           state.round++;
         }
-        else if (resp.Action == 'endRound') {
+        //else if (resp.Action == 'endRound') {
           // The round just ended for someone, so we all end the round at the
           // same time and then start our counters at 10.
-        }
+        //}
         else if (resp.Action == 'wordUpdate') {
           // Here we can handle situations such as:
           // Who is the update for (user - string).
