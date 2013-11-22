@@ -527,7 +527,6 @@ WordHandler.prototype.addWord = function(word) {
 
 var ctrl = {
   STOP_TIMERS: false,
-  state: null, // State for multi-player of the user.
   table: null // Current table user is part of.
 };
 
@@ -566,6 +565,8 @@ Table.prototype.create = function() {
 	var board = new Board($('#wordRacerBoard'));
 	var boardC = new BoardC(board, solvedWordHandler); // board controller.
   this.rounder = new Round(boardC);
+
+  multi.initConnection(this.user, this.table);
 
     // Hide dev console.
     $('#answers').hide();
