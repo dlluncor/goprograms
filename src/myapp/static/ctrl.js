@@ -41,41 +41,6 @@ backend.getAllWords = function(callback) {
   Jax.ajax('/getallwords', doneCallback);
 }
 
-backend.solvePuzzle = function(answersCb, board, length) {
-
-  var parseAnswersData = function(linesAsText) {
-	var words = linesAsText.split(',');
-	var answers = [];
-	for (var i = words.length -1; i >= 0; i--) {
-		var word = words[i];
-		answers.push(word);
-    }
-	return answers;
-  };
-
-  var doneCallback = function(data) {
-    var answers = parseAnswersData(data);
-	window.console.log('success');
-	window.console.log(data);
-	answersCb(answers);
-  };
-  Jax.ajax('/wordracer_json?board=' + board + '&length=' + length,
-      doneCallback);
-};
-
-BoardSolver = function(text) {
-	this.text = text;
-};
-
-BoardSolver.prototype.solve = function(answersCb) {
-  var text = this.text;
-  var lines = text.split('\n');
-  // Validate the board works.
-  var length = lines[0].length;
-  window.console.log(this.text);
-  backend.solvePuzzle(answersCb, text, length);
-};
-
 // Round object to control keeping track of the
 // round numbers and time left.
 Round = function(boardC) {
@@ -95,10 +60,9 @@ Round = function(boardC) {
   };
 };
 
-Round.prototype.start = function() {
-  this.boardC.start();
+Round.prototype.init = function() {
+  this.boardC.init();
   this.curRound = 1;
-  this.startRound(this.curRound);
 };
 
 Round.prototype.startRound = function(roundNum) {
@@ -148,6 +112,7 @@ Round.prototype.roundOver = function() {
   if (this.curRound == 5) {
   	this.timeLeftTextEl.text('Game over.');
   	this.timeLeftEl.text('');
+    multi.sendMessage('gameOver');
   } else {
     this.startRound(this.curRound);
   }
@@ -171,7 +136,7 @@ BoardC = function(board, solvedWordHandler) {
 };
 
 // Called once when the entire game starts.
-BoardC.prototype.start = function() {
+BoardC.prototype.init = function() {
 
   backend.getAllWords(function(words) {
     for (var i = 0; i < words.length; i++) {
@@ -196,19 +161,18 @@ BoardC.prototype.startInBetween = function() {
 // to the round starting and save your state.
 BoardC.prototype.getReadyForRound = function(curRound) {
   window.console.log('Round about to start in 10 seconds.');
-  var lines = BoardGen.generateBoard(curRound);  // renders as well.
+  multi.sendMessage('getRoundInfo', {'r': curRound});
+};
+
+// TODO(dlluncor): broken.
+BoardC.prototype.useSolutions = function(solutionM) {
   // Solve the board and store the results locally for now...
-  this.board.resetBoard(lines);
-  var b = new BoardSolver(this.board.asStringToSolve());
+  this.board.resetBoard(solutionM.getLines());
   this.curAnswers = {};
-  var answersCb = function(answers) {
-    // Store the words locally.
-    for (var i = 0; i < answers.length; i++) {
-      this.curAnswers[answers[i]] = true;
-    }
-    this.fillSolution();
-  }.bind(this);
-  b.solve(answersCb);
+  for (var i = 0; i < solutionM.getAnswers().length; i++) {
+    this.curAnswers[answers[i]] = true;
+  }
+  this.fillSolution();
 };
 
 BoardC.prototype.roundStart = function(curRound) {
@@ -442,11 +406,18 @@ Table = function(curUser, table) {
 
   this.rounder = null;
   this.usersHandler = null;
+  this.boardC = null;
 };
 
 Table.prototype.startGame = function() {
   multi.sendMessage('startGame');
   //this.rounder.start();
+};
+
+Table.prototype.startRound = function() {
+    // Now everyone can request the round 1 puzzle and all solvable info
+    // needed.
+    this.rounder.startRound(1);
 };
 
 // Updates the UI based on a game model passed from the server.
@@ -484,8 +455,9 @@ Table.prototype.create = function() {
 	
   // Couple components to this game.
 	var board = new Board($('#wordRacerBoard'));
-	var boardC = new BoardC(board, solvedWordHandler); // board controller.
-  this.rounder = new Round(boardC);
+	this.boardC = new BoardC(board, solvedWordHandler); // board controller.
+  this.rounder = new Round(this.boardC);
+  this.rounder.init();
 
   multi.initConnection(this.user, this.table);
 
@@ -501,11 +473,11 @@ Table.prototype.create = function() {
       clearWord();
     });
 
-    var submitWord = function() {
+    var submitWord = function(e) {
       var word = $('#submissionText').val();
-      boardC.submitWord(word);
+      this.boardC.submitWord(word);
       clearWord();
-    };
+    }.bind(this);
 
     $('#submissionText').keyup(function(e) {
       board.clearPaths();

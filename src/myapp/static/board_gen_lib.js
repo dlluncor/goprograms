@@ -154,3 +154,19 @@ BoardGen.join = function(lines) {
   }
   return charLines.join('\n');
 };
+
+// Reverse of join. From the server we get one string and need to
+// conver it back to an array of strings.
+BoardGen.unjoin = function(str) {
+  var lines = [];
+  var lineStrs = str.split('\n');
+  for (var i = 0; i < lineStrs.length; i++) {
+  	var lineStr = lineStrs[i];
+  	var line = [];
+  	for (var j = 0; j < lineStr.length; j++) {
+      line.push(lineStr[j]);
+    }
+    lines.push(line);
+  }
+  return lines;
+};

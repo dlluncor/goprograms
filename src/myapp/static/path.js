@@ -95,18 +95,6 @@ Board.prototype.destroy = function() {
   this.boardEl.html('');
 };
 
-// Returns the board as a string, each line is \n.
-Board.prototype.asStringToSolve = function() {
-  // Create board and write it to the display.
-  var boardTextLines = [];
-  for (var j = 0; j < this.lines.length; j++) {
-  	var lineArr = this.lines[j];
-  	var lineText = lineArr.join('');
-    boardTextLines.push(lineText);
-  }
-  return boardTextLines.join('\n');
-};
-
 Board.prototype.drawPaths = function(word) {
   var characters = word.split('');
   // position {{

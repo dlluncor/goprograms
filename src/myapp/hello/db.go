@@ -134,7 +134,7 @@ func (g *MyGame) GetUserTokens() []string {
 
 type TableInfo struct {
   Table string
-  Round int
+  Answers *[]string
 }
 
 func (g *MyGame) CreateTableInfo(round int) {
@@ -144,11 +144,25 @@ func (g *MyGame) CreateTableInfo(round int) {
   g.CurWords = []string{}
 }
 
+// Get the length of our table encoded as 'abcdX\ndfdsX'
+func getTableLen(table string) int {
+  i := 0
+  for _, char := range table {
+    if char == '\n' {
+        break
+    }
+    i += 1
+  }
+  return i
+}
+
 // Gets the table information for this round.
 func (g *MyGame) GetTableInfo() *TableInfo {
+  // Run the algorithm to generate a list of solutions!!!
+  length := getTableLen(g.CurTable)
   info := &TableInfo{
     Table: g.CurTable,
-    Round: g.CurRound, 
+    Answers: solveForWords(g.CurTable, length),
   }
   return info
 }

@@ -70,7 +70,7 @@ func handlerSocketPage(w http.ResponseWriter, r *http.Request) {
   handleStaticPage(w, r, "websocket.html")
 }
 
-// JSON handler.
+// JSON handler (deprecated) TODO(dlluncor): delete.
 func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
     checker := spoj.NewChecker("allWords.txt")
     //c := appengine.NewContext(r)
@@ -83,6 +83,14 @@ func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
     // Should use JSON here.
     output := strings.Join(words, ",")
     fmt.Fprintf(w, output)
+}
+
+// content should have newlines, that's why we need length!
+func solveForWords(content string, length int) *[]string {
+  checker := spoj.NewChecker("allWords.txt")
+  lines := getLines(content, string(length))
+  words := spoj.WordRacerFromServer(checker, lines)
+  return &words
 }
 
 // Useful notes.

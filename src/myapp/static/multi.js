@@ -43,6 +43,18 @@ GameModel.prototype.getUsersInfo = function() {
   return infoMap;
 };
 
+SolutionModel = function(obj) {
+  this.obj = obj;
+};
+
+SolutionModel.prototype.getLines = function() {
+  return BoardGen.unjoin(this.obj.Table);
+};
+
+SolutionModel.prototype.getAnswers = function() {
+  return this.obj.Answers;
+};
+
  // Logic that deals with responding to user requests.
 multi.handleMessage = function(resp) {
     if (resp.Action == 'join') {
@@ -66,14 +78,14 @@ multi.handleMessage = function(resp) {
     }
     else if (resp.Action == 'startTimers') {
       ctrl.console.multiPrint('Starting my timers.');
-      startRound();
+      ctrl.table.startRound();
     }
     else if (resp.Action == 'aboutToStartRound') {
       var info = resp.Payload;
-      ctrl.console.multiPrint('Got info for round ' + JSON.stringify(info));
+      ctrl.console.multiPrint('Got info for next round');
       // The timer is still counting down to 10...but now we have all
       // the solutions for the puzzle, what are complete words.
-      state.round++;
+      ctrl.table.boardC.useSolutions(new SolutionModel(info));
     }
     //else if (resp.Action == 'endRound') {
       // The round just ended for someone, so we all end the round at the
