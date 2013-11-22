@@ -526,7 +526,9 @@ WordHandler.prototype.addWord = function(word) {
 };
 
 var ctrl = {
-  STOP_TIMERS: false
+  STOP_TIMERS: false,
+  state: null, // State for multi-player of the user.
+  table: null // Current table user is part of.
 };
 
 ctrl.stopTimers = function() {
@@ -538,19 +540,32 @@ ctrl.stopTimers = function() {
   ctrl.STOP_TIMERS = !ctrl.STOP_TIMERS;
 };
 
-// Initialize a game with a user name and a table id.
-ctrl.initGame = function(curUser, table) {
+Table = function(curUser, table) {
+  this.user = curUser;
+  this.table = table; // table name.
+
+  this.rounder = null;
+};
+
+Table.prototype.startGame = function() {
+  this.rounder.start();
+};
+
+// Creates and sets up the table with a user name and a table id.
+Table.prototype.create = function() {
+   $('#entireGameArena').show();
+
    // Wait for the user to click join table.
 
-    window.console.log("ready for damage");
-    var usersHandler = new UsersHandler(curUser);
-    usersHandler.register(curUser, 0);
-    var solvedWordHandler = new WordHandler(usersHandler);
-	// Couple components to this game.
+  window.console.log("ready for damage");
+  var usersHandler = new UsersHandler(this.user);
+  usersHandler.register(this.user, 0);
+  var solvedWordHandler = new WordHandler(usersHandler);
+	
+  // Couple components to this game.
 	var board = new Board($('#wordRacerBoard'));
 	var boardC = new BoardC(board, solvedWordHandler); // board controller.
-    var rounder = new Round(boardC);
-    rounder.start();
+  this.rounder = new Round(boardC);
 
     // Hide dev console.
     $('#answers').hide();
@@ -598,19 +613,22 @@ ctrl.init_ = function() {
 
     $('#joinTableBtn').click(function(e) {
       window.console.log('Joining the table.');
-      $('#entireGameArena').show();
+      var user = $('#loginUser').val();
+      var table = $('#tableId').val();
+      ctrl.table = new Table(user, table);
+      ctrl.table.create();
     });
 
     $('#startGameBtn').click(function(e) {
-      var user = $('#loginUser').val();
-      var table = $('#tableId').val();
-      ctrl.initGame(user, table);
+      ctrl.table.startGame();
     });
 
     // Control what gets shown to the user.
     if (ctrl.isLocal()) {
       $('#develConsole').show();
     }
+
+    multi.initState();
 };
 
 ctrl.isLocal = function() {
