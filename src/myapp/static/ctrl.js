@@ -153,84 +153,6 @@ Round.prototype.roundOver = function() {
   }
 };
 
-RndLetter = function() {
-};
-
-RndLetter.randLetter = function() {
-  var letters = RndLetter.getLetterMix();
-  var possib = letters.length-1;
-  var ind = Math.floor((Math.random() * possib));
-  return letters[ind];
-};
-
-RndLetter.emptySpace = 'X';
-RndLetter.letters = [
-  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-  'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-  'Q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-];
-
-RndLetter.boosts = null;
-RndLetter.letterMix = null;
-
-RndLetter.createBoosts = function() {
-  if (RndLetter.boosts) {
-  	return RndLetter.boosts;
-  }
-
-  var tiers = {
-  	 3: 'Q x z',
-     6: 'j v y',
-     8: 'k w',
-    10: 'b c',
-    12: 'f g h m n p',
-    16: 'd',
-    18: 'l r',
-    26: 's t u o',
-    30: 'a e i'
-  };
-
-  // Tiers to boost (prob that we get that letter).
-  var boosts = {};
-  var numLetters = 0;
-  for (var tier in tiers) {
-  	var letters = tiers[tier].split(' ');
-  	for (var l = 0; l < letters.length; l++) {
-      boosts[letters[l]] = tier;
-      numLetters++;
-  	}
-  }
-  if (numLetters != 26) {
-  	alert('Mapping is wrong needs 26 characters!');
-  }
-  RndLetter.boosts = boosts;
-  return boosts;
-};
-
-RndLetter.getLetterMix = function() {
-  if (RndLetter.letterMix) {
-  	return RndLetter.letterMix;
-  }
-
-  var letters = [];
-  var boosts = RndLetter.createBoosts();
-  // Add letters with boosts that many extra times.
-  for (var i = 0; i < RndLetter.letters.length; i++) {
-  	var letter = RndLetter.letters[i];
-  	var repeat = 1;
-  	if (letter in boosts) {
-  		repeat = boosts[letter];
-  	}
-
-  	// Now put that letter into the mix that many times.
-  	for (var j = 0; j < repeat; j++) {
-  		letters.push(letter);
-  	}
-  }
-  RndLetter.letterMix = letters;
-  return RndLetter.letterMix;
-};
-
 BoardC = function(board, solvedWordHandler) {
   this.solvedWordHandler = solvedWordHandler;
   this.board = board;
@@ -246,71 +168,6 @@ BoardC = function(board, solvedWordHandler) {
   
   // Only need to fetch this once...
   this.allPossible = {}; // Map of word to true. All possible words in English.
-};
-
-BoardC.prototype.createLine = function(emptyIndices, width) {
-  var emptyMap = {};
-  emptyIndices.forEach(function(index) {
-    emptyMap[index] = true;
-  });
-
-  var letters = [];
-  for (var i = 0; i < width; i++) {
-    if (i in emptyMap) {
-    	letters.push(RndLetter.emptySpace);
-    } else {
-      letters.push(RndLetter.randLetter());
-    }
-  }
-  return letters;
-};
-
-// Returns the board as an array of characters, e.g.
-// [['a', 'b', 'X'], ['f', 'e', 'd']]
-BoardC.prototype.generateBoard = function(curRound) {
-  window.console.log('About to generate the board.');
-  var lines = [];
-  if (curRound == 1) {
-  	// Need a 4 by 4 grid no empty spaces.
-  	var width = 4;
-  	lines = [
-      this.createLine([], width),
-      this.createLine([], width),
-      this.createLine([], width),
-      this.createLine([], width)
-  	];
-  } else if (curRound == 2) {
-  	var width = 6;
-  	lines = [
-  	  this.createLine([0, 1, 4, 5], width),
-  	  this.createLine([0, 5], width),
-  	  this.createLine([], width),
-  	  this.createLine([], width),
-  	  this.createLine([0, 5], width),
-  	  this.createLine([0, 1, 4, 5], width)
-  	];
-  } else if (curRound == 3) {
-  	var width = 6;
-    lines = [
-  	  this.createLine([4, 5], width),
-  	  this.createLine([4, 5], width),
-  	  this.createLine([], width),
-  	  this.createLine([], width),
-  	  this.createLine([0, 1], width),
-  	  this.createLine([0, 1], width)
-  	];
-  } else if (curRound == 4) {
-  	var width = 6;
-    lines = [
-  	  this.createLine([], width),
-  	  this.createLine([], width),
-  	  this.createLine([2, 3], width),
-  	  this.createLine([2, 3], width),
-  	  this.createLine([], width),
-  	  this.createLine([], width)
-  	];
-  }
-  return lines;
 };
 
 // Called once when the entire game starts.
@@ -339,7 +196,7 @@ BoardC.prototype.startInBetween = function() {
 // to the round starting and save your state.
 BoardC.prototype.getReadyForRound = function(curRound) {
   window.console.log('Round about to start in 10 seconds.');
-  var lines = this.generateBoard(curRound);  // renders as well.
+  var lines = BoardGen.generateBoard(curRound);  // renders as well.
   // Solve the board and store the results locally for now...
   this.board.resetBoard(lines);
   var b = new BoardSolver(this.board.asStringToSolve());
@@ -588,7 +445,8 @@ Table = function(curUser, table) {
 };
 
 Table.prototype.startGame = function() {
-  this.rounder.start();
+  multi.sendMessage('startGame');
+  //this.rounder.start();
 };
 
 // Updates the UI based on a game model passed from the server.

@@ -57,15 +57,15 @@ multi.handleMessage = function(resp) {
       // can notify everyone when to start the round 1 (everyone should
       // be synchronized at that point).
       var params = {
-      	'table1': state.username + 'thisistable1',
-      	'table2': state.username + 'thisistable2',
-      	'table3': state.username + 'thisistable3',
-      	'table4': state.username + 'thisistable4'
+      	'table1': BoardGen.join(BoardGen.generateBoard(1)),
+      	'table2': BoardGen.join(BoardGen.generateBoard(2)),
+      	'table3': BoardGen.join(BoardGen.generateBoard(3)),
+      	'table4': BoardGen.join(BoardGen.generateBoard(4))
       };
-      sendMessage('sendTables', params);
+      multi.sendMessage('sendTables', params);
     }
     else if (resp.Action == 'startTimers') {
-      updateStatus('Starting my timers.');
+      ctrl.console.multiPrint('Starting my timers.');
       startRound();
     }
     else if (resp.Action == 'aboutToStartRound') {
