@@ -28,23 +28,27 @@ GameModel.prototype.isStarted = function() {
   return GameModel.inArr(this.obj.States, 'justStarted');
 };
 
+// Return a map of user -> information about them, such as
+// {points: number}
+GameModel.prototype.getUsersInfo = function() {
+  var len = this.obj.Users.length;
+  var infoMap = {};
+  for (var i = 0; i < len; i++) {
+    var user = this.obj.Users[i];
+    var info = {
+      points: this.obj.Points[i]
+    };
+    infoMap[user] = info;
+  }
+  return infoMap;
+};
+
  // Logic that deals with responding to user requests.
 multi.handleMessage = function(resp) {
     if (resp.Action == 'join') {
       ctrl.console.multiPrint('Set up initial state of the table for the user.');
       var gameM = new GameModel(resp.Payload);
-
-      // Update the UI given the game state.
-      $('#startGame').prop('disabled', gameM.isStarted());
-      // For example we can give the user all known words as well as part
-      // of this payload.
-
-      // We can also give the user all of the points that everyone has thus
-      // far at this snapshot.
-
-      // Fast forward to the appropriate round and amount of time left
-      // in the round. (server keeps track of when game started and what
-      // time it is when the user gets a response?)
+      ctrl.table.updateUi(gameM);
     }
     else if (resp.Action == 'startGame') {
       ctrl.console.multiPrint('Game about to start once we generate tables.');

@@ -442,12 +442,11 @@ Word.getPoints = function(word) {
 };
 
 // Keeps track of user leader boards and this current user.
-UsersHandler = function(curUser) {
-  this.curUser = curUser;
+UsersHandler = function() {
   this.register('<b>User</b>', '<b>Points</b>');
 }
 
-// Add a user to the list with zero points.
+// Add a user to the list with a certain number of points.
 UsersHandler.prototype.register = function(user, points) {
   var userList = $('#usersList');
 
@@ -474,11 +473,16 @@ UsersHandler.prototype.register = function(user, points) {
   userList.append(row);
 };
 
-// update('dlluncor', 20) -> david get's twenty more points.
+// update('dlluncor', 20) -> david score shows 20 points.
 UsersHandler.prototype.update = function(user, points) {
   var pointsEl = $('#userPoints' + user);
-  var curPoints = parseInt(pointsEl.html());
-  pointsEl.html(curPoints + points);
+  if (!pointsEl[0]) {
+    // We need to create a div for this user to show their
+    // points since it doesn't exist yet.
+    this.register(user, points);
+  } else {
+    pointsEl.html(points);
+  }
 };
 
 // Handles the update when a new word is found.
@@ -572,14 +576,38 @@ ctrl.stopTimers = function() {
 };
 
 Table = function(curUser, table) {
-  this.user = curUser;
+  this.user = curUser; // current user.
   this.table = table; // table name.
 
   this.rounder = null;
+  this.usersHandler = null;
 };
 
 Table.prototype.startGame = function() {
   this.rounder.start();
+};
+
+// Updates the UI based on a game model passed from the server.
+Table.prototype.updateUi = function(gameM) {
+    // Update the UI given the game state.
+    $('#startGameBtn').prop('disabled', gameM.isStarted());
+
+    // Lots of work here...
+    var userInfoMap = gameM.getUsersInfo();
+    for (var user in userInfoMap) {
+      var userInfo = userInfoMap[user];
+      this.usersHandler.update(user, userInfo.points);
+    }
+
+    // For example we can give the user all known words as well as part
+    // of this payload.
+
+    // We can also give the user all of the points that everyone has thus
+    // far at this snapshot.
+
+    // Fast forward to the appropriate round and amount of time left
+    // in the round. (server keeps track of when game started and what
+    // time it is when the user gets a response?)
 };
 
 // Creates and sets up the table with a user name and a table id.
@@ -589,9 +617,8 @@ Table.prototype.create = function() {
    // Wait for the user to click join table.
 
   window.console.log("ready for damage");
-  var usersHandler = new UsersHandler(this.user);
-  usersHandler.register(this.user, 0);
-  var solvedWordHandler = new WordHandler(usersHandler);
+  this.usersHandler = new UsersHandler();
+  var solvedWordHandler = new WordHandler(this.usersHandler);
 	
   // Couple components to this game.
 	var board = new Board($('#wordRacerBoard'));
@@ -599,6 +626,10 @@ Table.prototype.create = function() {
   this.rounder = new Round(boardC);
 
   multi.initConnection(this.user, this.table);
+
+  $('#startGameBtn').click(function(e) {
+    this.startGame();
+  }.bind(this));
 
     var clearWord = function() {
       $('#submissionText').val('');
@@ -638,10 +669,6 @@ ctrl.init_ = function() {
       var table = $('#tableId').val();
       ctrl.table = new Table(user, table);
       ctrl.table.create();
-    });
-
-    $('#startGameBtn').click(function(e) {
-      ctrl.table.startGame();
     });
 
     multi.initState();
