@@ -1,6 +1,7 @@
 package hello
 
 import (
+    //"strings"
     "reflect"
     "appengine/datastore"
 )
@@ -134,7 +135,7 @@ func (g *MyGame) GetUserTokens() []string {
 
 type TableInfo struct {
   Table string
-  Answers *[]string
+  Answers string
   Length int
 }
 
@@ -161,10 +162,14 @@ func getTableLen(table string) int {
 func (g *MyGame) GetTableInfo() *TableInfo {
   // Run the algorithm to generate a list of solutions!!!
   length := getTableLen(g.CurTable)
-  answers := []string{"cheese", "potatoes"}
+  // TODO(dlluncor): Can't get solutions in this thread for some reason
+  // so going back to the old GET request way of doing things, that seems
+  // to work...
+  //answers := "cheese,potatoes"
+  //tableToSolve := strings.Replace(g.CurTable, "*", "", -1)
+  //solveForWords(tableToSolve, length)
   info := &TableInfo{
     Table: g.CurTable,
-    Answers: &answers, //solveForWords(g.CurTable, length),
     Length: length,
   }
   return info

@@ -51,10 +51,6 @@ SolutionModel.prototype.getLines = function() {
   return BoardGen.unjoin(this.obj.Table);
 };
 
-SolutionModel.prototype.getAnswers = function() {
-  return this.obj.Answers;
-};
-
  // Logic that deals with responding to user requests.
 multi.handleMessage = function(resp) {
     if (resp.Action == 'join') {

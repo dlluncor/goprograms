@@ -86,11 +86,11 @@ func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
 }
 
 // content should have newlines, that's why we need length!
-func solveForWords(content string, length int) *[]string {
+func solveForWords(content string, length int) string {
   checker := spoj.NewChecker("allWords.txt")
   lines := getLines(content, string(length))
   words := spoj.WordRacerFromServer(checker, lines)
-  return &words
+  return strings.Join(words, ",")
 }
 
 // Useful notes.

@@ -41,6 +41,41 @@ backend.getAllWords = function(callback) {
   Jax.ajax('/getallwords', doneCallback);
 }
 
+backend.solvePuzzle = function(answersCb, board, length) {
+
+  var parseAnswersData = function(linesAsText) {
+        var words = linesAsText.split(',');
+        var answers = [];
+        for (var i = words.length -1; i >= 0; i--) {
+                var word = words[i];
+                answers.push(word);
+    }
+        return answers;
+  };
+
+  var doneCallback = function(data) {
+    var answers = parseAnswersData(data);
+        window.console.log('success');
+        window.console.log(data);
+        answersCb(answers);
+  };
+  Jax.ajax('/wordracer_json?board=' + board + '&length=' + length,
+      doneCallback);
+};
+
+BoardSolver = function(text) {
+        this.text = text;
+};
+
+BoardSolver.prototype.solve = function(answersCb) {
+  var text = this.text;
+  var lines = text.split('\n');
+  // Validate the board works.
+  var length = lines[0].length;
+  window.console.log(this.text);
+  backend.solvePuzzle(answersCb, text, length);
+};
+
 // Round object to control keeping track of the
 // round numbers and time left.
 Round = function(boardC) {
@@ -169,10 +204,16 @@ BoardC.prototype.useSolutions = function(solutionM) {
   // Solve the board and store the results locally for now...
   this.board.resetBoard(solutionM.getLines());
   this.curAnswers = {};
-  for (var i = 0; i < solutionM.getAnswers().length; i++) {
-    this.curAnswers[answers[i]] = true;
-  }
-  this.fillSolution();
+  var b = new BoardSolver(this.board.asStringToSolve());
+  this.curAnswers = {};
+  var answersCb = function(answers) {
+    // Store the words locally.
+    for (var i = 0; i < answers.length; i++) {
+      this.curAnswers[answers[i]] = true;
+    }
+    this.fillSolution();
+  }.bind(this);
+  b.solve(answersCb);
 };
 
 BoardC.prototype.roundStart = function(curRound) {
