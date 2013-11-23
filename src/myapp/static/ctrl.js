@@ -494,10 +494,14 @@ Table.prototype.startRound = function() {
     this.rounder.startRound(1);
 };
 
+Table.prototype.startButtonDisabled = function(disabled) {
+  $('#startGameBtn').prop('disabled', disabled);
+};
+
 // Updates the UI based on a game model passed from the server.
 Table.prototype.updateUi = function(gameM) {
     // Update the UI given the game state.
-    $('#startGameBtn').prop('disabled', gameM.isStarted());
+    this.startButtonDisabled(gameM.isStarted());
 
     // Lots of work here...
 

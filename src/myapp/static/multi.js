@@ -62,6 +62,7 @@ multi.handleMessage = function(resp) {
       ctrl.table.updateUi(gameM);
     }
     else if (resp.Action == 'startGame') {
+      ctrl.table.startButtonDisabled(true);
       ctrl.console.multiPrint('Game about to start once we generate tables.');
       // This guy can generate the tables for everyone for each round for now
       // even though the backend should be doing that, and then the server
@@ -105,6 +106,7 @@ multi.handleMessage = function(resp) {
     } else if (resp.Action == 'gameEnded') {
       // Enable the "Start game" button again and provide some message
       // of how the users did.
+      ctrl.table.startButtonDisabled(false);
     }
 };
 
