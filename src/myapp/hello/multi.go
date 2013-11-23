@@ -15,8 +15,8 @@ func InitMulti() {
     http.HandleFunc("/multi", main)
 
     // Getting ready to start the game.
+    //http.HandleFunc("/_ah/channel/connected/", opened)
     http.HandleFunc("/opened", opened)
-    http.HandleFunc("/getToken", getToken)
     http.HandleFunc("/startGame", startGame)
     http.HandleFunc("/_ah/channel/disconnected/", leaving)
 
@@ -88,21 +88,6 @@ func defaultProps() datastore.PropertyList {
 // Might want to split game up into two pieces, info needed for real-time updates,
 // and the big one needed to update the user of all of the interactions which
 // have happened thus far we will see...
-
-// Step 1. Get a token to open a channel when the user joins a table.
-func getToken(w http.ResponseWriter, r *http.Request) {
-  c := appengine.NewContext(r)
-  queryMap := r.URL.Query()
-  table := queryMap.Get("t")
-  id := queryMap.Get("u")
-  tok, err := channel.Create(c, table+id)
-
-  if err != nil {
-        c.Errorf("getToken error: %v", err)
-  } else {
-    fmt.Fprintf(w, tok)
-  }
-}
 
 func opened(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)

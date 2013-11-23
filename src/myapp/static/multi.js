@@ -123,9 +123,10 @@ multi.sendMessage = function(path, opt_params) {
 };
 
 multi.onOpened = function() {
+	// Let the server notify the user of its connected state.
   	window.console.log('Client channel opened.');
     multi.sendMessage('/opened');
-  };
+};
   
 multi.onMessage = function(m) {
     msg = JSON.parse(m.data);
