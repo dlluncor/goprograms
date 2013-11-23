@@ -325,10 +325,16 @@ Word.getPoints = function(word) {
   return word.length * 10;
 };
 
-// Keeps track of user leader boards and this current user.
+// Keeps track of user leader boards for all users.
 UsersHandler = function() {
-  this.register('<b>User</b>', '<b>Points</b>');
+  this.reset();
 }
+
+// Resets the state of the UI to its original state.
+UsersHandler.prototype.reset = function() {
+  $('#usersList').html('');
+  this.register('<b>User</b>', '<b>Points</b>');
+};
 
 // Add a user to the list with a certain number of points.
 UsersHandler.prototype.register = function(user, points) {
@@ -493,7 +499,11 @@ Table.prototype.updateUi = function(gameM) {
     $('#startGameBtn').prop('disabled', gameM.isStarted());
 
     // Lots of work here...
+
+    // Left part (users and their total points).
+    this.usersHandler.reset();
     var userInfoMap = gameM.getUsersInfo();
+    // Need to reset all info we know about the users and completely replace it.
     for (var user in userInfoMap) {
       var userInfo = userInfoMap[user];
       this.usersHandler.update(user, userInfo.points);
