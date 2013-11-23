@@ -123,6 +123,7 @@ func opened(w http.ResponseWriter, r *http.Request) {
   g := defaultGame()
   tableKey := r.FormValue("g")
   token := r.FormValue("t")
+  userExists := false
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
     k := datastore.NewKey(c, "WrGame", tableKey, 0, nil)
     if err := datastore.Get(c, k, g); err != nil {
@@ -134,15 +135,28 @@ func opened(w http.ResponseWriter, r *http.Request) {
     }
     // Now write this user to the list of connect users to this table.
     user := r.FormValue("u")
-    exists := g.AddUserToken(user, token)
-    if exists {
+    userExists = g.AddUserToken(user, token)
+    if userExists {
       c.Infof("User %v already exists, replacing their token.", user)
     }
     if _, err := datastore.Put(c, k, g); err != nil {
       return err
     }
+
+    // Update user count for lounge.
     return nil
   }, nil)
+
+  if !userExists {
+    // Update the lounge with the number of current players for this table.
+    // when a new player was added.
+    lounge := r.FormValue("l")
+    loungeChanger := func(l *MyLounge) bool {
+      // TODO(dlluncor): In the middle of something will need to resolve this later...
+      return true
+    }
+    ChangeLounge(c, lounge, loungeChanger)
+  }
 
   if err != nil {
     c.Errorf("Error in db with connect to table. %v", err)

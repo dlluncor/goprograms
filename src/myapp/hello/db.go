@@ -6,6 +6,9 @@ import (
     "reflect"
     "appengine/datastore"
 )
+
+// Database model for the entire Game state.
+
 // My code for saving maps in a db.
 type DbMap map[string]interface{}
  
