@@ -7,7 +7,8 @@ multi.initState = function() {
     table: '',
     token: '',
     username: '',
-    round: 1
+    round: 1,
+    socket: null // Current socket used to connect to the server.
    };
 };
 
@@ -54,7 +55,9 @@ SolutionModel.prototype.getLines = function() {
  // Logic that deals with responding to user requests.
 multi.handleMessage = function(resp) {
     if (resp.Action == 'join') {
-      ctrl.console.multiPrint('Set up initial state of the table for the user.');
+      // This is the case when you need an entire table refresh such as you joining
+      // the table, or another using leaving.
+      ctrl.console.multiPrint('Set up state of the table for the user.');
       var gameM = new GameModel(resp.Payload);
       ctrl.table.updateUi(gameM);
     }
@@ -130,22 +133,39 @@ multi.onMessage = function(m) {
     multi.handleMessage(msg);
 };
 
+multi.onClose = function(opt_msg) {
+  var msg = '';
+  if (opt_msg) {
+  	msg = opt_msg;
+  }
+  window.console.log('Channel closing because ' + msg);
+  // Notify server that I am exiting this table so remove me from the list of
+  // users that are playing.
+  //multi.sendMessage('/leaving');
+
+  multi.state.socket.close('hitheremomma');
+}
+
+multi.onError = function() {
+  window.console.log('Error with the channel.');
+};
+
 multi.openChannel = function(token) {
 	multi.state.token = token;
 	var channel = new goog.appengine.Channel(token);
 	var handler = {
 	  'onopen': multi.onOpened,
 	  'onmessage': multi.onMessage,
-	  'onerror': function() {
-	  	window.console.log('Error with the channel.');
-	  },
-	  'onclose': function() {
-	  	window.console.log('Channel closing.');
-	  }
+	  'onerror': multi.onError,
+	  'onclose': multi.onClose
 	};
 	var socket = channel.open(handler);
 	socket.onopen = multi.onOpened;
 	socket.onmessage = multi.onMessage;
+	// Enable if sessions ever expire or got past 2 hours??
+	socket.onerror = multi.onError;
+	multi.state.socket = socket;
+	//socket.onclose = multi.onClose;
 };
 
 multi.initConnection = function(user, table) {
@@ -158,3 +178,8 @@ multi.initConnection = function(user, table) {
     multi.openChannel(data);
   });
 };
+
+// Close client connections when they close their browser.
+$(window).unload(function(e) {
+  multi.onClose('browser exiting');
+});

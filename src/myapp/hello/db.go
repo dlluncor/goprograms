@@ -123,6 +123,35 @@ func (g *MyGame) AddUserToken(user, token string) {
   g.Users = append(g.Users, user)
 }
 
+func removeEl(els []string, deleteIndex int) []string {
+  newEls := []string{}
+  for index, el := range els {
+    if index == deleteIndex {
+        continue
+    }
+    newEls = append(newEls, el)
+  }
+  return newEls
+}
+
+func removeElInt(els []int , deleteIndex int) []int {
+  newEls := []int{}
+  for index, el := range els {
+    if index == deleteIndex {
+        continue
+    }
+    newEls = append(newEls, el)
+  }
+  return newEls
+}
+
+func (g *MyGame) RemoveUser(user string) {
+  index := indexOf(g.Users, user)
+  g.Users = removeEl(g.Users, index)
+  g.Tokens = removeEl(g.Tokens, index)
+  g.Points = removeElInt(g.Points, index)
+}
+
 // SetTable("table1", "dsdfsdfs\nXXXX\nDDFD")
 // We'll use the index for now to generate which table to serve up.
 func (g *MyGame) SetTable(tableRoundKey, tableVal string) {

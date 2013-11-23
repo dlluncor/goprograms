@@ -18,6 +18,7 @@ func InitMulti() {
     http.HandleFunc("/opened", opened)
     http.HandleFunc("/getToken", getToken)
     http.HandleFunc("/startGame", startGame)
+    http.HandleFunc("/_ah/channel/disconnected/", leaving)
 
     // Starting round 0.
     http.HandleFunc("/sendTables", sendTables)

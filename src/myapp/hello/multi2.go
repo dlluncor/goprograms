@@ -2,6 +2,7 @@ package hello
 
 import (
     "strconv"
+    "strings"
     "net/http"
 
     "appengine"
@@ -120,6 +121,49 @@ func getRoundInfo(w http.ResponseWriter, r *http.Request) {
     err := channel.SendJSON(c, token, resp)
     if err != nil {
       c.Errorf("Err with sendTables response: %v", err)
+    }
+  }
+}
+
+// Example client id: sportsguy560?g=table0
+type ClientId struct {
+ clientId string 
+}
+
+func (c ClientId) user() string {
+  return c.clientId[0:strings.Index(c.clientId, "?")]
+}
+
+func (c ClientId) table() string {
+  return c.clientId[strings.Index(c.clientId, "g=")+2:]
+}
+
+// What to do when a user leaves almost nothing.
+func leaving(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  cid := ClientId{
+    clientId:r.FormValue("from"),
+  }
+  tableKey := cid.table()
+  c.Infof("User %v has left table %v. Client id: %v", cid.user(), tableKey, cid.clientId)
+
+  gameChanger := func(g *MyGame) bool {
+    g.RemoveUser(cid.user())
+    return true
+  }
+  g := ChangeGame(c, tableKey, gameChanger)   // Just need to read the game.
+
+  // TODO(dlluncor): Notify other clients about the state of the new game?
+  resp := &Resp{
+    Action: "join",
+    Payload: g,
+  }
+  c.Infof("Notifying these tokens that a user left: %v", g.GetUserTokens())
+  // Let everyone know that they joined the game!
+  for _, token := range g.GetUserTokens() {
+    err := channel.SendJSON(c, token, resp)
+    if err != nil {
+      c.Errorf("sending Start game updates: %v", err)
     }
   }
 }
