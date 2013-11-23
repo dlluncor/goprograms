@@ -2,6 +2,7 @@ package hello
 
 import (
     "fmt"
+    "strconv"
     "html/template"
     "net/http"
 
@@ -37,25 +38,45 @@ type Resp struct {
 
 func clearAll(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
+  queryMap := r.URL.Query()
+  startStr := queryMap.Get("s")
+  if startStr == "" {
+    startStr = "0"
+  }
+  endStr := queryMap.Get("e")
+  if endStr == "" {
+    endStr = "5"
+  }
+  start, _ := strconv.Atoi(startStr)
+  end, _ := strconv.Atoi(endStr) 
   // table Id's I'm futzing with.
   tableKeys := []string{}
-  for i := 0; i < 50; i++ {
+  for i := start; i < end; i++ {
     tableKeys = append(tableKeys, fmt.Sprintf("table%d", i))
   }
 
+  opts := &datastore.TransactionOptions{
+    XG: true,
+  }
   // Clear all tables in the DB.
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
     c.Infof("Deleting all keys in database.")
     for _, tableKey := range tableKeys {
         k := datastore.NewKey(c, "WrGame", tableKey, 0, nil)
         // Delete each ones.
-        datastore.Delete(c, k)
+        if err := datastore.Delete(c, k); err != nil {
+          return err
+        }
     }
     return nil
-  }, nil)
-
+  }, opts)
   if err != nil {
-
+    msg := fmt.Sprintf("Error clearing database: %v", err)
+    c.Errorf(msg)
+    fmt.Fprintf(w, msg)
+  } else {
+    msg := fmt.Sprintf("Deleted keys: %v", tableKeys)
+    fmt.Fprintf(w, msg)
   }
 }
 
