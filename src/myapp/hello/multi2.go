@@ -154,7 +154,7 @@ func leaving(w http.ResponseWriter, r *http.Request) {
   gameChanger := func(g *MyGame) bool {
     g.RemoveUser(cid.user())
     if len(g.Users) == 0 {
-      c.Infof("There are no more users left in this game.")
+      c.Infof("There are no more users left in this game. Deleting game.")
       g.Clear() // Clear the game when everyone has left.
     }
     return true

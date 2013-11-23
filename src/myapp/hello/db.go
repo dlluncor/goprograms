@@ -121,10 +121,21 @@ func (g *MyGame) HadState(state string) bool {
   return inArr(g.States, state)
 }
 
-func (g *MyGame) AddUserToken(user, token string) {
-  g.Tokens = append(g.Tokens, token)
-  g.Points = append(g.Points, 0)
-  g.Users = append(g.Users, user)
+// Returns whether we've seen the user or not already.
+func (g *MyGame) AddUserToken(user, token string) bool {
+  // If this was called on reload, the user already exists here but has
+  // a different token. So let's just update their token and keep everything
+  // the same. This is only if the user is already in our pool.
+  index := indexOf(g.Users, user)
+  if index != -1 {
+    g.Tokens[index] = token
+    return true
+  } else {
+    g.Tokens = append(g.Tokens, token)
+    g.Points = append(g.Points, 0)
+    g.Users = append(g.Users, user)
+    return false
+  }
 }
 
 func removeEl(els []string, deleteIndex int) []string {

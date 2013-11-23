@@ -134,7 +134,10 @@ func opened(w http.ResponseWriter, r *http.Request) {
     }
     // Now write this user to the list of connect users to this table.
     user := r.FormValue("u")
-    g.AddUserToken(user, token)
+    exists := g.AddUserToken(user, token)
+    if exists {
+      c.Infof("User %v already exists, replacing their token.", user)
+    }
     if _, err := datastore.Put(c, k, g); err != nil {
       return err
     }
