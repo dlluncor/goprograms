@@ -103,6 +103,17 @@ Round.prototype.roundBegins = function(opt_secsLeft) {
   this.boardC.roundStart(this.curRound);
 };
 
+// 60 -> 1:00. 50 -> 0:50. 130 -> 2:10
+Round.renderTime = function(secs) {
+  var mins = Math.floor(secs/60.0);
+  var secsLeft = secs - (mins * 60);
+  var zeroPad = '';
+  if (secsLeft < 10) {
+    zeroPad = '0';
+  }
+  return mins + ':' + zeroPad + secsLeft;
+};
+
 // opt_secsToStart - number of seconds to start the round (for fast-forwarding
 // users to the right state).
 Round.prototype.startRound = function(roundNum, opt_secsToStart) {
@@ -115,7 +126,7 @@ Round.prototype.startRound = function(roundNum, opt_secsToStart) {
   }
   this.boardC.getReadyForRound(this.curRound);
   var updateTime = function() {
-    this.timeLeftEl.text('' + start);
+    this.timeLeftEl.text('' + Round.renderTime(start));
     if (start != 0) {
       window.setTimeout(updateTime, 1000);
     } else {
@@ -137,7 +148,7 @@ Round.prototype.startRoundTimer = function(opt_secsLeft) {
     left = opt_secsLeft;
   }
   var roundTimer = function() {
-    this.timeLeftEl.text('' + left);
+    this.timeLeftEl.text('' + Round.renderTime(left));
     if (left == 0) {
       this.roundOver();
     } else {
