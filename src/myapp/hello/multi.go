@@ -59,6 +59,23 @@ func clearAll(w http.ResponseWriter, r *http.Request) {
   }
 }
 
+
+var tableTemplate = template.Must(template.ParseFiles("word_racer.html"))
+
+func handleWrPage(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  queryMap := r.URL.Query()
+  table := queryMap.Get("t")
+  id := queryMap.Get("u")
+  token, err := channel.Create(c, table+id)
+  err = tableTemplate.Execute(w, map[string]string{
+    "userToken": token,
+  })
+  if err != nil {
+      c.Errorf("tableTemplate: %v", err)
+  }
+}
+
 // Might have to store this stuff as a property list.
 /*
 func defaultProps() datastore.PropertyList {

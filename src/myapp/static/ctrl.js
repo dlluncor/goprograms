@@ -473,9 +473,10 @@ ctrl.getUser = function() {
   return ctrl.table.user;
 };
 
-Table = function(curUser, table) {
+Table = function(curUser, table, token) {
   this.user = curUser; // current user.
   this.table = table; // table name.
+  this.token = token; // token to connect with stream.
 
   this.rounder = null;
   this.usersHandler = null;
@@ -536,7 +537,7 @@ Table.prototype.create = function() {
   this.rounder = new Round(this.boardC);
   this.rounder.init();
 
-  multi.initConnection(this.user, this.table);
+  multi.initConnection(this.user, this.table, this.token);
 
   $('#startGameBtn').click(function(e) {
     this.startGame();
@@ -571,20 +572,24 @@ Table.prototype.create = function() {
     });
 }
 
+// Url: localhost:8081/match?hi=cheese&bye=my. qs('hi') -> 'cheese'
+function qs(key) {
+    key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+    var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
+    return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+};
+
 ctrl.init_ = function() {
     $('#entireGameArena').hide();
 
-    $('#joinTableBtn').click(function(e) {
-      window.console.log('Joining the table.');
-      var user = $('#loginUser').val();
-      var table = $('#tableId').val();
-      ctrl.table = new Table(user, table);
-      ctrl.table.create();
-    });
-
+    // Must happen first.
     multi.initState();
     ctrl.console = new Console();
     ctrl.console.init();
+
+    var token = $('#userToken').val();
+    ctrl.table = new Table(qs('u'), qs('t'), token);
+    ctrl.table.create();
 };
 
 ctrl.isLocal = function() {

@@ -17,8 +17,8 @@ func init() {
     http.HandleFunc("/getallwords", handleGetAllWords)
 
     // HTML pages.
-    http.HandleFunc("/", handlerWrPage)
-    http.HandleFunc("/sockets", handlerSocketPage)
+    http.HandleFunc("/", handleWrLoungePage)
+    http.HandleFunc("/enterTable", handleWrPage)
 }
 
 type mywriter struct {
@@ -62,15 +62,11 @@ func handleStaticPage(w http.ResponseWriter, r *http.Request, page string) {
 
 // Handlers.
 
-func handlerWrPage(w http.ResponseWriter, r *http.Request) {
-  handleStaticPage(w, r, "word_racer.html")
+func handleWrLoungePage(w http.ResponseWriter, r *http.Request) {
+  handleStaticPage(w, r, "wr_lounge.html")
 }
 
-func handlerSocketPage(w http.ResponseWriter, r *http.Request) {
-  handleStaticPage(w, r, "websocket.html")
-}
-
-// JSON handler (deprecated) TODO(dlluncor): delete.
+// JSON handler for getting all solutions. Still needed!
 func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
     checker := spoj.NewChecker("allWords.txt")
     //c := appengine.NewContext(r)
@@ -86,6 +82,7 @@ func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
 }
 
 // content should have newlines, that's why we need length!
+// Deprecated cannot use currently.
 func solveForWords(content string, length int) string {
   checker := spoj.NewChecker("allWords.txt")
   lines := getLines(content, string(length))

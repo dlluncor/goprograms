@@ -141,9 +141,7 @@ multi.onClose = function(opt_msg) {
   window.console.log('Channel closing because ' + msg);
   // Notify server that I am exiting this table so remove me from the list of
   // users that are playing.
-  //multi.sendMessage('/leaving');
-
-  multi.state.socket.close('hitheremomma');
+  multi.state.socket.close();
 }
 
 multi.onError = function() {
@@ -168,15 +166,10 @@ multi.openChannel = function(token) {
 	//socket.onclose = multi.onClose;
 };
 
-multi.initConnection = function(user, table) {
+multi.initConnection = function(user, table, token) {
   multi.state.username = user;
   multi.state.table = table;
-  var params = '?';
-  params += 'u=' + multi.state.username;
-  params += '?g=' + multi.state.table;
-  $.ajax('/getToken' + params).done(function(data) {
-    multi.openChannel(data);
-  });
+  multi.openChannel(token);
 };
 
 // Close client connections when they close their browser.
