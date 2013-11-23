@@ -1,7 +1,7 @@
 Some issues through user testing...
 
 - A user can't join in mid game and have the correct state.
-- When a user leaves, we don't clear their user entry/points/token.
 - A user should be able to join a game via a link.
 - I want a UI where people can jump into tables (see how many people are playing)
 - 'Start game' button is not disabled/enabled when it should be.
+- When everyone leaves a game, it must be destroyed, or set to default.

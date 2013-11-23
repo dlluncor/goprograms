@@ -138,7 +138,8 @@ func (c ClientId) table() string {
   return strings.Split(c.clientId, "-")[0]
 }
 
-// What to do when a user leaves almost nothing.
+// What to do when a user leaves (send a notification to everyone and
+// reset the game if everyone left the table).
 func leaving(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
   cid := ClientId{
@@ -150,11 +151,14 @@ func leaving(w http.ResponseWriter, r *http.Request) {
 
   gameChanger := func(g *MyGame) bool {
     g.RemoveUser(cid.user())
+    if len(g.Users) == 0 {
+      c.Infof("There are no more users left in this game.")
+      g.Clear() // Clear the game when everyone has left.
+    }
     return true
   }
   g := ChangeGame(c, tableKey, gameChanger)   // Just need to read the game.
 
-  // TODO(dlluncor): Notify other clients about the state of the new game?
   resp := &Resp{
     Action: "join",
     Payload: g,
