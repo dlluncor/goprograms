@@ -403,6 +403,7 @@ UsersHandler.prototype.reorder = function() {
 // Handles the update when a new word is found.
 WordHandler = function(usersHandler) {
   this.usersHandler = usersHandler;
+  this.w = 0; // For scrolling every other.
 };
 
 WordHandler.prototype.addDiscoverer = function(inf) {
@@ -428,6 +429,15 @@ WordHandler.prototype.addDiscoverer = function(inf) {
   	row.addClass('greyText');
   }
   $('#discovererList').append(row);
+
+  if (this.w % 2 == 0) {
+  // For the scrolling effect. 
+    var curTop = $('.discoverersContainer').scrollTop();
+    $('.discoverersContainer').animate({scrollTop: curTop + 40}, 
+      {duration: 1000});
+  }
+
+  this.w += 1;
 };
 
 WordHandler.prototype.addWord = function(user, word, totalPoints) {
@@ -646,7 +656,9 @@ Table.prototype.create = function() {
 
   // Arrange the order of the users based on their points.
   var reorderUsersOnLeft = function() {
-    this.usersHandler.reorder();
+    if (!ctrl.STOP_TIMERS) {
+      this.usersHandler.reorder();
+    }
   }.bind(this);
 
   window.setInterval(reorderUsersOnLeft, 3000);

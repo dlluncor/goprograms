@@ -4,4 +4,10 @@ Some issues through user testing...
 - I want a UI where people can jump into tables (see how many people are playing)
 
 - Reorder when people jump ahead of others when typing in words.
-- Scroll the list as words get updated.
+
+- B/c when people exit is flaky in terms of deleting the state of the game, we 
+- can use the LastRoundStarted - Now to determine whether the game should be
+- over. Needs to be round 4.
+
+- Time needs to be shown as 1:30 not 90.
+- Exiting still does not seem to reset the game properly...
