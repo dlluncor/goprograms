@@ -2,6 +2,7 @@ package hello
 
 import (
     //"strings"
+    "time"
     "reflect"
     "appengine/datastore"
 )
@@ -52,6 +53,9 @@ type MyGame struct {
    CurTable string
    CurWords []string // List of words found this round.
    CurRound int // Starts off at 1, ends at 4. (not used kept by client!)
+
+   LastRoundFetched int64  // When was the last round info fetched.
+   Now int64  // When am I sending back the entire game state.
 }
 
 func defaultGame() *MyGame {
@@ -164,8 +168,6 @@ func (g *MyGame) GetUserTokens() []string {
 
 type TableInfo struct {
   Table string
-  Answers string
-  Length int
 }
 
 func (g *MyGame) CreateTableInfo(round int) {
@@ -190,7 +192,7 @@ func getTableLen(table string) int {
 // Gets the table information for this round.
 func (g *MyGame) GetTableInfo() *TableInfo {
   // Run the algorithm to generate a list of solutions!!!
-  length := getTableLen(g.CurTable)
+  //length := getTableLen(g.CurTable)
   // TODO(dlluncor): Can't get solutions in this thread for some reason
   // so going back to the old GET request way of doing things, that seems
   // to work...
@@ -199,7 +201,6 @@ func (g *MyGame) GetTableInfo() *TableInfo {
   //solveForWords(tableToSolve, length)
   info := &TableInfo{
     Table: g.CurTable,
-    Length: length,
   }
   return info
 }
@@ -225,4 +226,12 @@ func (g *MyGame) AddWord(user, word string, points int) int {
   g.Points[index] = g.Points[index] + points
   g.CurWords = append(g.CurWords, word)
   return g.Points[index]
+}
+
+func (g *MyGame) SetNow() {
+  g.Now = time.Now().Unix()
+}
+
+func (g *MyGame) SetRoundFetched() {
+  g.LastRoundFetched = time.Now().Unix()
 }

@@ -88,6 +88,7 @@ func gameOver(w http.ResponseWriter, r *http.Request) {
 
 // One user can request for the entire group all the information for
 // a round like the words to solve and the actual puzzle.
+// At this time there is 10 seconds left before the round starts.
 func getRoundInfo(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
   tableKey := r.FormValue("g")
@@ -102,6 +103,7 @@ func getRoundInfo(w http.ResponseWriter, r *http.Request) {
     roundInt, _ := strconv.Atoi(round)
     g.CreateTableInfo(roundInt)
     g.AddState(val)
+    g.SetRoundFetched()
     return true
   }
   g := ChangeGame(c, tableKey, gameChanger)   // Just need to read the game.

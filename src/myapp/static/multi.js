@@ -8,7 +8,8 @@ multi.initState = function() {
     token: '',
     username: '',
     round: 1,
-    socket: null // Current socket used to connect to the server.
+    socket: null, // Current socket used to connect to the server.
+    uiInitiated: false // Whether the UI has been initiated yet.
    };
 };
 
@@ -44,11 +45,34 @@ GameModel.prototype.getUsersInfo = function() {
   return infoMap;
 };
 
-SolutionModel = function(obj) {
+// We know when the last round started (server time).
+// We know when we just got this message (server time)
+// How much time is left is a delta of that.
+GameModel.prototype.getTimeLeft = function() {
+  var roundFetched = this.obj.LastRoundFetched; // Everyone fetches 10 seconds before the next round starts. 
+  var now = this.obj.Now;
+
+  var delta = Math.floor(now - roundFetched);
+  var config = ctrl.table.config;
+  if (delta < config.betweenRound) {
+  	// We haven't started the round yet!
+  	var timeTilNextRound = config.betweenRound - delta;
+  	return -timeTilNextRound;
+  } else {
+  	// This many seconds left in the round.
+  	// Scenario.
+  	// roundFetched: 20. now: 50. Each round is 120 seconds. 10 secs in between. 100 seconds left.
+  	// 120 - 30 + 10 = 100
+    var timeLeft = config.eachRound - delta + config.betweenRound;
+  	return timeLeft;
+  }
+};
+
+TableInfo = function(obj) {
   this.obj = obj;
 };
 
-SolutionModel.prototype.getLines = function() {
+TableInfo.prototype.getLines = function() {
   return BoardGen.unjoin(this.obj.Table);
 };
 
@@ -60,6 +84,13 @@ multi.handleMessage = function(resp) {
       ctrl.console.multiPrint('Set up state of the table for the user.');
       var gameM = new GameModel(resp.Payload);
       ctrl.table.updateUi(gameM);
+      if (gameM.isStarted() && multi.state.uiInitiated == false) {
+      	// User is jumping into the game right in the middle, we need to fast-forward
+      	// his state to the current correct state!
+      	ctrl.console.multiPrint('Fast forward user to running game.');
+      	ctrl.table.fastForwardUi(gameM);
+      }
+      multi.state.uiInitiated = true;  // UI has been initiated at least once.
     }
     else if (resp.Action == 'startGame') {
       ctrl.table.startButtonDisabled(true);
@@ -85,7 +116,7 @@ multi.handleMessage = function(resp) {
       ctrl.console.multiPrint('Got info for next round');
       // The timer is still counting down to 10...but now we have all
       // the solutions for the puzzle, what are complete words.
-      ctrl.table.boardC.useSolutions(new SolutionModel(info));
+      ctrl.table.boardC.useSolutions(new TableInfo(info));
     }
     //else if (resp.Action == 'endRound') {
       // The round just ended for someone, so we all end the round at the
@@ -172,6 +203,7 @@ multi.openChannel = function(token) {
 multi.initConnection = function(user, table, token) {
   multi.state.username = user;
   multi.state.table = table;
+  multi.state.uiInitiated = false;
   multi.openChannel(token);
 };
 

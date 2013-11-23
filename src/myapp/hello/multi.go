@@ -144,6 +144,9 @@ func opened(w http.ResponseWriter, r *http.Request) {
   if err != nil {
     c.Errorf("Error in db with connect to table. %v", err)
   }
+
+  g.SetNow()  // Let users who jump in randomly to figure out what time it is from
+  // when the last round started.
   resp := &Resp{
     Action: "join",
     Payload: g,
