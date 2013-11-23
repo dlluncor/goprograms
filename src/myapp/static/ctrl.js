@@ -157,6 +157,7 @@ Round.prototype.startRoundTimer = function(opt_secsLeft) {
     if (!ctrl.STOP_TIMERS) {
       left--;
     }
+    return false;
   }.bind(this);
   roundTimer();
 };
@@ -263,9 +264,10 @@ BoardC.prototype.updateUi = function() {
           user: '',
           word: word,
           points: Word.getPoints(word)
-      	});
+      	}, {noScroll: true});
       }
-  	} 
+  	}
+    this.solvedWordHandler.scrollWords(100); 
   }
 };
 
@@ -417,7 +419,7 @@ WordHandler = function(usersHandler) {
   this.w = 0; // For scrolling every other.
 };
 
-WordHandler.prototype.addDiscoverer = function(inf) {
+WordHandler.prototype.addDiscoverer = function(inf, opt_options) {
   var aDiv = function(val, width) {
     var div = $('<div>' + val + '</div>');
     div.css('width', width + 'px');
@@ -441,14 +443,26 @@ WordHandler.prototype.addDiscoverer = function(inf) {
   }
   $('#discovererList').append(row);
 
-  if (this.w % 2 == 0) {
+  var shouldScroll = this.w % 2 == 0;
+  if (opt_options) {
+    if ('noScroll' in opt_options) {
+      shouldScroll = false;
+    }
+  }
+
+  if (shouldScroll) {
   // For the scrolling effect. 
-    var curTop = $('.discoverersContainer').scrollTop();
-    $('.discoverersContainer').animate({scrollTop: curTop + 40}, 
-      {duration: 1000});
+    this.scrollWords(40);
   }
 
   this.w += 1;
+};
+
+WordHandler.prototype.scrollWords = function(numPixels) {
+  var container = $('.discoverersContainer');
+  var curTop = container.scrollTop();
+  var nextPos = curTop + numPixels;
+  container.scrollTop(nextPos);
 };
 
 WordHandler.prototype.addWord = function(user, word, totalPoints) {
@@ -528,7 +542,7 @@ Table = function(curUser, table, token) {
   // Game config.
   this.config = {
     betweenRound: 10, // Seconds between rounds.
-    eachRound: 90  // Each round is this many seconds.
+    eachRound: 10  // Each round is this many seconds.
   };
 };
 
@@ -649,6 +663,7 @@ Table.prototype.create = function() {
     var word = $('#submissionText').val();
     this.boardC.submitWord(word);
     clearWord();
+    return false;
   }.bind(this);
 
   $('#submissionText').keyup(function(e) {
