@@ -390,6 +390,16 @@ UsersHandler.prototype.update = function(user, points) {
   }
 };
 
+// Going to rearrange the list of users according to their points.
+UsersHandler.prototype.reorder = function() {
+  window.console.log('Reordering might take place.'); 
+  /* TODO(dlluncor): Under attempt.
+  $('#usersList').find('tr').each(function(ind, el) {
+
+  });
+  */
+};
+
 // Handles the update when a new word is found.
 WordHandler = function(usersHandler) {
   this.usersHandler = usersHandler;
@@ -606,33 +616,40 @@ Table.prototype.create = function() {
     this.startGame();
   }.bind(this));
 
-    var clearWord = function() {
-      $('#submissionText').val('');
-    };
+  var clearWord = function() {
+    $('#submissionText').val('');
+  };
 
-    $('#clearWordBtn').click(function(e) {
-      clearWord();
-    });
+  $('#clearWordBtn').click(function(e) {
+    clearWord();
+  });
 
-    var submitWord = function(e) {
-      var word = $('#submissionText').val();
-      this.boardC.submitWord(word);
-      clearWord();
-    }.bind(this);
+  var submitWord = function(e) {
+    var word = $('#submissionText').val();
+    this.boardC.submitWord(word);
+    clearWord();
+  }.bind(this);
 
-    $('#submissionText').keyup(function(e) {
-      board.clearPaths();
-      if (e.which == 13) {
-      	submitWord();
-      } else {
-      	// Draw the path up until this point in the UI.
-      	var word = $('#submissionText').val();
-        board.drawPaths(word);
-      }
-    });
-    $('#submitWordBtn').click(function(e) {
-      submitWord();
-    });
+  $('#submissionText').keyup(function(e) {
+    board.clearPaths();
+    if (e.which == 13) {
+    	submitWord();
+    } else {
+    	// Draw the path up until this point in the UI.
+    	var word = $('#submissionText').val();
+      board.drawPaths(word);
+    }
+  });
+  $('#submitWordBtn').click(function(e) {
+    submitWord();
+  });
+
+  // Arrange the order of the users based on their points.
+  var reorderUsersOnLeft = function() {
+    this.usersHandler.reorder();
+  }.bind(this);
+
+  window.setInterval(reorderUsersOnLeft, 3000);
 }
 
 // Url: localhost:8081/match?hi=cheese&bye=my. qs('hi') -> 'cheese'
