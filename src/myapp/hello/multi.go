@@ -67,7 +67,7 @@ func handleWrPage(w http.ResponseWriter, r *http.Request) {
   queryMap := r.URL.Query()
   table := queryMap.Get("t")
   id := queryMap.Get("u")
-  token, err := channel.Create(c, table+id)
+  token, err := channel.Create(c, table+ "-" + id)
   err = tableTemplate.Execute(w, map[string]string{
     "userToken": token,
   })

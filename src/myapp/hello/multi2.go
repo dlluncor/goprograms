@@ -125,17 +125,17 @@ func getRoundInfo(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-// Example client id: sportsguy560?g=table0
+// Example client id: sportsguy560-table0
 type ClientId struct {
  clientId string 
 }
 
 func (c ClientId) user() string {
-  return c.clientId[0:strings.Index(c.clientId, "?")]
+  return strings.Split(c.clientId, "-")[1]
 }
 
 func (c ClientId) table() string {
-  return c.clientId[strings.Index(c.clientId, "g=")+2:]
+  return strings.Split(c.clientId, "-")[0]
 }
 
 // What to do when a user leaves almost nothing.
@@ -144,8 +144,9 @@ func leaving(w http.ResponseWriter, r *http.Request) {
   cid := ClientId{
     clientId:r.FormValue("from"),
   }
+  c.Infof("Client id leaving: %v", cid.clientId)
   tableKey := cid.table()
-  c.Infof("User %v has left table %v. Client id: %v", cid.user(), tableKey, cid.clientId)
+  c.Infof("User %v has left table %v.", cid.user(), tableKey)
 
   gameChanger := func(g *MyGame) bool {
     g.RemoveUser(cid.user())
