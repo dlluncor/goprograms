@@ -492,6 +492,7 @@ Table = function(curUser, table, token) {
   this.rounder = null;
   this.usersHandler = null;
   this.boardC = null;
+  this.solveWordHandler = null;
 
   // Game config.
   this.config = {
@@ -518,6 +519,19 @@ Table.prototype.fastForwardUi = function(gameM) {
     // For example we can give the user all known words as well as part
     // of this payload.
 
+    var updateSolvedWords = function() {
+      // Show all the words users have found on the right.
+      var curWordObjs = gameM.getCurWordObjs();
+      for (var wo = 0; wo < curWordObjs.length; wo++) {
+        var word = curWordObjs[wo].word; 
+        this.solvedWordHandler.addDiscoverer({
+          word: word,
+          user: 'anOpponent',
+          points: Word.getPoints(word)
+        });
+      }
+    }.bind(this);
+
     // Fast forward to the appropriate round and amount of time left
     // in the round. (server keeps track of when game started and what
     // time it is when the user gets a response?)
@@ -538,8 +552,6 @@ Table.prototype.fastForwardUi = function(gameM) {
       this.rounder.startRound(round, curSecsToWait);
     }
 
-    // TODO(dlluncor): timeLeft is off by the amount of time of the RPC
-    // in the roundBegins case.
     var before = new Date();
     var afterCb = function() {
       // Now update the UI once we've gotten all answers the user
@@ -552,6 +564,7 @@ Table.prototype.fastForwardUi = function(gameM) {
         // we have the board and everything.
         this.rounder.roundBegins(timeLeft - secsDelay);
       }
+      updateSolvedWords();
     }.bind(this);
     this.boardC.useSolutions(tableInfo, afterCb);
 };
@@ -579,11 +592,11 @@ Table.prototype.create = function() {
 
   window.console.log("ready for damage");
   this.usersHandler = new UsersHandler();
-  var solvedWordHandler = new WordHandler(this.usersHandler);
+  this.solvedWordHandler = new WordHandler(this.usersHandler);
 	
   // Couple components to this game.
 	var board = new Board($('#wordRacerBoard'));
-	this.boardC = new BoardC(board, solvedWordHandler); // board controller.
+	this.boardC = new BoardC(board, this.solvedWordHandler); // board controller.
   this.rounder = new Round(this.boardC);
   this.rounder.init();
 

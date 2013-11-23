@@ -1,6 +1,6 @@
 Some issues through user testing...
 
-- A user can't join in mid game and have the correct state.
+- A user when they join mid game cannot see all the words found for this round.
 - A user should be able to join a game via a link (without the user encoded in it.)
 - I want a UI where people can jump into tables (see how many people are playing)
 

@@ -68,6 +68,22 @@ GameModel.prototype.getTimeLeft = function() {
   }
 };
 
+// Returns the current words found thus far in this puzzle.
+// An array of objects with one field called words.
+GameModel.prototype.getCurWordObjs = function() {
+  if (!this.obj.CurWords) {
+  	return [];
+  }
+  var wordObjs = [];
+  this.obj.CurWords.forEach(function(word) {
+    var wordObj = {
+      word: word
+    };
+    wordObjs.push(wordObj);
+  });
+  return wordObjs;
+};
+
 TableInfo = function(obj) {
   this.obj = obj;
 };
