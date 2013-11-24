@@ -541,7 +541,7 @@ Table = function(curUser, table, token) {
 
   // Game config.
   this.config = {
-    betweenRound: 10, // Seconds between rounds.
+    betweenRound: 90, // Seconds between rounds.
     eachRound: 10  // Each round is this many seconds.
   };
 };
