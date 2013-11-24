@@ -1,7 +1,10 @@
 package hello
 
 // TODO(dlluncor): Need ability to create lounges too...
-
+import (
+    "appengine"
+    "appengine/datastore"
+)
 
 type MyLounge struct {
   Games []string
