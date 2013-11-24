@@ -1,7 +1,80 @@
 
 var ctrl = {};
 
+
+var lounge = function(name, tables) {
+  return {
+    Name: name,
+    Tables: tables
+  };
+};
+
+var aTable = function(name, users) {
+  return {
+    Name: name,
+    Users: users
+  };
+};
+
+LoungeList = function(el) {
+  this.el = el;
+};
+
+LoungeList.prototype.createUsersDiv = function(users) {
+  /*
+  var hoverIn = function() {
+
+  };
+  var hoverOut = function() {
+    
+  };
+  */
+  var div = $('<div class="usersInfo">Users</div>');
+  div.attr('title', users.join(','));
+  //div.hover(hoverIn, hoverOut);
+  return div;
+};
+
+LoungeList.prototype.loungesCb = function(loungeArr) {
+  
+  for (var l = 0; l < loungeArr.length; l++) {
+  	var lounge = loungeArr[l];
+  	var loungeDiv = $('<div id="' + lounge.Name + '"></div>');
+  	loungeDiv.addClass('aLounge');
+    var title = $('<h3>' + lounge.Name + '</h3>');
+    loungeDiv.append(title);
+    for (var t = 0; t < lounge.Tables.length; t++) {
+      var table = lounge.Tables[t];
+      var tableDiv = $('<div class="aTable"></div>');
+      var nameDiv = $('<div class="aTableName">' + table.Name + '</div>');
+      var usersDiv = this.createUsersDiv(table.Users);
+      tableDiv.append(nameDiv);
+      tableDiv.append(usersDiv);
+      loungeDiv.append(tableDiv);
+    }
+    this.el.append(loungeDiv);
+  }
+};
+
+ctrl.getLoungesAndTables = function(callback) {
+  var lounge0 = lounge('Intermediate lounge', [
+    aTable('Foxy friends', ['ftuser1', 'ftuser2']),
+    aTable('Superstars', ['suser1', 'suser2', 'suser3'])
+  ]);
+  var lounge1 = lounge('Beginner lounge', [
+    aTable('Panda pump', ['ppuser1', 'ppuser2']),
+    aTable('Giant astronaut', ['gauser1', 'gauser2', 'gauser3'])
+  ]);
+  var loungeArr = [lounge0, lounge1];
+  callback(loungeArr);
+};
+
+
 ctrl.init_ = function() {
+
+    var ll = new LoungeList($('#loungeList'));
+    ctrl.getLoungesAndTables(ll.loungesCb.bind(ll));
+
 	$('#joinTableBtn').click(function(e) {
 	  window.console.log('Joining the table.');
 	  var user = $('#loginUser').val();

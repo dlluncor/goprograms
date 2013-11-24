@@ -17,8 +17,8 @@ func init() {
     http.HandleFunc("/getallwords", handleGetAllWords)
 
     // HTML pages.
-    http.HandleFunc("/", handleWrLoungePage)
-    http.HandleFunc("/enterTable", handleWrPage)
+    http.HandleFunc("/", handleWrLoungePage)  // View for all lounges.
+    http.HandleFunc("/enterTable", handleWrPage)  // View for a table.
 }
 
 type mywriter struct {

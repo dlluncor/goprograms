@@ -3,12 +3,34 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="/static/wr_lounge.js"></script>
   </head>
+  <style>
+    .aTable {
+      border: 1px solid black;
+      display: inline-block;
+      padding: 20px;
+      margin: 10px;
+    }
+    .aTableName {
+    }
+    .aLounge {
+      border-bottom: 2px dotted grey;
+    }
+    .usersInfo {
+      display: inline-block;
+      color: blue;
+      font-size: 11px;
+      border-bottom: 1px dotted blue;
+    }
+  </style>
   <body>
     <div><h1>Word racer lounge</h1></div>
     <div>
       User: <input type="text" id="loginUser" value="sportsguy560"></input>
-      Table: <input type="text" id="tableId" value="table0"></input>
-      <input type="Submit" value="Join Table" id="joinTableBtn"></input>
+      <hr>
+      <div id="loungeList">
+      </div>
+      <!--Table: <input type="text" id="tableId" value="table0"></input>
+      <input type="Submit" value="Join Table" id="joinTableBtn"></input>-->
     </div>
   </body>
 </html>
