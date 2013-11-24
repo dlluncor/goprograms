@@ -29,7 +29,7 @@ LoungeList.prototype.createUsersDiv = function(users) {
     
   };
   */
-  var div = $('<div> ( ' + users.length + ' users)</div>');
+  var div = $('<div>&nbsp;(' + users.length + ' users)</div>');
   div.addClass('usersInfo');
   div.attr('title', users.join(','));
   //div.hover(hoverIn, hoverOut);
