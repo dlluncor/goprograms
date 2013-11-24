@@ -72,6 +72,7 @@ LoungeList.prototype.loungesCb = function(loungeArr) {
 };
 
 ctrl.getLoungesAndTables = function(callback) {
+  /*
   var lounge0 = lounge('Intermediate lounge', [
     aTable('Foxy friends', ['ftuser1', 'ftuser2']),
     aTable('Superstars', ['suser1', 'suser2', 'suser3'])
@@ -81,7 +82,12 @@ ctrl.getLoungesAndTables = function(callback) {
     aTable('Giant astronaut', ['gauser1', 'gauser2', 'gauser3'])
   ]);
   var loungeArr = [lounge0, lounge1];
-  callback(loungeArr);
+  */
+  $.ajax('/getLounges')
+      .done(function(data) {
+    var loungeArr = JSON.parse(data);
+    callback(loungeArr);
+  });
 };
 
 

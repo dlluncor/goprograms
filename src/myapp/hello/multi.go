@@ -29,6 +29,11 @@ func InitMulti() {
 
     // Debug.
     http.HandleFunc("/clearAll", clearAll)
+
+    // Backend for lounges.
+    http.HandleFunc("/getLounges", getLounges)
+    http.HandleFunc("/deleteLounges", deleteLounges) // Both are admin for lounges.
+    http.HandleFunc("/createLounge", createLounge)
 }
 
 type Resp struct {

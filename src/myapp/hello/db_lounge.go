@@ -4,11 +4,13 @@ package hello
 import (
     "appengine"
     "appengine/datastore"
+    "net/http"
+    "fmt"
 )
 
 type MyLounge struct {
   Games []string
-  Users []string 
+  Users [][]string 
 }
 
 // Database for the entire lounge.
@@ -18,8 +20,64 @@ type changeLoungeFunc func(l *MyLounge) bool
 func defaultLounge() *MyLounge {
   return &MyLounge{
     Games: []string{},
-    Users: []string{},
+    Users: [][]string{},
   }
+}
+
+var loungeNames = []string{"Intermediate Lounge", "Beginner Lounge"}
+
+func deleteLounges(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  hadError := false
+  for _, loungeName := range loungeNames {
+    err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+      k := datastore.NewKey(c, "WrLounge", loungeName, 0, nil)
+      if err := datastore.Delete(c, k); err != nil {
+        return err;
+      }
+      return nil
+    }, nil)
+    if err != nil {
+      hadError = true
+      c.Errorf("Error deleting a lounge: %v", err)
+    }
+  }
+  if !hadError {
+    fmt.Fprintf(w, "Deleted lounges: %v", loungeNames)
+  }
+}
+
+func createLounge(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+  queryMap := r.URL.Query()
+  loungeName := queryMap.Get("l")
+  l := defaultLounge()
+  err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+      k := datastore.NewKey(c, "WrLounge", loungeName, 0, nil)
+      if _, err := datastore.Put(c, k, l); err != nil {
+        return err;
+      }
+      return nil
+    }, nil)
+  if err != nil {
+    fmt.Fprintf(w, "Error creating a lounge: %v", err)
+  } else {
+    fmt.Fprintf(w, "Success in creating lounge: %v", loungeName)
+  }
+}
+
+func getLounges(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+
+  lounges := []MyLounge{}
+  for _, loungeName := range loungeNames {
+    loungeChanger := func(l *MyLounge) bool {
+      return false
+    }
+    l := ChangeLounge(c, loungeName, loungeChanger)
+    lounges = append(lounges, *l)
+  }
+  sendJSON(w, lounges)
 }
 
 // TODO(dlluncor): Merge this with ChangeGame as they are the same except for the key
