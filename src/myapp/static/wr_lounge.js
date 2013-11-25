@@ -56,12 +56,16 @@ LoungeList.prototype.loungesCb = function(loungeArr) {
   	loungeDiv.addClass('aLounge');
     var title = $('<h3>' + lounge.Name + '</h3>');
     loungeDiv.append(title);
-    for (var t = 0; t < lounge.Tables.length; t++) {
-      var table = lounge.Tables[t];
+    for (var t = 0; t < lounge.Games.length; t++) {
+      var table = lounge.Games[t];
+      var users = [];
+      if ('Users' in lounge) {
+        users = lounge.Users[t];
+      }
       var tableDiv = $('<div></div>'); tableDiv.addClass('aTable');
-      var nameDiv = $('<div>' + table.Name + '</div>'); nameDiv.addClass('aTableName');
-      var usersDiv = this.createUsersDiv(table.Users);
-      var joinDiv = this.createJoinDiv(table.Name);
+      var nameDiv = $('<div>' + table + '</div>'); nameDiv.addClass('aTableName');
+      var usersDiv = this.createUsersDiv(users);
+      var joinDiv = this.createJoinDiv(table);
       tableDiv.append(nameDiv);
       tableDiv.append(usersDiv);
       tableDiv.append(joinDiv);

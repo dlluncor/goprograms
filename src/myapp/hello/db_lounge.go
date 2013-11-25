@@ -6,11 +6,12 @@ import (
     "appengine/datastore"
     "net/http"
     "fmt"
+    "strings"
 )
 
 type MyLounge struct {
+  Name string
   Games []string
-  Users [][]string 
 }
 
 // Database for the entire lounge.
@@ -19,8 +20,8 @@ type changeLoungeFunc func(l *MyLounge) bool
 
 func defaultLounge() *MyLounge {
   return &MyLounge{
+    Name: "",
     Games: []string{},
-    Users: [][]string{},
   }
 }
 
@@ -51,7 +52,11 @@ func createLounge(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
   queryMap := r.URL.Query()
   loungeName := queryMap.Get("l")
+  gamesStr := queryMap.Get("g")
+  games := strings.Split(gamesStr, ",")
   l := defaultLounge()
+  l.Name = loungeName
+  l.Games = games
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
       k := datastore.NewKey(c, "WrLounge", loungeName, 0, nil)
       if _, err := datastore.Put(c, k, l); err != nil {
@@ -62,7 +67,7 @@ func createLounge(w http.ResponseWriter, r *http.Request) {
   if err != nil {
     fmt.Fprintf(w, "Error creating a lounge: %v", err)
   } else {
-    fmt.Fprintf(w, "Success in creating lounge: %v", loungeName)
+    fmt.Fprintf(w, "Success in creating lounge: %v with games: %s", loungeName, games)
   }
 }
 
