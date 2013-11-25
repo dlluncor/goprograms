@@ -2,6 +2,22 @@
 var ctrl = {};
 
 
+ctrl.TABLES = {
+  'game0': 'Foxy Friday',
+  'game1': 'Sloppy Joes',
+  'game2': 'Cajun Slide',
+  'game3': 'Chocolate Thunder',
+  'game4': 'Maple Breeze',
+  'game5': 'China Force'
+};
+
+var rename = function(table) {
+  if (table in ctrl.TABLES) {
+    return ctrl.TABLES[table];
+  }
+  return table;
+};
+
 var lounge = function(name, tables) {
   return {
     Name: name,
@@ -21,14 +37,6 @@ LoungeList = function(el) {
 };
 
 LoungeList.prototype.createUsersDiv = function(users) {
-  /*
-  var hoverIn = function() {
-
-  };
-  var hoverOut = function() {
-    
-  };
-  */
   var div = $('<div>&nbsp;(' + users.length + ' users)</div>');
   div.addClass('usersInfo');
   div.attr('title', users.join(','));
@@ -63,7 +71,7 @@ LoungeList.prototype.loungesCb = function(loungeArr) {
         users = lounge.Users[t];
       }
       var tableDiv = $('<div></div>'); tableDiv.addClass('aTable');
-      var nameDiv = $('<div>' + table + '</div>'); nameDiv.addClass('aTableName');
+      var nameDiv = $('<div>' + rename(table) + '</div>'); nameDiv.addClass('aTableName');
       var usersDiv = this.createUsersDiv(users);
       var joinDiv = this.createJoinDiv(table);
       tableDiv.append(nameDiv);
