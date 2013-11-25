@@ -9,6 +9,13 @@ import (
     "strings"
 )
 
+// Not in DB but constructed from DB calls.
+type LoungeResp struct {
+  Lounges []MyLounge
+  GameInfo map[string]MyGame
+}
+
+
 type MyLounge struct {
   Name string
   Games []string
@@ -17,6 +24,13 @@ type MyLounge struct {
 // Database for the entire lounge.
 type changeLoungeFunc func(l *MyLounge) bool
 
+
+func defaultLoungeResp() LoungeResp {
+  return LoungeResp {
+    Lounges: []MyLounge{},
+    GameInfo: make(map[string]MyGame),
+  }
+}
 
 func defaultLounge() *MyLounge {
   return &MyLounge{
@@ -71,18 +85,30 @@ func createLounge(w http.ResponseWriter, r *http.Request) {
   }
 }
 
+// Returns all information about the lounges and their associated games.
 func getLounges(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
 
+  resp := defaultLoungeResp()
   lounges := []MyLounge{}
   for _, loungeName := range loungeNames {
     loungeChanger := func(l *MyLounge) bool {
       return false
     }
     l := ChangeLounge(c, loungeName, loungeChanger)
+    gameChanger := func (g *MyGame) bool {
+      return false
+    }
+    for _, tableName := range l.Games {
+      g := ChangeGame(c, tableName, gameChanger)
+      if g != nil {
+        resp.GameInfo[tableName] = *g
+      }
+    }
     lounges = append(lounges, *l)
   }
-  sendJSON(w, lounges)
+  resp.Lounges = lounges
+  sendJSON(w, resp)
 }
 
 // TODO(dlluncor): Merge this with ChangeGame as they are the same except for the key

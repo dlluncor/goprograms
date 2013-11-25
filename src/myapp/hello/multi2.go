@@ -264,6 +264,7 @@ func ChangeGame(c appengine.Context, gameId string, cgf changeGameFunc) *MyGame 
 
   if err != nil {
     c.Errorf("Err in db transaction %v", err)
+    return nil
   }
   return g
 }

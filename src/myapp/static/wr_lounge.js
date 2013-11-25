@@ -37,7 +37,12 @@ LoungeList = function(el) {
 };
 
 LoungeList.prototype.createUsersDiv = function(users) {
-  var div = $('<div>&nbsp;(' + users.length + ' users)</div>');
+  var suffix = 'users';
+  if (users.length == 1) {
+  	suffix = 'user';
+  }
+
+  var div = $('<div>&nbsp;(' + users.length + ' ' + suffix +')</div>');
   div.addClass('usersInfo');
   div.attr('title', users.join(','));
   //div.hover(hoverIn, hoverOut);
@@ -45,18 +50,20 @@ LoungeList.prototype.createUsersDiv = function(users) {
 };
 
 LoungeList.prototype.createJoinDiv = function(tableName) {
-  var div = $('<div>[ Join ]</div>');
+  var div = $('<div>[ Join table ]</div>');
   div.addClass('aJoinBtn');
-  div.attr('title', tableName);
+  div.attr('theTableName', tableName);
   div.click(function(e) {
-  	var table = e.currentTarget.getAttribute('title');
+  	var table = e.currentTarget.getAttribute('theTableName');
     ctrl.joinTableClicked(table);
   });
   return div;
 };
 
-LoungeList.prototype.loungesCb = function(loungeArr) {
+LoungeList.prototype.loungesCb = function(loungeResp) {
   
+  var gameMap = loungeResp.GameInfo;
+  var loungeArr = loungeResp.Lounges;
   for (var l = 0; l < loungeArr.length; l++) {
   	var lounge = loungeArr[l];
   	var loungeDiv = $('<div></div>');
@@ -67,8 +74,9 @@ LoungeList.prototype.loungesCb = function(loungeArr) {
     for (var t = 0; t < lounge.Games.length; t++) {
       var table = lounge.Games[t];
       var users = [];
-      if ('Users' in lounge) {
-        users = lounge.Users[t];
+      if (table in gameMap) {
+      	var tableInfo = gameMap[table];
+        users = tableInfo.Users;
       }
       var tableDiv = $('<div></div>'); tableDiv.addClass('aTable');
       var nameDiv = $('<div>' + rename(table) + '</div>'); nameDiv.addClass('aTableName');
@@ -97,8 +105,9 @@ ctrl.getLoungesAndTables = function(callback) {
   */
   $.ajax('/getLounges')
       .done(function(data) {
-    var loungeArr = JSON.parse(data);
-    callback(loungeArr);
+    var loungeResp = JSON.parse(data);
+    window.console.log(loungeResp);
+    callback(loungeResp);
   });
 };
 
