@@ -1,7 +1,6 @@
 Some issues through user testing...
 
 - A user should be able to join a game via a link (without the user encoded in it.)
-- I want a UI where people can jump into tables (see how many people are playing)
 
 - Reorder when people jump ahead of others when typing in words.
 
@@ -10,3 +9,7 @@ Some issues through user testing...
 - Come up with a better word generator.
 
 - Enable chat with other players.
+
+Database queries:
+http://localhost:8081/createLounge?l=Beginner Lounge&g=game0,game1,game2
+http://localhost:8081/createLounge?l=Intermediate%20Lounge&g=game3,game4,game5
