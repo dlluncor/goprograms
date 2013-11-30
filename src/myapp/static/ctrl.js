@@ -358,6 +358,7 @@ UsersHandler = function() {
 UsersHandler.prototype.reset = function() {
   this.usersTable = new UsersTable($('#usersList'));
   this.usersToPoints = {};
+  this.usersOrder = []; // A list of users in the order they are currently displayed.
 };
 
 UsersTable = function(tableEl) {
@@ -380,18 +381,20 @@ UsersTable.prototype.register = function(user, points) {
   userList.append(row);
 };
 
+UsersTable.prototype.hasUser = function(user) {
+  var pointsEl = this.tableEl.find('#userPoints' + user);
+  if (pointsEl[0]) {
+    return true;
+  }
+  return false;
+};
+
 UsersTable.prototype.update = function(user, points) {
   var pointsEl = this.tableEl.find('#userPoints' + user);
-  if (!pointsEl[0]) {
-    // We need to create a div for this user to show their
-    // points since it doesn't exist yet.
-    this.register(user, points);
-  } else {
-    // Don't redraw if we have the same number of points.
-    var curPoints = pointsEl.html();
-    if (curPoints != points) {
-      pointsEl.html(points);
-    }
+  // Don't redraw if we have the same number of points.
+  var curPoints = pointsEl.html();
+  if (curPoints != points) {
+    pointsEl.html(points);
   }
 };
 
@@ -407,12 +410,17 @@ UsersTable.prototype.get = function() {
 UsersHandler.prototype.register = function(user, points) {
   this.usersTable.register(user, points);
   this.usersToPoints[user] = points;
+  this.usersOrder.push(user);
 };
 
 // update('dlluncor', 20) -> david score shows 20 points.
 UsersHandler.prototype.update = function(user, points) {
-  this.usersTable.update(user, points);
-  this.usersToPoints[user] = points;
+  if (this.usersTable.hasUser(user)) {
+    this.usersTable.update(user, points);
+    this.usersToPoints[user] = points;
+  } else {
+    this.register(user, points);
+  }
 };
 
 
@@ -462,6 +470,33 @@ Dict.byValue = function(obj) {
   return tuples;
 };
 
+// obj returned from computeNewTable.
+UsersHandler.prototype.shouldPerformReorder = function(obj) {
+  // Compare current user order with previous user order and make sure there is no
+  // difference.
+  // Get the current points for the current order and make sure all the numbers
+  // are ascending.
+  var pointsArr = [];
+  for (var i = 0; i < this.usersOrder.length; i++) {
+    var user = this.usersOrder[i];
+    var points = this.usersToPoints[user];
+    pointsArr.push(points);
+  }
+  // Given the current ordering of our users, do the points decrease for sure???
+  var prevVal = null;
+  for (var p = 0; p < pointsArr.length; p++) {
+    var curVal = pointsArr[p];
+    if (prevVal == null) {
+      prevVal = curVal;
+      continue;
+    }
+    if (curVal > prevVal) {
+      return true;
+    }
+  }
+  return false;
+};
+
 UsersHandler.prototype.computeNewTable = function() {
   // Check if users are already in correct order??
 
@@ -472,14 +507,19 @@ UsersHandler.prototype.computeNewTable = function() {
 
   // Get the users sorted by points.
   var usersAndPoints = Dict.byValue(this.usersToPoints);
+  var newOrder = [];
   for (var i = 0; i < usersAndPoints.length; i++) {
     var j = usersAndPoints.length - 1 - i;
     var userAndPoint = usersAndPoints[j];
     var user = userAndPoint[0];
     var points = userAndPoint[1];
     newTable.register(user, points);
+    newOrder.push(user);
   }
-  return newTable;
+  return {
+    newUsersTable: newTable,
+    newUsersOrder: newOrder
+  };
 };
 
 // Going to rearrange the list of users according to their points.
@@ -491,11 +531,17 @@ UsersHandler.prototype.reorder = function() {
   }
 
   var oldTable = this.usersTable.get();
-  var newUsersTable = this.computeNewTable();
+  var obj = this.computeNewTable();
+  if (!this.shouldPerformReorder(obj)) {
+    window.console.log('Do not need to complete reordering.');
+    return;
+  }
+  var newUsersTable = obj.newUsersTable;
   $(oldTable).rankingTableUpdate(newUsersTable.get(), animOptions);
   animCompleted = false;
   // Then need to replace the
   this.usersTable = newUsersTable;
+  this.usersOrder = obj.newUsersOrder;
 };
 
 // Handles the update when a new word is found.
