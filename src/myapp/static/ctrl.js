@@ -416,10 +416,12 @@ UsersHandler.prototype.update = function(user, points) {
 };
 
 
+var animCompleted = true;
+
 var animOptions = {
-    duration: [1000,200,700,200,1000],
+    duration: [500,60,300,60,500],
     onComplete: function(){
-        updating = false;
+        animCompleted = true;
         //change update status if required...
     },
     animationSettings: {
@@ -443,7 +445,6 @@ var animOptions = {
 };
 
 Dict = function() {
-
 };
 
 // Orders a dictionary by value, order ascending.
@@ -484,10 +485,15 @@ UsersHandler.prototype.computeNewTable = function() {
 // Going to rearrange the list of users according to their points.
 UsersHandler.prototype.reorder = function() {
   window.console.log('Reordering might take place.');
+  if (!animCompleted) {
+    window.console.log('Animation is not complete.');
+    return;
+  }
 
   var oldTable = this.usersTable.get();
   var newUsersTable = this.computeNewTable();
   $(oldTable).rankingTableUpdate(newUsersTable.get(), animOptions);
+  animCompleted = false;
   // Then need to replace the
   this.usersTable = newUsersTable;
 };
