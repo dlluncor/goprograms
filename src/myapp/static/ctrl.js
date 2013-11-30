@@ -356,39 +356,31 @@ UsersHandler = function() {
 
 // Resets the state of the UI to its original state.
 UsersHandler.prototype.reset = function() {
-  $('#usersList').html('');
-  this.register('<b>User</b>', '<b>Points</b>');
+  this.usersTable = new UsersTable($('#usersList'));
+  this.usersToPoints = {};
 };
 
-// Add a user to the list with a certain number of points.
-UsersHandler.prototype.register = function(user, points) {
-  var userList = $('#usersList');
+UsersTable = function(tableEl) {
+  this.tableEl = tableEl;
+};
 
-  var aDiv = function(val, width) {
-    var div = $('<div>' + val + '</div>');
-    div.css('width', width + 'px');
-    div.addClass('noOverflow');
-    return div;
-  };
+UsersTable.prototype.reset = function() {
+  this.tableEl.find('tr:gt(0)').remove();
+};
 
-  var aTd = function(el) {
-    var td = $('<td></td>');
-    td.append(el);
-    return td;
-  };
-
+UsersTable.prototype.register = function(user, points) {
+  var userList = this.tableEl;
   // Add a row.
   var row = $('<tr></tr>');
   var td0 = $('<td>' + user + '</td>');
-  row.append(aTd(aDiv(user, 90)));
-  var div1 = aDiv(points, 50);
-  div1.attr('id', 'userPoints' + user);
-  row.append(aTd(div1));
+  var td1 = $('<td>' + points + '</td>');
+  td1.attr('id', 'userPoints' + user);
+  row.append(td0);
+  row.append(td1);
   userList.append(row);
 };
 
-// update('dlluncor', 20) -> david score shows 20 points.
-UsersHandler.prototype.update = function(user, points) {
+UsersTable.prototype.update = function(user, points) {
   var pointsEl = $('#userPoints' + user);
   if (!pointsEl[0]) {
     // We need to create a div for this user to show their
@@ -403,14 +395,101 @@ UsersHandler.prototype.update = function(user, points) {
   }
 };
 
+UsersTable.prototype.cloneTable = function() {
+  return this.tableEl.clone();
+};
+
+UsersTable.prototype.get = function() {
+  return this.tableEl;
+};
+
+// Add a user to the list with a certain number of points.
+UsersHandler.prototype.register = function(user, points) {
+  this.usersTable.register(user, points);
+  this.usersToPoints[users] = points;
+};
+
+// update('dlluncor', 20) -> david score shows 20 points.
+UsersHandler.prototype.update = function(user, points) {
+  this.usersTable.update(user, points);
+  this.usersToPoints[user] = points;
+};
+
+
+var animOptions = {
+    duration: [1000,200,700,200,1000],
+    onComplete: function(){
+        updating = false;
+        //change update status if required...
+    },
+    animationSettings: {
+        up: {
+            left: 0,
+            backgroundColor: '#CCFFCC'
+        },
+        down: {
+            left: 0,
+            backgroundColor: '#FFCCCC' //the same red as 'down'
+        },
+        fresh: {
+            left: 0,
+            backgroundColor: '#CCFFCC' //the same green as 'up'
+        },
+        drop: {
+            left: 0,
+            backgroundColor: '#FFCCCC'
+        }
+    }
+};
+
+Dict = function() {
+
+};
+
+// Orders a dictionary by value, order ascending.
+Dict.byValue = function(obj) {
+  var tuples = [];
+
+  for (var key in obj) tuples.push([key, obj[key]]);
+
+  tuples.sort(function(a, b) {
+      a = a[1];
+      b = b[1];
+
+      return a < b ? -1 : (a > b ? 1 : 0);
+  });
+  return tuples;
+};
+
+UsersHandler.prototype.computeNewTable = function() {
+  // Check if users are already in correct order??
+
+  // Create a new ordering for the table based on the current state of
+  // the users and their points.
+  var newTable = new UsersTable(this.usersTable.cloneTable());
+  newTable.reset();
+
+  // Get the users sorted by points.
+  var usersAndPoints = Dict.byValue(this.usersToPoints);
+  for (var i = 0; i < usersAndPoints.length; i++) {
+    var j = usersAndPoints.length - 1 - i;
+    var userAndPoint = usersAndPoints[j];
+    var user = userAndPoint[0];
+    var points = userAndPoint[1];
+    newTable.register(user, points);
+  }
+  return newTable;
+};
+
 // Going to rearrange the list of users according to their points.
 UsersHandler.prototype.reorder = function() {
-  window.console.log('Reordering might take place.'); 
-  /* TODO(dlluncor): Under attempt.
-  $('#usersList').find('tr').each(function(ind, el) {
+  window.console.log('Reordering might take place.');
 
-  });
-  */
+  var oldTable = this.usersTable.get();
+  var newUsersTable = this.computeNewTable();
+  $(oldTable).rankingTableUpdate(newUsersTable.get(), animOptions);
+  // Then need to replace the
+  this.usersTable = newUsersTable;
 };
 
 // Handles the update when a new word is found.
@@ -687,7 +766,7 @@ Table.prototype.create = function() {
     }
   }.bind(this);
 
-  window.setInterval(reorderUsersOnLeft, 3000);
+  window.setInterval(reorderUsersOnLeft, 5000);
 }
 
 // Url: localhost:8081/match?hi=cheese&bye=my. qs('hi') -> 'cheese'
