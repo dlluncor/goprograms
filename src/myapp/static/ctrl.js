@@ -381,7 +381,7 @@ UsersTable.prototype.register = function(user, points) {
 };
 
 UsersTable.prototype.update = function(user, points) {
-  var pointsEl = $('#userPoints' + user);
+  var pointsEl = this.tableEl.find('#userPoints' + user);
   if (!pointsEl[0]) {
     // We need to create a div for this user to show their
     // points since it doesn't exist yet.
@@ -406,7 +406,7 @@ UsersTable.prototype.get = function() {
 // Add a user to the list with a certain number of points.
 UsersHandler.prototype.register = function(user, points) {
   this.usersTable.register(user, points);
-  this.usersToPoints[users] = points;
+  this.usersToPoints[user] = points;
 };
 
 // update('dlluncor', 20) -> david score shows 20 points.
