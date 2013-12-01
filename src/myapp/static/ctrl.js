@@ -357,9 +357,16 @@ UsersHandler = function() {
 // Resets the state of the UI to its original state.
 UsersHandler.prototype.reset = function() {
   this.usersTable = new UsersTable($('#usersList'));
+  this.usersTable.reset();
   this.usersToPoints = {};
   this.usersOrder = []; // A list of users in the order they are currently displayed.
 };
+
+/*
+UsersHandler.prototype.resetPoints = function() {
+  this.usersToPoints = {};
+};
+*/
 
 UsersTable = function(tableEl) {
   this.tableEl = tableEl;
@@ -750,13 +757,15 @@ Table.prototype.updateUi = function(gameM) {
     // Update the UI given the game state.
     this.startButtonDisabled(gameM.isStarted());
 
+    // TODO(dlluncor): This logic is FOOBAR since I'm trying to keep track of 
+    // the current position of users and whether we need to reorder things.
     // Left part (users and their total points).
     this.usersHandler.reset();
     var userInfoMap = gameM.getUsersInfo();
     // Need to reset all info we know about the users and completely replace it.
     for (var user in userInfoMap) {
       var userInfo = userInfoMap[user];
-      this.usersHandler.update(user, userInfo.points);
+      this.usersHandler.register(user, userInfo.points);
     }
 };
 
