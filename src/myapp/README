@@ -2,13 +2,9 @@ Some issues through user testing...
 
 - A user should be able to join a game via a link (without the user encoded in it.)
 
-- Reorder when people jump ahead of others when typing in words.
-
 - Handle Q (render as qu and handle with graph search somehow)
 - Use red and blue colors for bonus points.
 - Come up with a better word generator.
-
-- Enable chat with other players.
 
 Database queries:
 http://localhost:8081/createLounge?l=Beginner Lounge&g=game0,game1,game2
