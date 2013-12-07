@@ -17,7 +17,8 @@ func init() {
     http.HandleFunc("/getallwords", handleGetAllWords)
 
     // HTML pages.
-    http.HandleFunc("/", handleWrLoungePage)  // View for all lounges.
+    http.HandleFunc("/", handleSigninPage) // View for signing in.
+    http.HandleFunc("/seeLounges", handleWrLoungePage)  // View for all lounges.
     http.HandleFunc("/enterTable", handleWrPage)  // View for a table.
 }
 
@@ -61,6 +62,10 @@ func handleStaticPage(w http.ResponseWriter, r *http.Request, page string) {
 }
 
 // Handlers.
+
+func handleSigninPage(w http.ResponseWriter, r *http.Request) {
+  handleStaticPage(w, r, "wr_signin.html")
+}
 
 func handleWrLoungePage(w http.ResponseWriter, r *http.Request) {
   handleStaticPage(w, r, "wr_lounge.html")
