@@ -57,7 +57,7 @@ func clearAll(w http.ResponseWriter, r *http.Request) {
   // table Id's I'm futzing with.
   tableKeys := []string{}
   for i := start; i < end; i++ {
-    tableKeys = append(tableKeys, fmt.Sprintf("table%d", i))
+    tableKeys = append(tableKeys, fmt.Sprintf("game%d", i))
   }
 
   opts := &datastore.TransactionOptions{
