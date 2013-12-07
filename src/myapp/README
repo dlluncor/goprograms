@@ -5,6 +5,9 @@ Some issues through user testing...
 - Come up with a better word generator.
 - When a user enters the synchronization can get pretty off...
 
+- Newer puzzles with different shapes.
+- AI that learns how to play along with you?
+
 Database queries:
 http://localhost:8081/createLounge?l=Beginner Lounge&g=game0,game1,game2
 http://localhost:8081/createLounge?l=Intermediate%20Lounge&g=game3,game4,game5
