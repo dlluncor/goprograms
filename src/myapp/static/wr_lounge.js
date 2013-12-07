@@ -44,24 +44,35 @@ LoungeList.prototype.createUsersDiv = function(users) {
 
   var div = $('<div>&nbsp;(' + users.length + ' ' + suffix +')</div>');
   div.addClass('usersInfo');
-  div.attr('title', users.join(','));
-  //div.hover(hoverIn, hoverOut);
+
+  var info = 'No users currently playing.';
+  if (users.length >= 1) {
+    var usersStr = users.join(',');
+    info = 'People currently playing are ' + usersStr;
+  }
+  div.attr('title', info);
   return div;
 };
 
-LoungeList.prototype.createJoinDiv = function(tableName) {
-  var div = $('<div>[ Join table ]</div>');
-  div.addClass('aJoinBtn');
-  div.attr('theTableName', tableName);
-  div.click(function(e) {
-  	var table = e.currentTarget.getAttribute('theTableName');
+LoungeList.prototype.createTableNameDiv = function(tableName) {
+  var nameDiv = $('<div>' + rename(tableName) + '</div>'); 
+  nameDiv.addClass('aTableName');
+  nameDiv.addClass('aJoinLink');
+  nameDiv.click(function(e) {
+    var table = e.currentTarget.getAttribute('theTableName');
     ctrl.joinTableClicked(table);
   });
-  return div;
+  return nameDiv;
 };
 
 LoungeList.prototype.loungesCb = function(loungeResp) {
   
+  var aTd = function(content) {
+    var td = $('<td></td>');
+    td.append(content);
+    return td;
+  };
+
   var gameMap = loungeResp.GameInfo;
   var loungeArr = loungeResp.Lounges;
   for (var l = 0; l < loungeArr.length; l++) {
@@ -71,22 +82,23 @@ LoungeList.prototype.loungesCb = function(loungeResp) {
   	loungeDiv.addClass('aLounge');
     var title = $('<h3>' + lounge.Name + '</h3>');
     loungeDiv.append(title);
+
+    var tableEl = $('<table></table>');
     for (var t = 0; t < lounge.Games.length; t++) {
-      var table = lounge.Games[t];
+      var tableName = lounge.Games[t];
       var users = [];
-      if (table in gameMap) {
-      	var tableInfo = gameMap[table];
+      if (tableName in gameMap) {
+      	var tableInfo = gameMap[tableName];
         users = tableInfo.Users;
       }
-      var tableDiv = $('<div></div>'); tableDiv.addClass('aTable');
-      var nameDiv = $('<div>' + rename(table) + '</div>'); nameDiv.addClass('aTableName');
+      var tableDiv = $('<tr></tr>'); tableDiv.addClass('aTable');
+      var nameDiv = this.createTableNameDiv(tableName);
       var usersDiv = this.createUsersDiv(users);
-      var joinDiv = this.createJoinDiv(table);
-      tableDiv.append(nameDiv);
-      tableDiv.append(usersDiv);
-      tableDiv.append(joinDiv);
-      loungeDiv.append(tableDiv);
+      tableDiv.append(aTd(nameDiv));
+      tableDiv.append(aTd(usersDiv));
+      tableEl.append(tableDiv);
     }
+    loungeDiv.append(tableEl);
     this.el.append(loungeDiv);
   }
 };
