@@ -380,6 +380,9 @@ UsersTable.prototype.register = function(user, points) {
   var userList = this.tableEl;
   // Add a row.
   var row = $('<tr></tr>');
+  if (ctrl.isMe(user)) {
+    row.addClass('me-user-row');
+  }
   var td0 = $('<td>' + user + '</td>');
   var td1 = $('<td>' + points + '</td>');
   td1.attr('id', 'userPoints' + user);
@@ -839,7 +842,14 @@ function qs(key) {
 
 ctrl.getUserName = function() {
   var user = localStorage.getItem('wr_username');
+  if (user == null) {
+    user = 'anonymous' + Math.floor(Math.random() * 1000);
+  }
   return user;
+};
+
+ctrl.isMe = function(userName) {
+  return ctrl.table.user == userName; 
 };
 
 ctrl.init_ = function() {

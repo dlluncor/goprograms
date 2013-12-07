@@ -1,10 +1,9 @@
 Some issues through user testing...
 
-- A user should be able to join a game via a link (without the user encoded in it.)
-
 - Handle Q (render as qu and handle with graph search somehow)
 - Use red and blue colors for bonus points.
 - Come up with a better word generator.
+- When a user enters the synchronization can get pretty off...
 
 Database queries:
 http://localhost:8081/createLounge?l=Beginner Lounge&g=game0,game1,game2

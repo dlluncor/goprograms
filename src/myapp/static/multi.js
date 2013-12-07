@@ -224,6 +224,6 @@ multi.initConnection = function(user, table, token) {
 };
 
 window.onbeforeunload = function() {
-    websocket.onclose = function () {}; // disable onclose handler first
+    multi.state.socket.onclose = function () {}; // disable onclose handler first
     multi.onClose('browser exiting');
 };
