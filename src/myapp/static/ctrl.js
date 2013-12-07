@@ -837,6 +837,11 @@ function qs(key) {
     return match && decodeURIComponent(match[1].replace(/\+/g, " "));
 };
 
+ctrl.getUserName = function() {
+  var user = localStorage.getItem('wr_username');
+  return user;
+};
+
 ctrl.init_ = function() {
     $('#entireGameArena').hide();
 
@@ -846,7 +851,8 @@ ctrl.init_ = function() {
     ctrl.console.init();
 
     var token = $('#userToken').val();
-    ctrl.table = new Table(qs('u'), qs('t'), token);
+
+    ctrl.table = new Table(ctrl.getUserName(), qs('t'), token);
     ctrl.table.create();
 };
 

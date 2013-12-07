@@ -116,7 +116,7 @@ ctrl.joinTableClicked = function(table) {
   window.console.log('Joining the table.');
   var user = $('#loginUser').html();
   // Open the table in a new tab.
-  var url = '/enterTable?t=' + table + '&u=' + user;
+  var url = '/enterTable?t=' + table;
   window.open(url,'_blank');
 };
 
