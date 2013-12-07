@@ -8,10 +8,21 @@
   </div>
   <div class="login-container">
     <div class="login-header">Log in</div>
-    <div class="sick-input"><input style="width:100%;"></input></div>
+    <div class="sick-input"><input style="width:100%;" id="username" placeholder="sportsguy560"></input></div>
     <div>
       <div id="remember-me"><input type="checkbox" id="remember_me" name="remember_me" tabindex="3"> <label for="remember_me">Remember me</label></div>
-      <div><input value="Sign in" class="freshbutton-blue"></input></div>
+      <div><input value="Sign in" class="freshbutton-blue" id="signIn"></input></div>
     </div>
   </div>
+  <script>
+    var uDiv = document.getElementById('signIn');
+    uDiv.onclick = function() {
+      var username = document.getElementById('username').value;
+      if (username == '') {
+      	username = 'anonymous' + Math.floor(Math.random() * 1000);
+      }
+      localStorage.setItem('wr_username', username);
+      window.location = '/seeLounges';
+    };
+  </script>
 </html>

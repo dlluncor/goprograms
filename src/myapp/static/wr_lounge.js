@@ -114,14 +114,14 @@ ctrl.getLoungesAndTables = function(callback) {
 
 ctrl.joinTableClicked = function(table) {
   window.console.log('Joining the table.');
-  var user = $('#loginUser').val();
+  var user = $('#loginUser').html();
   // Open the table in a new tab.
   var url = '/enterTable?t=' + table + '&u=' + user;
   window.open(url,'_blank');
 };
 
 ctrl.init_ = function() {
-
+    $('#loginUser').html(localStorage.getItem('wr_username'));
     var ll = new LoungeList($('#loungeList'));
     ctrl.getLoungesAndTables(ll.loungesCb.bind(ll));
 };
