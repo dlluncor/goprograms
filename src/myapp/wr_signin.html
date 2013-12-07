@@ -15,14 +15,26 @@
     </div>
   </div>
   <script>
+    var uInput = document.getElementById('username');
     var uDiv = document.getElementById('signIn');
-    uDiv.onclick = function() {
-      var username = document.getElementById('username').value;
+
+    var goToLounge = function() {
+      var username = uInput.value;
       if (username == '') {
-      	username = 'anonymous' + Math.floor(Math.random() * 1000);
+        username = 'anonymous' + Math.floor(Math.random() * 1000);
       }
       localStorage.setItem('wr_username', username);
       window.location = '/seeLounges';
+    };
+
+    uDiv.onclick = function() {
+      goToLounge();
+    };
+
+    uInput.onkeypress = function(e) {
+      if (e.which == 13) {
+        goToLounge();
+      }
     };
   </script>
 </html>
