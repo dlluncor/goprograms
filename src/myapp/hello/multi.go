@@ -235,13 +235,3 @@ func startGame(w http.ResponseWriter, r *http.Request) {
 }
 
 // Need to start a table and broadcast it to all users.
-
-var mainTemplate = template.Must(template.ParseFiles("multi_main.html"))
-
-func main(w http.ResponseWriter, r *http.Request) {
-    c := appengine.NewContext(r)
-    err := mainTemplate.Execute(w, map[string]string{})
-    if err != nil {
-        c.Errorf("mainTemplate: %v", err)
-    }
-}

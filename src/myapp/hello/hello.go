@@ -8,6 +8,8 @@ import (
     "dlluncor/spoj"
     "strings"
     "strconv"
+
+    "html/template"
 )
 
 func init() {
@@ -104,4 +106,15 @@ func handleGetAllWords(w http.ResponseWriter, r *http.Request) {
     words := checker.AllWords()
     output := strings.Join(words, ",")
     fmt.Fprintf(w, output)
+}
+
+// For practice and debug only.
+var mainTemplate = template.Must(template.ParseFiles("practice/multi_main.html"))
+
+func main(w http.ResponseWriter, r *http.Request) {
+    c := appengine.NewContext(r)
+    err := mainTemplate.Execute(w, map[string]string{})
+    if err != nil {
+        c.Errorf("mainTemplate: %v", err)
+    }
 }
