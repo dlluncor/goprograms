@@ -58,6 +58,7 @@ LoungeList.prototype.createTableNameDiv = function(tableName) {
   var nameDiv = $('<div>' + rename(tableName) + '</div>'); 
   nameDiv.addClass('aTableName');
   nameDiv.addClass('aJoinLink');
+  nameDiv.attr('theTableName', tableName);
   nameDiv.click(function(e) {
     var table = e.currentTarget.getAttribute('theTableName');
     ctrl.joinTableClicked(table);
