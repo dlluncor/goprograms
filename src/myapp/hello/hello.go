@@ -81,28 +81,26 @@ func handleWrLoungePage(w http.ResponseWriter, r *http.Request) {
   handleStaticPage(w, r, "wr_lounge.html")
 }
 
+// Maps a language to the appropriate file which contains all known words for
+// that language.
+var langToDictFile = map[string]string{
+  "en": "allWords.txt",
+  "es": "allWords_es.txt",
+}
+
 // JSON handler for getting all solutions. Still needed!
 func handlerWordRacer(w http.ResponseWriter, r *http.Request) {
-    checker := spoj.NewChecker("allWords.txt")
-    //c := appengine.NewContext(r)
     queryMap := r.URL.Query()
+    lang := queryMap.Get("lang")
+    correctWordDictFileName, _ := langToDictFile[lang] // correctWordDictFileName = "allWords.txt"
+    checker := spoj.NewChecker(correctWordDictFileName)
     content := queryMap.Get("board")
     length := queryMap.Get("length")
     lines := getLines(content, length)
-    //words := lines
     words := spoj.WordRacerFromServer(checker, lines)
     // Should use JSON here.
     output := strings.Join(words, ",")
     fmt.Fprintf(w, output)
-}
-
-// content should have newlines, that's why we need length!
-// Deprecated cannot use currently.
-func solveForWords(content string, length int) string {
-  checker := spoj.NewChecker("allWords.txt")
-  lines := getLines(content, string(length))
-  words := spoj.WordRacerFromServer(checker, lines)
-  return strings.Join(words, ",")
 }
 
 // Useful notes.

@@ -41,7 +41,7 @@ backend.getAllWords = function(callback) {
   Jax.ajax('/getallwords', doneCallback);
 }
 
-backend.solvePuzzle = function(answersCb, board, length) {
+backend.solvePuzzle = function(answersCb, board, length, lang) {
 
   var parseAnswersData = function(linesAsText) {
         var words = linesAsText.split(',');
@@ -59,12 +59,13 @@ backend.solvePuzzle = function(answersCb, board, length) {
         window.console.log(data);
         answersCb(answers);
   };
-  Jax.ajax('/wordracer_json?board=' + board + '&length=' + length,
+  Jax.ajax('/wordracer_json?board=' + board + '&length=' + length + '&lang=' + lang,
       doneCallback);
 };
 
-BoardSolver = function(text) {
-        this.text = text;
+BoardSolver = function(text, lang) {
+  this.text = text;
+  this.lang = lang;
 };
 
 BoardSolver.prototype.solve = function(answersCb) {
@@ -73,7 +74,7 @@ BoardSolver.prototype.solve = function(answersCb) {
   // Validate the board works.
   var length = lines[0].length;
   window.console.log(this.text);
-  backend.solvePuzzle(answersCb, text, length);
+  backend.solvePuzzle(answersCb, text, length, this.lang);
 };
 
 // Round object to control keeping track of the
@@ -227,7 +228,7 @@ BoardC.prototype.useSolutions = function(tableInfo, opt_afterCb) {
   // Solve the board and store the results locally for now...
   this.board.resetBoard(tableInfo.getLines());
   this.curAnswers = {};
-  var b = new BoardSolver(this.board.asStringToSolve());
+  var b = new BoardSolver(this.board.asStringToSolve(), ctrl.table.getLanguage());
   this.curAnswers = {};
   var answersCb = function(answers) {
     // Store the words locally.
