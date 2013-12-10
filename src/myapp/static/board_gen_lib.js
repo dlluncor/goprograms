@@ -24,6 +24,12 @@ RndLetter.prototype.getLetters = function() {
     'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
     'Q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
     ];
+  } else if (this.lang == 'es') {
+    return [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+    'i', 'j', 'k', 'l', 'L', 'm', 'n', 'N', 'o', 'p', 'q', 'r',
+    's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+    ];
   }
   return [];
 };
@@ -40,6 +46,18 @@ RndLetter.prototype.getTiers = function() {
     18: 'l r',
     26: 's t u o',
     30: 'a e i'
+    };
+  } else if (this.lang == 'es') {
+    return {
+     3: 'Q x z',
+     6: 'j v y',
+     8: 'k w',
+    10: 'b c',
+    12: 'f g h m n p',
+    16: 'd',
+    18: 'l r',
+    26: 's t u o',
+    30: 'a e i L N'
     };
   }
   return {};
