@@ -202,9 +202,9 @@ BoardC.prototype.init = function() {
   }.bind(this));
 
 	this.solvedWordHandler.addDiscoverer({
-      word: '<b>Word</b>',
-      points: '<b>Pts</b>',
-      user: '<b>Discoverer</b>'
+      word: '<b>' + Translate.translate('Word', ctrl.table.getLanguage()) + '</b>',
+      points: '<b>' + 'Pts' + '</b>',
+      user: '<b>' + Translate.translate('Discoverer', ctrl.table.getLanguage()) + '</b>'
   	});
 }
 
@@ -681,6 +681,8 @@ Table = function(curUser, table, token) {
   this.boardC = null;
   this.solveWordHandler = null;
 
+  this.calledInit = false;
+
   // Game config.
   this.config = {
     betweenRound: 10, // Seconds between rounds.
@@ -764,19 +766,33 @@ Table.prototype.internationalizeApp = function(gameM) {
   if (lang == 'en') {
     return;
   }
-  var sgBtn = $('#startGameBtn');
-  sgBtn.val(Translate.translate(sgBtn.val(), lang));
+  var inputFields = ['submitWordBtn', 'startGameBtn', 'clearWordBtn'];
+  for (var i = 0; i < inputFields.length; i++) {
+    var btn = $('#' + inputFields[i]);
+    btn.val(Translate.translate(btn.val(), lang));
+  }
+  // All HTML items tagged with 'intern' should be changed. Their innerHTML should be the item to change.
+  $('.intern').each(function(index, el) {
+    var text = $(el).html();
+    var translated = Translate.translate(text, lang);
+    $(el).html(translated);
+  });
 };
 
 Table.prototype.getLanguage = function() {
   return this.language;
 };
 
+Table.prototype.possiblyInit = function(gameM) {
+  if (this.calledInit) {
+    return;
+  }
+  this.init(gameM);
+  this.calledInit = true;
+};
+
 // Updates the UI based on a game model passed from the server.
 Table.prototype.updateUi = function(gameM) {
-
-    this.internationalizeApp(gameM);
-
     // Update the UI given the game state.
     this.startButtonDisabled(gameM.isStarted());
 
@@ -792,13 +808,18 @@ Table.prototype.updateUi = function(gameM) {
     }
 };
 
+// Only init the table once we've gotten at least one response from the server about the table.
+Table.prototype.init = function(gameM) {
+  $('#entireGameArena').show();
+  this.internationalizeApp(gameM);
+  this.rounder.init();
+};
+
 // Creates and sets up the table with a user name and a table id.
 Table.prototype.create = function() {
-   $('#entireGameArena').show();
 
    // Wait for the user to click join table.
-
-  window.console.log("ready for damage");
+  window.console.log("ready to set up the JS, still waiting to get the first table response.");
   this.usersHandler = new UsersHandler();
   this.solvedWordHandler = new WordHandler(this.usersHandler);
 	
@@ -806,7 +827,6 @@ Table.prototype.create = function() {
 	var board = new Board($('#wordRacerBoard'));
 	this.boardC = new BoardC(board, this.solvedWordHandler); // board controller.
   this.rounder = new Round(this.boardC);
-  this.rounder.init();
 
   multi.initConnection(this.user, this.table, this.token);
 

@@ -7,7 +7,9 @@ Some issues through user testing...
 
 - Newer puzzles with different shapes.
 - AI that learns how to play along with you?
-- Internationalization *
+- Internationalization:
+   - Deal with accents in Spanish.
+   - Change all text on the board to another language.
 - Leaderboard
 - Sign in with FB/Google
 

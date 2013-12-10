@@ -99,6 +99,7 @@ multi.handleMessage = function(resp) {
       // the table, or another using leaving.
       ctrl.console.multiPrint('Set up state of the table for the user.');
       var gameM = new GameModel(resp.Payload);
+      ctrl.table.possiblyInit(gameM);
       ctrl.table.updateUi(gameM);
       if (gameM.isStarted() && multi.state.uiInitiated == false) {
       	// User is jumping into the game right in the middle, we need to fast-forward

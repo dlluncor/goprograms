@@ -5,7 +5,16 @@ Translate = function() {
 Translate.esDict = {
   'user': 'jugador',
   'users': 'jugadores',
-  'Start game': 'Empieza'
+  'Start game': 'Empieza',
+  'Word': 'Palabra',
+  'Discoverer': 'Persona',
+  'User': 'Jugador',
+  'Points': 'Puntos',
+  'Round': 'Ronda',
+  'Time': 'Tiempo',
+  'Submit': 'Entra',
+  'Clear': 'Borra',
+  'Type word': 'Escribe'
 };
 
 Translate.dict = {
