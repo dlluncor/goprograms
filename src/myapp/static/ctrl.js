@@ -759,11 +759,16 @@ Table.prototype.fastForwardUi = function(gameM) {
 Table.prototype.internationalizeApp = function(gameM) {
   var tableObj = gameM.obj;
   var lang = tableObj.Language;
+  this.language = lang;
   if (lang == 'en') {
     return;
   }
   var sgBtn = $('#startGameBtn');
   sgBtn.val(Translate.translate(sgBtn.val(), lang));
+};
+
+Table.prototype.getLanguage = function() {
+  return this.language;
 };
 
 // Updates the UI based on a game model passed from the server.

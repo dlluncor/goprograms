@@ -115,11 +115,12 @@ multi.handleMessage = function(resp) {
       // even though the backend should be doing that, and then the server
       // can notify everyone when to start the round 1 (everyone should
       // be synchronized at that point).
+      var bGen = new BoardGen(ctrl.table.getLanguage());
       var params = {
-      	'table1': BoardGen.join(BoardGen.generateBoard(1)),
-      	'table2': BoardGen.join(BoardGen.generateBoard(2)),
-      	'table3': BoardGen.join(BoardGen.generateBoard(3)),
-      	'table4': BoardGen.join(BoardGen.generateBoard(4))
+      	'table1': BoardGen.join(bGen.generateBoard(1)),
+      	'table2': BoardGen.join(bGen.generateBoard(2)),
+      	'table3': BoardGen.join(bGen.generateBoard(3)),
+      	'table4': BoardGen.join(bGen.generateBoard(4))
       };
       multi.sendMessage('sendTables', params);
     }

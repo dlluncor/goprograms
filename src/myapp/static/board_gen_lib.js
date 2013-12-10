@@ -80,7 +80,12 @@ RndLetter.getLetterMix = function() {
   return RndLetter.letterMix;
 };
 
-BoardGen.createLine = function(emptyIndices, width) {
+BoardGen = function(lang) {
+  this.lang = lang;
+  window.console.log('Board generation is using language: ' + this.lang);
+};
+
+BoardGen.prototype.createLine_ = function(emptyIndices, width) {
   var emptyMap = {};
   emptyIndices.forEach(function(index) {
     emptyMap[index] = true;
@@ -99,47 +104,47 @@ BoardGen.createLine = function(emptyIndices, width) {
 
 // Returns the board as an array of characters, e.g.
 // [['a', 'b', 'X'], ['f', 'e', 'd']]
-BoardGen.generateBoard = function(curRound) {
+BoardGen.prototype.generateBoard = function(curRound) {
   window.console.log('About to generate the board.');
   var lines = [];
   if (curRound == 1) {
   	// Need a 4 by 4 grid no empty spaces.
   	var width = 4;
   	lines = [
-      BoardGen.createLine([], width),
-      BoardGen.createLine([], width),
-      BoardGen.createLine([], width),
-      BoardGen.createLine([], width)
+      this.createLine_([], width),
+      this.createLine_([], width),
+      this.createLine_([], width),
+      this.createLine_([], width)
   	];
   } else if (curRound == 2) {
   	var width = 6;
   	lines = [
-  	  BoardGen.createLine([0, 1, 4, 5], width),
-  	  BoardGen.createLine([0, 5], width),
-  	  BoardGen.createLine([], width),
-  	  BoardGen.createLine([], width),
-  	  BoardGen.createLine([0, 5], width),
-  	  BoardGen.createLine([0, 1, 4, 5], width)
+  	  this.createLine_([0, 1, 4, 5], width),
+  	  this.createLine_([0, 5], width),
+  	  this.createLine_([], width),
+  	  this.createLine_([], width),
+  	  this.createLine_([0, 5], width),
+  	  this.createLine_([0, 1, 4, 5], width)
   	];
   } else if (curRound == 3) {
   	var width = 6;
     lines = [
-  	  BoardGen.createLine([4, 5], width),
-  	  BoardGen.createLine([4, 5], width),
-  	  BoardGen.createLine([], width),
-  	  BoardGen.createLine([], width),
-  	  BoardGen.createLine([0, 1], width),
-  	  BoardGen.createLine([0, 1], width)
+  	  this.createLine_([4, 5], width),
+  	  this.createLine_([4, 5], width),
+  	  this.createLine_([], width),
+  	  this.createLine_([], width),
+  	  this.createLine_([0, 1], width),
+  	  this.createLine_([0, 1], width)
   	];
   } else if (curRound == 4) {
   	var width = 6;
     lines = [
-  	  BoardGen.createLine([], width),
-  	  BoardGen.createLine([], width),
-  	  BoardGen.createLine([2, 3], width),
-  	  BoardGen.createLine([2, 3], width),
-  	  BoardGen.createLine([], width),
-  	  BoardGen.createLine([], width)
+  	  this.createLine_([], width),
+  	  this.createLine_([], width),
+  	  this.createLine_([2, 3], width),
+  	  this.createLine_([2, 3], width),
+  	  this.createLine_([], width),
+  	  this.createLine_([], width)
   	];
   }
   return lines;

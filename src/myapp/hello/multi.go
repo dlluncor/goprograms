@@ -59,11 +59,16 @@ func clearAll(w http.ResponseWriter, r *http.Request) {
   }
   // Clear all tables in the DB.
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
-    c.Infof("Deleting all keys in database.")
+    c.Infof("Resetting the values for a table in the database.")
     for _, tableKey := range tableKeys {
         k := datastore.NewKey(c, "WrGame", tableKey, 0, nil)
-        // Delete each ones.
-        if err := datastore.Delete(c, k); err != nil {
+        g := defaultGame()
+        if err := datastore.Get(c, k, g); err != nil {
+          return err
+        }
+        g2 := defaultGame()
+        g2.Language = g.Language // Only preserve the language.
+        if _, err := datastore.Put(c, k, g2); err != nil {
           return err
         }
     }

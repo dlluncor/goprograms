@@ -98,6 +98,18 @@ func addLoungeNameDb(c appengine.Context, loungeName string) error {
   return err
 }
 
+func clearLoungeNamesDb(c appengine.Context) error {
+  ls := defaultLounges()
+  err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+      k := datastore.NewKey(c, "WrData", "loungeNames", 0, nil)
+      if _ , err := datastore.Put(c, k, ls); err != nil {
+        return err;
+      }
+      return nil
+  }, nil)
+  return err
+}
+
 func deleteLounges(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
   hadError := false
@@ -118,6 +130,7 @@ func deleteLounges(w http.ResponseWriter, r *http.Request) {
   if !hadError {
     fmt.Fprintf(w, "Deleted lounges: %v", loungeNames)
   }
+  clearLoungeNamesDb(c)
 }
 
 func createLounge(w http.ResponseWriter, r *http.Request) {
