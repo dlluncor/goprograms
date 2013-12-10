@@ -2,33 +2,36 @@
 
 var BoardGen = {};
 
-RndLetter = function() {
+RndLetter = function(lang) {
+  this.lang = lang;
+  this.letters = this.getLetters(lang);
 };
 
-RndLetter.randLetter = function() {
-  var letters = RndLetter.getLetterMix();
+RndLetter.prototype.randLetter = function() {
+  var letters = this.getLetterMix();
   var possib = letters.length-1;
   var ind = Math.floor((Math.random() * possib));
   return letters[ind];
 };
 
 RndLetter.emptySpace = 'X';
-RndLetter.letters = [
-  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-  'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-  'Q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-];
 
-RndLetter.boosts = null;
-RndLetter.letterMix = null;
-
-RndLetter.createBoosts = function() {
-  if (RndLetter.boosts) {
-  	return RndLetter.boosts;
+// TODO(dlluncor): inter
+RndLetter.prototype.getLetters = function() {
+  if (this.lang == 'en') {
+    return [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+    'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+    'Q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+    ];
   }
+  return [];
+};
 
-  var tiers = {
-  	 3: 'Q x z',
+RndLetter.prototype.getTiers = function() {
+  if (this.lang == 'en') {
+    return {
+     3: 'Q x z',
      6: 'j v y',
      8: 'k w',
     10: 'b c',
@@ -37,7 +40,20 @@ RndLetter.createBoosts = function() {
     18: 'l r',
     26: 's t u o',
     30: 'a e i'
-  };
+    };
+  }
+  return {};
+};
+
+RndLetter.boosts = null;
+RndLetter.letterMix = null;
+
+RndLetter.prototype.createBoosts = function() {
+  if (RndLetter.boosts) {
+  	return RndLetter.boosts;
+  }
+
+  var tiers = this.getTiers();
 
   // Tiers to boost (prob that we get that letter).
   var boosts = {};
@@ -49,23 +65,23 @@ RndLetter.createBoosts = function() {
       numLetters++;
   	}
   }
-  if (numLetters != 26) {
-  	alert('Mapping is wrong needs 26 characters!');
+  if (numLetters != this.letters.length) {
+  	alert('Mapping is wrong needs ' + this.letters.length + ' characters!');
   }
   RndLetter.boosts = boosts;
   return boosts;
 };
 
-RndLetter.getLetterMix = function() {
+RndLetter.prototype.getLetterMix = function() {
   if (RndLetter.letterMix) {
   	return RndLetter.letterMix;
   }
 
   var letters = [];
-  var boosts = RndLetter.createBoosts();
+  var boosts = this.createBoosts();
   // Add letters with boosts that many extra times.
-  for (var i = 0; i < RndLetter.letters.length; i++) {
-  	var letter = RndLetter.letters[i];
+  for (var i = 0; i < this.letters.length; i++) {
+  	var letter = this.letters[i];
   	var repeat = 1;
   	if (letter in boosts) {
   		repeat = boosts[letter];
@@ -90,13 +106,13 @@ BoardGen.prototype.createLine_ = function(emptyIndices, width) {
   emptyIndices.forEach(function(index) {
     emptyMap[index] = true;
   });
-
+  var rndl = new RndLetter(this.lang);
   var letters = [];
   for (var i = 0; i < width; i++) {
     if (i in emptyMap) {
     	letters.push(RndLetter.emptySpace);
     } else {
-      letters.push(RndLetter.randLetter());
+      letters.push(rndl.randLetter());
     }
   }
   return letters;
