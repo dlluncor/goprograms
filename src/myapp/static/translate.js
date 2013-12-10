@@ -4,7 +4,8 @@ Translate = function() {
 
 Translate.esDict = {
   'user': 'jugador',
-  'users': 'jugadores'
+  'users': 'jugadores',
+  'Start game': 'Empieza'
 };
 
 Translate.dict = {

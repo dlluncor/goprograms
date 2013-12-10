@@ -755,8 +755,22 @@ Table.prototype.fastForwardUi = function(gameM) {
     this.boardC.useSolutions(tableInfo, afterCb);
 };
 
+// Internalization text on the page based on the language.
+Table.prototype.internationalizeApp = function(gameM) {
+  var tableObj = gameM.obj;
+  var lang = tableObj.Language;
+  if (lang == 'en') {
+    return;
+  }
+  var sgBtn = $('#startGameBtn');
+  sgBtn.val(Translate.translate(sgBtn.val(), lang));
+};
+
 // Updates the UI based on a game model passed from the server.
 Table.prototype.updateUi = function(gameM) {
+
+    this.internationalizeApp(gameM);
+
     // Update the UI given the game state.
     this.startButtonDisabled(gameM.isStarted());
 
