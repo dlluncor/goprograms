@@ -36,10 +36,10 @@ LoungeList = function(el) {
   this.el = el;
 };
 
-LoungeList.prototype.createUsersDiv = function(users) {
-  var suffix = 'users';
+LoungeList.prototype.createUsersDiv = function(users, outputLang) {
+  var suffix = Translate.translate('users', outputLang);
   if (users.length == 1) {
-  	suffix = 'user';
+  	suffix = Translate.translate('user', outputLang);
   }
 
   var div = $('<div>&nbsp;(' + users.length + ' ' + suffix +')</div>');
@@ -92,9 +92,10 @@ LoungeList.prototype.loungesCb = function(loungeResp) {
       	var tableInfo = gameMap[tableName];
         users = tableInfo.Users;
       }
+      var outputLang = tableInfo.Language;
       var tableDiv = $('<tr></tr>'); tableDiv.addClass('aTable');
       var nameDiv = this.createTableNameDiv(tableName);
-      var usersDiv = this.createUsersDiv(users);
+      var usersDiv = this.createUsersDiv(users, outputLang);
       tableDiv.append(aTd(nameDiv));
       tableDiv.append(aTd(usersDiv));
       tableEl.append(tableDiv);

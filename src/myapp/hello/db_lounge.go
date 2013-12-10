@@ -1,6 +1,5 @@
 package hello
 
-// TODO(dlluncor): Need ability to create lounges too...
 import (
     "appengine"
     "appengine/datastore"
@@ -25,6 +24,11 @@ type MyLounge struct {
 type changeLoungeFunc func(l *MyLounge) bool
 
 
+// List of lounges stored in the DB.
+type MyLounges struct {
+  LoungeNames []string
+}
+
 func defaultLoungeResp() LoungeResp {
   return LoungeResp {
     Lounges: []MyLounge{},
@@ -39,11 +43,65 @@ func defaultLounge() *MyLounge {
   }
 }
 
-var loungeNames = []string{"Intermediate Lounge", "Beginner Lounge"}
+func defaultLounges() *MyLounges {
+  return &MyLounges {
+    LoungeNames: []string{},
+  }
+}
+
+func setUpDb(w http.ResponseWriter, r *http.Request) {
+  c := appengine.NewContext(r)
+
+  // Setup a key which contains the list of loounge names.
+  ls := defaultLounges()
+  err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+      k := datastore.NewKey(c, "WrData", "loungeNames", 0, nil)
+      if _, err := datastore.Put(c, k, ls); err != nil {
+        return err;
+      }
+      return nil
+  }, nil)
+  if err != nil {
+    c.Infof("Problem with setup db.")
+  }
+  fmt.Fprintf(w, "Successfully setup db.")
+}
+
+func getLoungeNamesDb(c appengine.Context) []string {
+  ls := defaultLounges()
+  err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+      k := datastore.NewKey(c, "WrData", "loungeNames", 0, nil)
+      if err := datastore.Get(c, k, ls); err != nil {
+        return err;
+      }
+      return nil
+  }, nil)
+  if err != nil {
+    c.Infof("Problem with getting all the lounge names.")
+  }
+  return ls.LoungeNames
+}
+
+func addLoungeNameDb(c appengine.Context, loungeName string) error {
+  ls := defaultLounges()
+  err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+      k := datastore.NewKey(c, "WrData", "loungeNames", 0, nil)
+      if err := datastore.Get(c, k, ls); err != nil {
+        return err;
+      }
+      ls.LoungeNames = append(ls.LoungeNames, loungeName)
+      if _ , err := datastore.Put(c, k, ls); err != nil {
+        return err;
+      }
+      return nil
+  }, nil)
+  return err
+}
 
 func deleteLounges(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
   hadError := false
+  loungeNames := getLoungeNamesDb(c)
   for _, loungeName := range loungeNames {
     err := datastore.RunInTransaction(c, func(c appengine.Context) error {
       k := datastore.NewKey(c, "WrLounge", loungeName, 0, nil)
@@ -71,6 +129,8 @@ func createLounge(w http.ResponseWriter, r *http.Request) {
   l := defaultLounge()
   l.Name = loungeName
   l.Games = games
+  addLoungeNameDb(c, loungeName)
+  // Create the lounges.
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
       k := datastore.NewKey(c, "WrLounge", loungeName, 0, nil)
       if _, err := datastore.Put(c, k, l); err != nil {
@@ -83,6 +143,13 @@ func createLounge(w http.ResponseWriter, r *http.Request) {
   } else {
     fmt.Fprintf(w, "Success in creating lounge: %v with games: %s", loungeName, games)
   }
+  // Create the games as well.
+  lang := queryMap.Get("lang")
+  for _, tableKey := range games {
+    g := defaultGame()
+    g.Language = lang
+    createGame(c, tableKey, g)
+  }
 }
 
 // Returns all information about the lounges and their associated games.
@@ -91,6 +158,7 @@ func getLounges(w http.ResponseWriter, r *http.Request) {
 
   resp := defaultLoungeResp()
   lounges := []MyLounge{}
+  loungeNames := getLoungeNamesDb(c)
   for _, loungeName := range loungeNames {
     loungeChanger := func(l *MyLounge) bool {
       return false

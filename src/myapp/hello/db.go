@@ -1,42 +1,10 @@
 package hello
 
 import (
-    //"strings"
     "time"
-    "reflect"
-    "appengine/datastore"
 )
 
 // Database model for the entire Game state.
-
-// My code for saving maps in a db.
-type DbMap map[string]interface{}
- 
-func (m DbMap) Load(c <-chan datastore.Property) error {
-    for p := range c {
-        if p.Multiple {
-            value := reflect.ValueOf(m[p.Name])
-            if value.Kind() != reflect.Slice {
-                m[p.Name] = []interface{}{p.Value}
-            } else {
-                m[p.Name] = append(m[p.Name].([]interface{}), p.Value)
-            }
-        } else {
-            m[p.Name] = p.Value 
-        }
-    }
-    return nil
-}
- 
-func (m DbMap) Save(c chan<- datastore.Property) error {
-    for k, v := range m {
-        c <- datastore.Property {
-            Name: k,
-            Value: v,
-        }
-    }
-    return nil
-}
 
 // This map will now contain everything b/c I don't know how to save
 // or retrieve any other fields from this stupid struct besides the
@@ -59,6 +27,9 @@ type MyGame struct {
 
    LastRoundFetched int64  // When was the last round info fetched.
    Now int64  // When am I sending back the entire game state.
+
+   // Immutable information about a table.
+   Language string // e.g., 'en', 'es'
 }
 
 func defaultGame() *MyGame {
@@ -85,25 +56,6 @@ func (g *MyGame) Clear() {
     g.Points = append(g.Points, 0)
   }
 }
-
-/*
-func (g MyGame) Load(c <-chan datastore.Property) error {
-  err := g.Users.Load(c)
-  if err != nil {
-    return err
-  }
-  return nil
-}
-
-func (g MyGame) Save(c chan<- datastore.Property) error {
-  defer close(c)
-  err := g.Users.Save(c)
-  if err != nil {
-    return err
-  }
-  return nil
-}
-*/
 
 // TODO(dlluncor): Pretty inefficient, but oh well! Go is fast I think...
 func inArr(items []string, item string) bool {

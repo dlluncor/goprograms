@@ -16,7 +16,6 @@ func InitMulti() {
     http.HandleFunc("/multi", main)
 
     // Getting ready to start the game.
-    //http.HandleFunc("/_ah/channel/connected/", opened)
     http.HandleFunc("/opened", opened)
     http.HandleFunc("/startGame", startGame)
     http.HandleFunc("/_ah/channel/disconnected/", leaving)
@@ -29,11 +28,6 @@ func InitMulti() {
 
     // Debug.
     http.HandleFunc("/clearAll", clearAll)
-
-    // Backend for lounges.
-    http.HandleFunc("/getLounges", getLounges)
-    http.HandleFunc("/deleteLounges", deleteLounges) // Both are admin for lounges.
-    http.HandleFunc("/createLounge", createLounge)
 }
 
 type Resp struct {
@@ -102,14 +96,17 @@ func handleWrPage(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-// Might have to store this stuff as a property list.
-/*
-func defaultProps() datastore.PropertyList {
-  var plist datastore.PropertyList = make(datastore.PropertyList, 1)
-  plist = append(plist, datastore.Property { "name", "Mat", false, false })
-  return &plist
+// Creates a game and saves it to the database.
+func createGame(c appengine.Context, tableKey string, g *MyGame) error {
+  err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+    k := datastore.NewKey(c, "WrGame", tableKey, 0, nil)
+    if _, err := datastore.Put(c, k, g); err != nil {
+        return err
+    }
+    return nil
+  }, nil)
+  return err
 }
-*/
 
 // Might want to split game up into two pieces, info needed for real-time updates,
 // and the big one needed to update the user of all of the interactions which
@@ -132,11 +129,8 @@ func opened(w http.ResponseWriter, r *http.Request) {
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
     k := datastore.NewKey(c, "WrGame", tableKey, 0, nil)
     if err := datastore.Get(c, k, g); err != nil {
-      c.Infof("We have never entered this game into the database so create a new one.")
-      // Put the game in the database, this should basically happen only once.
-      if _, err := datastore.Put(c, k, g); err != nil {
-        return err
-      }
+      c.Infof("We have never entered this game into the database. Should have one already!!!")
+      return err
     }
     // Now write this user to the list of connect users to this table.
     user := r.FormValue("u")
@@ -147,7 +141,6 @@ func opened(w http.ResponseWriter, r *http.Request) {
     if _, err := datastore.Put(c, k, g); err != nil {
       return err
     }
-
     // Update user count for lounge.
     return nil
   }, nil)

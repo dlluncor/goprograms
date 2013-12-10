@@ -7,7 +7,16 @@ Some issues through user testing...
 
 - Newer puzzles with different shapes.
 - AI that learns how to play along with you?
+- Internationalization *
+- Leaderboard
+- Sign in with FB/Google
 
-Database queries:
-http://localhost:8081/createLounge?l=Beginner Lounge&g=game0,game1,game2
-http://localhost:8081/createLounge?l=Intermediate%20Lounge&g=game3,game4,game5
+Initialize db:
+http://localhost:8081/setUpDb
+
+Database create queries:
+http://localhost:8081/createLounge?l=English Lounge&g=game0,game1,game2&lang=en
+http://localhost:8081/createLounge?l=Spanish%20Lounge&g=game3,game4,game5&lang=es
+
+Database delete queries:
+http://localhost:8081/deleteLounges

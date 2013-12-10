@@ -22,6 +22,14 @@ func init() {
     http.HandleFunc("/", handleSigninPage) // View for signing in.
     http.HandleFunc("/seeLounges", handleWrLoungePage)  // View for all lounges.
     http.HandleFunc("/enterTable", handleWrPage)  // View for a table.
+
+    // DB utilities.
+    http.HandleFunc("/setUpDb", setUpDb)
+
+    // Backend for lounges.
+    http.HandleFunc("/getLounges", getLounges)
+    http.HandleFunc("/deleteLounges", deleteLounges) // Both are admin for lounges.
+    http.HandleFunc("/createLounge", createLounge)
 }
 
 type mywriter struct {
