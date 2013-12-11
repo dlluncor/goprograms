@@ -279,13 +279,25 @@ func (s *SudokuB) Create(board string) {
     }
     fmt.Printf("%v\n", oneRow)
   }
-  s0.Visualize()
-  s0.UpdatePossib()
-  s0.Visualize()
+  //s0.Visualize()
+  //s0.UpdatePossib()
+  //s0.Visualize()
 }
 
 func (s *SudokuB) Solve() {
-  
+  sol := &SudokuSolver{}
+  sol.Init(s)
+  idest, numGuesses := GraphSearch(sol.frontier, sol.explored, sol)
+  dest := idest.(*SNode)
+  if dest != nil {
+    fmt.Printf("***********")
+    fmt.Printf("Solved it with cost %v. f: %v. Guesses: %v\n", 
+               dest.cost, dest.f, numGuesses)
+    fmt.Printf("Path to get there:\n")
+    //PrintPath(dest)
+  } else {
+    fmt.Println("There is no way to solve this puzzle.\n")
+  }
 }
 
 /*
