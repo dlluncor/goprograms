@@ -8,8 +8,10 @@ import(
  */
 
 type SNode struct {
+  state *CellState
   cost int32
-  f int32
+  f int32 // how many hops to get to this state.
+  h int32 // how far am I from the goal.
 }
 
 
@@ -78,7 +80,7 @@ func (s *SudokuSolver) NextActions(node interface{}) []interface{} {
   return arr
 }
 
-func (s *SudokuSolver) Init(b *SudokuB) {
+func (s *SudokuSolver) Init(s0 *CellState) {
   s.frontier = &SFrontier{}
   s.explored = &SExplored{}
 }

@@ -266,7 +266,7 @@ func SudokuChecks() {
  // board is a string where the first 9 characters are the first row,
 // the next 9 are the second row, etc.
 // a dot represents an unknown entry.
-func (s *SudokuB) Create(board string) {
+func (s *SudokuB) Create(board string) *CellState {
   chars := strings.Split(board, "")
   s0 := newCellState()
   for row := 0; row < 9; row++ {
@@ -279,14 +279,16 @@ func (s *SudokuB) Create(board string) {
     }
     fmt.Printf("%v\n", oneRow)
   }
+  return s0
   //s0.Visualize()
   //s0.UpdatePossib()
   //s0.Visualize()
 }
 
-func (s *SudokuB) Solve() {
+func (s *SudokuB) Solve(r myio.Reader) {
   sol := &SudokuSolver{}
-  sol.Init(s)
+  state0 := s.Create(r.Read())
+  sol.Init(state0)
   idest, numGuesses := GraphSearch(sol.frontier, sol.explored, sol)
   dest := idest.(*SNode)
   if dest != nil {
@@ -312,10 +314,9 @@ func Sudoku() {
   board.Init()
   T, _ := strconv.Atoi(r.Read())
   for i := 0; i < T; i++ {
-    board.Create(r.Read())
+    board.Solve(r)
   }
   //PrintBoard(board.board)
-  board.Solve()
   fmt.Println("End of sudoku program.")
   SudokuChecks()
 }
