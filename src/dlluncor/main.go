@@ -1,8 +1,8 @@
 package main
 
 import(
-  "dlluncor/spoj"
-  //"dlluncor/udacity"
+  //"dlluncor/spoj"
+  "dlluncor/udacity"
   //"dlluncor/server"
 )
 
@@ -18,6 +18,7 @@ func main() {
   //udacity.FifteenNums()
   //server.Serve()
   //spoj.Concurrency()
-  spoj.WordRacer()
+  //spoj.WordRacer()
   //spoj.Scrabble()
+  udacity.Sudoku()
 }
