@@ -32,7 +32,8 @@ func (s *SFrontier) IsEmpty() bool {
 }
 
 func (s *SFrontier) RemoveChoice() interface{} {
-  return &SNode{}
+  node := heap.Pop(s.queue).(*SNode)
+  return node
 }
 
 func (s *SFrontier) Contains(node interface{}) bool {
@@ -46,6 +47,7 @@ func (s *SFrontier) Add(inode interface{}) {
     Priority: node.f + node.h,
   }
   heap.Push(s.queue, item)
+  // TODO(dlluncor): Add to list of explored states.
 }
 
 
