@@ -1,6 +1,8 @@
 package udacity
 
 import(
+  "dlluncor/container"
+  "container/heap"
 )
 
 /* This file deals with doing an A* search using utilities found in
@@ -22,7 +24,7 @@ func (s *SFrontier) () {
 */
 
 type SFrontier struct {
-
+  queue *container.PriorityQueue
 }
 
 func (s *SFrontier) IsEmpty() bool {
@@ -43,7 +45,7 @@ func (s *SFrontier) Add(node interface{}) {
 
 
 type SExplored struct {
-
+  seen map[string]bool
 }
 
 /*
@@ -81,6 +83,17 @@ func (s *SudokuSolver) NextActions(node interface{}) []interface{} {
 }
 
 func (s *SudokuSolver) Init(s0 *CellState) {
-  s.frontier = &SFrontier{}
-  s.explored = &SExplored{}
+  s.frontier = &SFrontier{
+    queue: &container.PriorityQueue{},
+  }
+  heap.Init(s.frontier.queue)
+  s.explored = &SExplored{
+    seen: make(map[string]bool),
+  }
+  node0 := &SNode{
+    f: 0,
+    h: 0,
+    state: s0,
+  }
+  s.frontier.Add(node0)
 }
