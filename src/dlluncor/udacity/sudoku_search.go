@@ -39,8 +39,13 @@ func (s *SFrontier) Contains(node interface{}) bool {
   return true
 }
 
-func (s *SFrontier) Add(node interface{}) {
-
+func (s *SFrontier) Add(inode interface{}) {
+  node := inode.(*SNode)
+  item := &container.Item{
+    Value: node,
+    Priority: node.f + node.h,
+  }
+  heap.Push(s.queue, item)
 }
 
 
@@ -59,7 +64,7 @@ func (s *SExplored) Add(node interface{}) {
 }
 
 func (s *SExplored) Contains(node interface{}) bool {
-  return true
+  return false
 }
 
 type SudokuSolver struct {

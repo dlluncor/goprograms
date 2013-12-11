@@ -10,9 +10,9 @@ import(
 
 // The distance this board is from being the correct answer. Just count the 
 // number of misplaced tiles.
-func H1Dist(board string) int {
+func H1Dist(board string) int32 {
   numArr := ToBoard(board)
-  distance := 0
+  distance := int32(0)
   for index, tileVal := range numArr {
     if tileVal - 1 != index {
       distance += 1
@@ -50,9 +50,9 @@ func Abs(num int) int{
 
 // The number of tiles which are misplaced, where the number of steps it takes to
 // move that tile to the correct location is counted.
-func H2Dist(board string) int {
+func H2Dist(board string) int32 {
   numArr := ToBoard(board)
-  distance := 0
+  distance := int32(0)
   for row := 0; row < 4; row++ {
     for col := 0; col < 4; col++ {
       k := row * 4 + col
@@ -60,13 +60,13 @@ func H2Dist(board string) int {
       loc := TILE_TO_LOC[tileVal]
       correctRow := loc[0]
       correctCol := loc[1]
-      distance += Abs(correctRow - row) + Abs(correctCol - col)
+      distance += int32(Abs(correctRow - row) + Abs(correctCol - col))
     }
   }
   return distance
 }
 
-func Heuristic(board string) int {
+func Heuristic(board string) int32 {
   return H1Dist(board)
 }
 
@@ -74,9 +74,9 @@ func Heuristic(board string) int {
 type BNode struct {
   parent *BNode // which state did I eminate from.
   state string // string representation of the board.
-  cost int
-  f int // number of hops to get to this state.
-  h int // how far am I from my goal.
+  cost int32
+  f int32 // number of hops to get to this state.
+  h int32 // how far am I from my goal.
 }
 
 type BExplored struct {
@@ -133,7 +133,7 @@ func(b *BFronteir) RemoveChoice() interface{} {
   //before := time.Now()
   // Pop the item with the lowest cost from the heap, fast!!!
   item := heap.Pop(b.queue).(*container.Item)
-  lNode := b.boardMap[item.Value] // Node with the lowest cost.
+  lNode := b.boardMap[item.Value.(string)] // Node with the lowest cost.
   //fmt.Printf("Fronteir size: %v\n", len(b.boardMap))
   //fmt.Printf("Best choice. Cost: %v. H: %v\n", lNode.cost, lNode.h)
   //PrintBoard(lNode.state)
