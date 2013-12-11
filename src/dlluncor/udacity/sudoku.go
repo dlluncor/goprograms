@@ -290,8 +290,8 @@ func (s *SudokuB) Solve(r myio.Reader) {
   state0 := s.Create(r.Read())
   sol.Init(state0)
   idest, numGuesses := GraphSearch(sol.frontier, sol.explored, sol)
-  dest := idest.(*SNode)
-  if dest != nil {
+  if idest != nil {
+    dest := idest.(*SNode)
     fmt.Printf("***********")
     fmt.Printf("Solved it with cost %v. f: %v. Guesses: %v\n", 
                dest.cost, dest.f, numGuesses)
