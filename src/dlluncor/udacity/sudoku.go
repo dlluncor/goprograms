@@ -61,7 +61,8 @@ var quadrantInds = make(map[int][]int)
 
 // Decreases the number of possibilities based on what it knows about
 // the other cells in this row.
-func (c *CellState) prune(index int, otherInds []int) {
+func (c *CellState) prune(index int, otherInds []int) bool {
+  hasNewAnswer := false
   for _, otherInd := range otherInds {
     if otherInd == index {
       // Don't consider thyself.
@@ -72,17 +73,95 @@ func (c *CellState) prune(index int, otherInds []int) {
       // Now we know this was a solved square, so it can't be a possible
       // solution for this square anymore.
       c.possibAns[index] = deleteFromList(c.possibAns[index], val)
+      // Did we generate a new answer here?
+      _, okAfter := GetNumber(c.possibAns[index])
+      if okAfter {
+        // We generated an example in which there is now a solution where
+        // there was not one before.
+        hasNewAnswer = true
+      }
     }
   }
+  return hasNewAnswer
+}
+
+func (c *CellState) pruneOther(index int, otherInds []int) bool {
+  // There is another case where you are the only person
+  // who contains the possibility to answer with that number in which case
+  // you get it.
+  // 
+  // Example:
+  // 1 2 3
+  // 4 5 6
+  // (7/9) (7/8) (7/9)
+  // 8 9
+  //
+  //
+  //     8
+  exists := make(map[int]bool)  // indices which exist in the other quadrants.
+  for _, otherInd := range otherInds {
+    if otherInd == index {
+      // Don't consider thyself.
+      continue
+    }
+    for _, possibOtherAns := range *c.possibAns[otherInd] {
+      exists[possibOtherAns] = true
+    }
+  }
+
+  myNums := c.possibAns[index]
+  for _, myNum := range *myNums {
+    if _, ok := exists[myNum]; !ok {
+      // If only see this number in our square and in nobody else's then
+      // we have an answer for us and we need to clear it from everyone
+      // else's list of possibilities.
+      c.possibAns[index] = &[]int{myNum}
+      return true
+    }
+  }
+  return false
 }
 
 // Update which numbers are feasible given the state of this board, e.g.
 // prune numbers which are no longer possible given this new configuration.
 func (c *CellState) UpdatePossib() {
+  hasNewAnswer := false
   for i := 0; i < 80; i++ {
-    c.prune(i, horizInds[i])
-    c.prune(i, verticalInds[i])
-    c.prune(i, quadrantInds[i])
+    // TODO(dlluncor): Only iterate over unsolved indices.
+    // Is this cell already solved for? In which case, skip over it.
+    _, isAns := GetNumber(c.possibAns[i])
+    if isAns {
+      continue
+    }
+    ans := c.prune(i, horizInds[i])
+    if ans {
+      hasNewAnswer = true
+    }
+    ans = c.prune(i, verticalInds[i])
+    if ans {
+      hasNewAnswer = true
+    }
+    ans = c.prune(i, quadrantInds[i])
+    if ans {
+      hasNewAnswer = true
+    }
+    ans = c.pruneOther(i, horizInds[i])
+    if ans {
+      hasNewAnswer = true
+    }
+    ans = c.pruneOther(i, verticalInds[i])
+    if ans {
+      hasNewAnswer = true
+    }
+    ans = c.pruneOther(i, quadrantInds[i])
+    if ans {
+      hasNewAnswer = true
+    }
+  }
+  if hasNewAnswer {
+    // If we found a solution in any one of these results, we need to
+    // re-run pruning.
+    c.UpdatePossib()
   }
 }
 
