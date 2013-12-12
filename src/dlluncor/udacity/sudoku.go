@@ -7,29 +7,8 @@ import(
   "fmt"
 )
 
-// Indices:
-// 0 1 2 3 4 5 6 7 8
-// 9 10 11 12 13 14 15 16 17
-// ...
-// 72 73 74 75 76 77 78 79 80
 
-// The state of the board.
-type CellState struct {
-  possibAns map[int]*[]int // [0] -> []int{4, 5, 6} if the upper left corner can have a 4, 5, or 6.
-}
-
-// InitCell(0, ".") if the top left hand cell is unknown.
-// InitCell(1, "3") if the second from the top left is the number 3.
-func (c *CellState) InitCell(index int, value string) {
-  valueAsInt, err := strconv.Atoi(value)
-  if err != nil {
-    // All values are possible this one is unknown.
-    nums := &[]int{1,2,3,4,5,6,7,8,9}
-    c.possibAns[index] = nums
-  } else {
-    c.possibAns[index] = &[]int{valueAsInt}
-  }
-}
+// Utilities
 
 // GetNumber returns the single possible answer for a cell. bool == False
 // if there is more than one number, so there are many possibilities.
@@ -49,6 +28,40 @@ func deleteFromList(arr *[]int, elToRemove int) *[]int {
     newArr = append(newArr, el)
   }
   return &newArr
+}
+
+// Indices:
+// 0 1 2 3 4 5 6 7 8
+// 9 10 11 12 13 14 15 16 17
+// ...
+// 72 73 74 75 76 77 78 79 80
+
+// The state of the board.
+type CellState struct {
+  possibAns map[int]*[]int // [0] -> []int{4, 5, 6} if the upper left corner can have a 4, 5, or 6.
+}
+
+func (c *CellState) copy() *CellState {
+  newS := newCellState()
+  for key, value := c.possibAns {
+    newInts := []int{}
+    copy(*value, newInts)
+    newS[key] = *newInts
+  }
+  return newS
+}
+
+// InitCell(0, ".") if the top left hand cell is unknown.
+// InitCell(1, "3") if the second from the top left is the number 3.
+func (c *CellState) InitCell(index int, value string) {
+  valueAsInt, err := strconv.Atoi(value)
+  if err != nil {
+    // All values are possible this one is unknown.
+    nums := &[]int{1,2,3,4,5,6,7,8,9}
+    c.possibAns[index] = nums
+  } else {
+    c.possibAns[index] = &[]int{valueAsInt}
+  }
 }
 
 // Get populated when Sudoku first runs.
