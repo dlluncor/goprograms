@@ -122,6 +122,17 @@ func (c *CellState) pruneOther(index int, otherInds []int) bool {
   return false
 }
 
+// IsSolved means every single cell has only one possibility.
+func (c *CellState) IsSolved() bool {
+  for i := 0; i < 80; i++ {
+    _, isAns := GetNumber(c.possibAns[i])
+    if !isAns {
+      return false
+    }
+  }
+  return true
+}
+
 // Update which numbers are feasible given the state of this board, e.g.
 // prune numbers which are no longer possible given this new configuration.
 func (c *CellState) UpdatePossib() {

@@ -37,7 +37,7 @@ func (s *SFrontier) RemoveChoice() interface{} {
 }
 
 func (s *SFrontier) Contains(node interface{}) bool {
-  //TODO(dlluncor):
+  //TODO(dlluncor): did I see this state.
   return false
 }
 
@@ -63,10 +63,11 @@ func (s *SExplored) () {
 */
 
 func (s *SExplored) Add(node interface{}) {
-  
+  //TODO(dlluncor): did I see this state.
 }
 
 func (s *SExplored) Contains(node interface{}) bool {
+  //TODO(dlluncor): did I see this state.
   return false
 }
 
@@ -81,8 +82,9 @@ func (s *SudokuSolver) () {
 }
 */
 
-func (s *SudokuSolver) IsGoal(node interface{}) bool {
-  return false 
+func (s *SudokuSolver) IsGoal(inode interface{}) bool {
+  node := inode.(*SNode)
+  return node.state.IsSolved() 
 }
 
 func (s *SudokuSolver) NextActions(node interface{}) []interface{} {
