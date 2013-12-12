@@ -95,7 +95,8 @@ func (s *SudokuSolver) IsGoal(inode interface{}) bool {
   s.guess++
   node := inode.(*SNode)
   //node.state.Visualize()
-  fmt.Printf("Number of unsolved squares: %d. Guess: %d\n", node.h, s.guess)
+  fmt.Printf("Num unsolved squares: %d. Guess: %d. Frontier: %d\n", 
+    node.h, s.guess, s.frontier.queue.Len())
   return node.state.IsSolved() 
 }
 
