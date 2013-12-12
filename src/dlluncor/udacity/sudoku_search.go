@@ -87,8 +87,19 @@ func (s *SudokuSolver) IsGoal(inode interface{}) bool {
   return node.state.IsSolved() 
 }
 
-func (s *SudokuSolver) NextActions(node interface{}) []interface{} {
+func (s *SudokuSolver) NextActions(inode interface{}) []interface{} {
   arr := make([]interface{}, 0)
+  node := inode.(*SNode)
+  neighborStates := node.state.Neighbors()
+  for _, nState := range neighborStates {
+    nState.UpdatePossib()
+    sNode := &SNode{
+      state:nState,
+      f:node.f+1,
+      h:0,
+    }
+    arr = append(arr, sNode)
+  }
   return arr
 }
 
@@ -100,6 +111,7 @@ func (s *SudokuSolver) Init(s0 *CellState) {
   s.explored = &SExplored{
     seen: make(map[string]bool),
   }
+  s0.UpdatePossib()
   node0 := &SNode{
     f: 0,
     h: 0,

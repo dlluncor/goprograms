@@ -133,6 +133,11 @@ func (c *CellState) IsSolved() bool {
   return true
 }
 
+// Neighbors produces all neighbor states which result from making one move.
+func (c *CellState) Neighbors() []*CellState {
+  return []*CellState{}
+}
+
 // Update which numbers are feasible given the state of this board, e.g.
 // prune numbers which are no longer possible given this new configuration.
 func (c *CellState) UpdatePossib() {
