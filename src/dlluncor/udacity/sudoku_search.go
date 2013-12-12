@@ -83,6 +83,7 @@ type SudokuSolver struct {
   frontier *SFrontier
   explored *SExplored
   guess int32
+  prevNow time.Duration
 }
 
 /*
@@ -94,9 +95,14 @@ func (s *SudokuSolver) () {
 func (s *SudokuSolver) IsGoal(inode interface{}) bool {
   s.guess++
   node := inode.(*SNode)
-  //node.state.Visualize()
-  fmt.Printf("Num unsolved squares: %d. Guess: %d. Frontier: %d\n", 
-    node.h, s.guess, s.frontier.queue.Len())
+  if s.guess % 100 == 0 {
+    newNow := time.Now()
+    delta := newNow.Sub(s.prevNow)
+    s.prevNow = newNow
+    //node.state.Visualize()
+    fmt.Printf("Num unsolved: %d. Guess: %d. Frontier: %d. Delta: %d\n", 
+      node.h, s.guess, s.frontier.queue.Len(), delta)
+  }
   return node.state.IsSolved() 
 }
 
