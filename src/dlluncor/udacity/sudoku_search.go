@@ -5,6 +5,7 @@ import(
   "container/heap"
   "fmt"
   "log"
+  "time"
 )
 
 /* This file deals with doing an A* search using utilities found in
@@ -83,7 +84,7 @@ type SudokuSolver struct {
   frontier *SFrontier
   explored *SExplored
   guess int32
-  prevNow time.Duration
+  prevNow time.Time
 }
 
 /*
@@ -100,7 +101,7 @@ func (s *SudokuSolver) IsGoal(inode interface{}) bool {
     delta := newNow.Sub(s.prevNow)
     s.prevNow = newNow
     //node.state.Visualize()
-    fmt.Printf("Num unsolved: %d. Guess: %d. Frontier: %d. Delta: %d\n", 
+    fmt.Printf("Num unsolved: %d. Guess: %d. Frontier: %d. Delta: %v\n", 
       node.h, s.guess, s.frontier.queue.Len(), delta)
   }
   return node.state.IsSolved() 

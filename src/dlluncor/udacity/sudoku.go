@@ -438,7 +438,7 @@ func (s *SudokuB) Create(board string) *CellState {
 func (s *SudokuB) Solve(r myio.Reader) {
   sol := &SudokuSolver{
     guess: int32(0),
-    prevNow: timer.Now(),
+    prevNow: time.Now(),
   }
   state0 := s.Create(r.Read())
   sol.Init(state0)
