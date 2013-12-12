@@ -85,6 +85,18 @@ func (c *CellState) InitCell(index int, value string) {
   }
 }
 
+// A state is invalid if ANY of the squares have 0 possibilities, meaning that we can't
+// do anything meaningful (not solvable.)
+func (c *CellState) IsInvalid() bool {
+  for i := 0; i < numSquares; i++ {
+    noAnswer := len(*c.possibAns[i]) == 0
+    if noAnswer {
+      return true
+    }
+  }
+  return false
+}
+
 // Number of squares which have not been already solved for.
 func (c *CellState) NumUnsolved() (int32, int32) {
   unsolved := int32(0)

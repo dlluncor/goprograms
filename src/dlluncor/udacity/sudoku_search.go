@@ -103,7 +103,6 @@ func (s *SudokuSolver) IsGoal(inode interface{}) bool {
 func SudokuHeuristic(s *CellState) int32{
   unsolved, possibs := s.NumUnsolved()
   if unsolved == 1 && possibs == 0 {
-    // TODO(dlluncor): This state shouldn't be possible [1 ... 9]
     s.VisualizeAll()
     s.PrintAsInput()
     log.Fatalf("foobar state.")
@@ -112,10 +111,12 @@ func SudokuHeuristic(s *CellState) int32{
 }
 
 func (s *SudokuSolver) NextActions(inode interface{}) []interface{} {
-  // TODO(dlluncor): If this is an unsolvable board, then continue no further. 
-
+  // TODO(dlluncor): If this is an unsolvable board, then continue no further.
   arr := make([]interface{}, 0)
-  node := inode.(*SNode)
+  node := inode.(*SNode)  
+  if node.state.IsInvalid() {
+    return arr
+  }
   neighborStates := node.state.Neighbors()
   //fmt.Println("\nVisualizing neighbors...")
   for _, nState := range neighborStates {
