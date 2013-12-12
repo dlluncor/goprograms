@@ -110,9 +110,9 @@ func (s *SudokuSolver) IsGoal(inode interface{}) bool {
 func SudokuHeuristic(s *CellState) int32{
   unsolved, possibs := s.NumUnsolved()
   if unsolved == 1 && possibs == 0 {
-    s.VisualizeAll()
-    s.PrintAsInput()
-    log.Fatalf("foobar state.")
+    //s.VisualizeAll()
+    //s.PrintAsInput()
+    log.Println("foobar state.")
   }
   return (unsolved * 10) + possibs
 }

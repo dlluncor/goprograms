@@ -128,7 +128,7 @@ var quadrantInds = make(map[int][]int)
 // Decreases the number of possibilities based on what it knows about
 // the other cells in this row.
 func (c *CellState) prune(index int, otherInds []int) bool {
-  hasNewAnswer := false
+  hasAnswer := false
   for _, otherInd := range otherInds {
     if otherInd == index {
       // Don't consider thyself.
@@ -144,11 +144,13 @@ func (c *CellState) prune(index int, otherInds []int) bool {
       if okAfter {
         // We generated an example in which there is now a solution where
         // there was not one before.
-        hasNewAnswer = true
+        // No need to check other neighbors because there is nothing left
+        // to check for.
+        hasAnswer = true
       }
     }
   }
-  return hasNewAnswer
+  return hasAnswer
 }
 
 func (c *CellState) pruneOther(index int, otherInds []int) bool {
@@ -215,6 +217,7 @@ func (c *CellState) DidISolveTheBoard() bool {
     if hasNineNums(horizInds[i]) && hasNineNums(verticalInds[i]) && hasNineNums(quadrantInds[i]) {
       continue
     }
+    fmt.Printf("Index %d is wrong.", i)
     return false
   }
   return true
@@ -288,8 +291,12 @@ func (c *CellState) UpdatePossib() {
 func (c *CellState) RunForInitialState() {
   // Things that only need to be run once.
   for i := 0; i < numSquares; i++ {
-    c.unsolved[i] = true
+    _, isAns := GetNumber(c.possibAns[i])
+    if !isAns {
+      c.unsolved[i] = true
+    }
   }
+  fmt.Printf("Num unsolved to start: %d\n", len(c.unsolved))
 }
 
 // Visualize the board and its possibilities.
@@ -459,6 +466,7 @@ func (s *SudokuB) Solve(boardStr string, defHasSolution bool) {
   if idest != nil {
     dest := idest.(*SNode)
     if !dest.state.DidISolveTheBoard() {
+      dest.state.VisualizeAll()
       log.Fatalf("You didn't really solve the board correctly dummy!!")
     }
     cost := dest.h + dest.f
