@@ -380,7 +380,7 @@ func (s *SudokuB) Solve(r myio.Reader) {
 
 /*
  * Sudoku solver that uses an astar search found in search.go.
- * Using http://www.goobix.com/games/sudoku/ as a source for puzzles.
+ * Using http://www2.warwick.ac.uk/fac/sci/moac/people/students/peter_cock/python/sudoku/ as a source for puzzles.
  */
 
  // Solve the problem of putting 15 tiles in order when you only have one blank space.
