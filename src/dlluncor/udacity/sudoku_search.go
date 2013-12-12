@@ -88,6 +88,10 @@ func (s *SudokuSolver) IsGoal(inode interface{}) bool {
   return node.state.IsSolved() 
 }
 
+func SudokuHeuristic(s *CellState) int32{
+  return s.NumUnsolved()
+}
+
 func (s *SudokuSolver) NextActions(inode interface{}) []interface{} {
   arr := make([]interface{}, 0)
   node := inode.(*SNode)
@@ -99,7 +103,7 @@ func (s *SudokuSolver) NextActions(inode interface{}) []interface{} {
     sNode := &SNode{
       state:nState,
       f:node.f+1,
-      h:0,
+      h:SudokuHeuristic(nState),
     }
     arr = append(arr, sNode)
   }

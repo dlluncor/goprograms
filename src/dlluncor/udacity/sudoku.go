@@ -73,6 +73,20 @@ func (c *CellState) InitCell(index int, value string) {
   }
 }
 
+// Number of squares which have not been already solved for.
+func (c *CellState) NumUnsolved() int32 {
+  unsolved := int32(0)
+  for i := 0; i < 80; i++ {
+    // TODO(dlluncor): Number of solved or unsolved values should be cached
+    // somewhere...
+    _, isAns := GetNumber(c.possibAns[i])
+    if !isAns {
+      unsolved++
+    }
+  }
+  return unsolved
+}
+
 // Get populated when Sudoku first runs.
 // horizInds list of other inds in your row, including yourself.
 var horizInds = make(map[int][]int)
