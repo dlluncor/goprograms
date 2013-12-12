@@ -5,6 +5,7 @@ import(
   "strings"
   "strconv"
   "fmt"
+  "log"
 )
 
 
@@ -41,12 +42,20 @@ type CellState struct {
   possibAns map[int]*[]int // [0] -> []int{4, 5, 6} if the upper left corner can have a 4, 5, or 6.
 }
 
+
+func copyInts(fromArr *[]int) *[]int {
+  // TODO(dlluncor): replace when realizing what the eff is going on.
+  newArr := make([]int, len(*fromArr))
+  for index, el := range *fromArr {
+    newArr[index] = el
+  }
+  return &newArr
+}
+
 func (c *CellState) copy() *CellState {
   newS := newCellState()
-  for key, value := c.possibAns {
-    newInts := []int{}
-    copy(*value, newInts)
-    newS[key] = *newInts
+  for key, value := range c.possibAns {
+    newS.possibAns[key] = copyInts(value)
   }
   return newS
 }
@@ -138,6 +147,7 @@ func (c *CellState) pruneOther(index int, otherInds []int) bool {
 // IsSolved means every single cell has only one possibility.
 func (c *CellState) IsSolved() bool {
   for i := 0; i < 80; i++ {
+    // TODO(dlluncor): Really only want the cells which are not solved yet.
     _, isAns := GetNumber(c.possibAns[i])
     if !isAns {
       return false
@@ -146,9 +156,45 @@ func (c *CellState) IsSolved() bool {
   return true
 }
 
+// Verifies that the Sudoku board is indeed a valid one by checking all quadrant
+// and rows that the indices represent the numbers 0 to 9.
+func (c *CellState) DidISolveTheBoard() bool {
+  hasNineNums := func(indices []int) bool {
+    numsMap := make(map[int]bool)
+    for _, index := range indices {
+      num := (*c.possibAns[index])[0]
+      numsMap[num] = true
+    }
+    return len(numsMap) == 9
+  }
+  for i := 0; i < 80; i++ {
+    if hasNineNums(horizInds[i]) && hasNineNums(verticalInds[i]) && hasNineNums(quadrantInds[i]) {
+      continue
+    }
+    return false
+  }
+  return true
+}
+
 // Neighbors produces all neighbor states which result from making one move.
 func (c *CellState) Neighbors() []*CellState {
-  return []*CellState{}
+  neighStates := []*CellState{}
+  for i := 0; i < 80; i++ {
+    // TODO(dlluncor): Really only want the cells which are not solved yet.
+    possibs := c.possibAns[i]
+    if len(*possibs) == 1 {
+      // This is already solved for don't need to create neighbors.
+      continue
+    } else {
+      // Need to pick one of the answers and then run with it.
+      for _, possib := range *possibs {
+        newState := c.copy()
+        newState.possibAns[i] = &[]int{possib} // So now we've chosen this to be the answer.
+        neighStates = append(neighStates, newState)
+      }
+    }
+  }
+  return neighStates
 }
 
 // Update which numbers are feasible given the state of this board, e.g.
@@ -309,9 +355,6 @@ func (s *SudokuB) Create(board string) *CellState {
     fmt.Printf("%v\n", oneRow)
   }
   return s0
-  //s0.Visualize()
-  //s0.UpdatePossib()
-  //s0.Visualize()
 }
 
 func (s *SudokuB) Solve(r myio.Reader) {
@@ -321,12 +364,15 @@ func (s *SudokuB) Solve(r myio.Reader) {
   idest, numGuesses := GraphSearch(sol.frontier, sol.explored, sol)
   if idest != nil {
     dest := idest.(*SNode)
+    if !dest.state.DidISolveTheBoard() {
+      log.Fatalf("You didn't really solve the board correctly dummy!!")
+    }
     cost := dest.h + dest.f
     fmt.Printf("***********")
     fmt.Printf("Solved it with cost %v. f: %v. Guesses: %v\n", 
                cost, dest.f, numGuesses)
-    fmt.Printf("Path to get there:\n")
-    //PrintPath(dest)
+    fmt.Printf("Solution board:\n")
+    dest.state.Visualize()
   } else {
     fmt.Println("There is no way to solve this puzzle.\n")
   }

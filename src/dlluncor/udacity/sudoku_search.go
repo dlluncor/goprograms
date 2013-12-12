@@ -84,6 +84,7 @@ func (s *SudokuSolver) () {
 
 func (s *SudokuSolver) IsGoal(inode interface{}) bool {
   node := inode.(*SNode)
+  //node.state.Visualize()
   return node.state.IsSolved() 
 }
 
@@ -91,7 +92,9 @@ func (s *SudokuSolver) NextActions(inode interface{}) []interface{} {
   arr := make([]interface{}, 0)
   node := inode.(*SNode)
   neighborStates := node.state.Neighbors()
+  //fmt.Println("\nVisualizing neighbors...")
   for _, nState := range neighborStates {
+    //nState.Visualize()
     nState.UpdatePossib()
     sNode := &SNode{
       state:nState,
