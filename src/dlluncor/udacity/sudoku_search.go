@@ -96,7 +96,7 @@ func (s *SudokuSolver) () {
 func (s *SudokuSolver) IsGoal(inode interface{}) bool {
   s.guess++
   node := inode.(*SNode)
-  if s.guess % 1 == 0 {
+  if s.guess % 100 == 0 {
     newNow := time.Now()
     delta := newNow.Sub(s.prevNow)
     s.prevNow = newNow
@@ -139,6 +139,7 @@ func (s *SudokuSolver) NextActions(inode interface{}) []interface{} {
 }
 
 func (s *SudokuSolver) Init(s0 *CellState) {
+  s0.RunForInitialState()
   s.frontier = &SFrontier{
     queue: &container.PriorityQueue{},
     seen: make(map[string]bool),

@@ -1,7 +1,7 @@
 package udacity
 
 import(
-  //"dlluncor/myio"
+  "dlluncor/myio"
   "strings"
   "strconv"
   "fmt"
@@ -43,6 +43,7 @@ func deleteFromList(arr *[]int, elToRemove int) *[]int {
 // The state of the board.
 type CellState struct {
   possibAns map[int]*[]int // [0] -> []int{4, 5, 6} if the upper left corner can have a 4, 5, or 6.
+  unsolved map[int]bool // Map of integers which are not solved for yet.
 }
 
 
@@ -59,6 +60,9 @@ func (c *CellState) copy() *CellState {
   newS := newCellState()
   for key, value := range c.possibAns {
     newS.possibAns[key] = copyInts(value)
+  }
+  for key, value := range c.unsolved {
+    newS.unsolved[key] = value
   }
   return newS
 }
@@ -101,7 +105,7 @@ func (c *CellState) IsInvalid() bool {
 func (c *CellState) NumUnsolved() (int32, int32) {
   unsolved := int32(0)
   possibilities := int32(0)
-  for i := 0; i < numSquares; i++ {
+  for i, _ := range c.unsolved {
     // TODO(dlluncor): Number of solved or unsolved values should be cached
     // somewhere...
     numRemaining, isAns := GetNumber(c.possibAns[i])
@@ -186,7 +190,7 @@ func (c *CellState) pruneOther(index int, otherInds []int) bool {
 
 // IsSolved means every single cell has only one possibility.
 func (c *CellState) IsSolved() bool {
-  for i := 0; i < numSquares; i++ {
+  for i, _ := range c.unsolved {
     // TODO(dlluncor): Really only want the cells which are not solved yet.
     _, isAns := GetNumber(c.possibAns[i])
     if !isAns {
@@ -219,7 +223,7 @@ func (c *CellState) DidISolveTheBoard() bool {
 // Neighbors produces all neighbor states which result from making one move.
 func (c *CellState) Neighbors() []*CellState {
   neighStates := []*CellState{}
-  for i := 0; i < numSquares; i++ {
+  for i, _ := range c.unsolved {
     // TODO(dlluncor): Really only want the cells which are not solved yet.
     possibs := c.possibAns[i]
     if len(*possibs) == 1 {
@@ -241,11 +245,12 @@ func (c *CellState) Neighbors() []*CellState {
 // prune numbers which are no longer possible given this new configuration.
 func (c *CellState) UpdatePossib() {
   hasNewAnswer := false
-  for i := 0; i < numSquares; i++ {
+  for i, _ := range c.unsolved {
     // TODO(dlluncor): Only iterate over unsolved indices.
     // Is this cell already solved for? In which case, skip over it.
     _, isAns := GetNumber(c.possibAns[i])
     if isAns {
+      delete(c.unsolved, i)
       continue
     }
     ans := c.prune(i, horizInds[i])
@@ -277,6 +282,13 @@ func (c *CellState) UpdatePossib() {
     // If we found a solution in any one of these results, we need to
     // re-run pruning.
     c.UpdatePossib()
+  }
+}
+
+func (c *CellState) RunForInitialState() {
+  // Things that only need to be run once.
+  for i := 0; i < numSquares; i++ {
+    c.unsolved[i] = true
   }
 }
 
@@ -339,6 +351,7 @@ func (c *CellState) PrintAsInput() {
 func newCellState() *CellState {
   return &CellState{
     possibAns: make(map[int]*[]int),
+    unsolved: make(map[int]bool),
   }
 }
 
@@ -482,7 +495,7 @@ func Sudoku() {
 
   SudokuTest(board)
 
-  /*solveCommandLine := func() {
+  solveCommandLine := func() {
     r := myio.NewReader()
     T, _ := strconv.Atoi(r.Read())
     for i := 0; i < T; i++ {
@@ -495,5 +508,5 @@ func Sudoku() {
     //PrintBoard(board.board)
     fmt.Println("End of sudoku program.")
   }
-  solveCommandLine()*/
+  solveCommandLine()
 }
