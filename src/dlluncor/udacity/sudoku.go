@@ -247,6 +247,12 @@ func (c *CellState) Neighbors() []*CellState {
 // Update which numbers are feasible given the state of this board, e.g.
 // prune numbers which are no longer possible given this new configuration.
 func (c *CellState) UpdatePossib() {
+  //TODO(dlluncor): There is something wrong with this logic... as in
+  // if you change when we break out of the loop, it keeps finding incorrect
+  // states not sure why.
+
+  // TODO(dlluncor): Stop immediately when any of the states is invalid
+  // and do not continue further nor even put the object on the frontier.
   hasNewAnswer := false
   for i, _ := range c.unsolved {
     // TODO(dlluncor): Only iterate over unsolved indices.
