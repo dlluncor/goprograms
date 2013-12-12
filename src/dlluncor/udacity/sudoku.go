@@ -1,7 +1,7 @@
 package udacity
 
 import(
-  "dlluncor/myio"
+  //"dlluncor/myio"
   "strings"
   "strconv"
   "fmt"
@@ -435,12 +435,12 @@ func (s *SudokuB) Create(board string) *CellState {
   return s0
 }
 
-func (s *SudokuB) Solve(r myio.Reader) {
+func (s *SudokuB) Solve(boardStr string, defHasSolution bool) {
   sol := &SudokuSolver{
     guess: int32(0),
     prevNow: time.Now(),
   }
-  state0 := s.Create(r.Read())
+  state0 := s.Create(boardStr)
   sol.Init(state0)
   idest, numGuesses := GraphSearch(sol.frontier, sol.explored, sol)
   if idest != nil {
@@ -455,8 +455,19 @@ func (s *SudokuB) Solve(r myio.Reader) {
     fmt.Printf("Solution board:\n")
     dest.state.Visualize()
   } else {
+    if defHasSolution {
+      log.Fatalf("Error there is a solution to this puzzle!!!\n")  
+    }
     fmt.Println("There is no way to solve this puzzle.\n")
   }
+}
+
+func SudokuTest(b *SudokuB) {
+  SudokuChecks()
+  easyTwoSteps := "6.2.5.........3.4..........43...8....1....2........7..5..27...........81...6....."
+  
+  b.Solve(easyTwoSteps, true)
+  fmt.Println("Passes test.")
 }
 
 /*
@@ -466,18 +477,23 @@ func (s *SudokuB) Solve(r myio.Reader) {
 
  // Solve the problem of putting 15 tiles in order when you only have one blank space.
 func Sudoku() {
-  r := myio.NewReader()
   board := &SudokuB{}
   board.Init()
-  T, _ := strconv.Atoi(r.Read())
-  for i := 0; i < T; i++ {
-    before := time.Now()
-    board.Solve(r)
-    after := time.Now()
-    delta := after.Sub(before)
-    fmt.Printf("Puzzle %d took %v\n", i, delta)
+
+  SudokuTest(board)
+
+  /*solveCommandLine := func() {
+    r := myio.NewReader()
+    T, _ := strconv.Atoi(r.Read())
+    for i := 0; i < T; i++ {
+      before := time.Now()
+      board.Solve(r.Read(), true)
+      after := time.Now()
+      delta := after.Sub(before)
+      fmt.Printf("Puzzle %d took %v\n", i, delta)
+    }
+    //PrintBoard(board.board)
+    fmt.Println("End of sudoku program.")
   }
-  //PrintBoard(board.board)
-  fmt.Println("End of sudoku program.")
-  SudokuChecks()
+  solveCommandLine()*/
 }

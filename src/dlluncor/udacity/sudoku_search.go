@@ -96,7 +96,7 @@ func (s *SudokuSolver) () {
 func (s *SudokuSolver) IsGoal(inode interface{}) bool {
   s.guess++
   node := inode.(*SNode)
-  if s.guess % 100 == 0 {
+  if s.guess % 1 == 0 {
     newNow := time.Now()
     delta := newNow.Sub(s.prevNow)
     s.prevNow = newNow
