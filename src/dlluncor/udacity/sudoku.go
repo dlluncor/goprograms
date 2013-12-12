@@ -6,18 +6,21 @@ import(
   "strconv"
   "fmt"
   "log"
+  "time"
 )
 
+const numSquares = 81 // Not 80 haha!!!
 
 // Utilities
 
 // GetNumber returns the single possible answer for a cell. bool == False
 // if there is more than one number, so there are many possibilities.
+// Returns the length of the array if there is more than one.
 func GetNumber(nums *[]int) (int, bool) {
   if len(*nums) == 1 {
     return (*nums)[0], true
   }
-  return -1, false
+  return len(*nums), false
 }
 
 func deleteFromList(arr *[]int, elToRemove int) *[]int {
@@ -60,6 +63,15 @@ func (c *CellState) copy() *CellState {
   return newS
 }
 
+// stringified version of this cell state.
+func (c *CellState) ToString() string {
+  vals := make([]string, numSquares)
+  for i := 0; i < numSquares; i++ {
+    vals[i] = fmt.Sprintf("%v", *c.possibAns[i])
+  }
+  return strings.Join(vals, "-")
+}
+
 // InitCell(0, ".") if the top left hand cell is unknown.
 // InitCell(1, "3") if the second from the top left is the number 3.
 func (c *CellState) InitCell(index int, value string) {
@@ -74,17 +86,19 @@ func (c *CellState) InitCell(index int, value string) {
 }
 
 // Number of squares which have not been already solved for.
-func (c *CellState) NumUnsolved() int32 {
+func (c *CellState) NumUnsolved() (int32, int32) {
   unsolved := int32(0)
-  for i := 0; i < 80; i++ {
+  possibilities := int32(0)
+  for i := 0; i < numSquares; i++ {
     // TODO(dlluncor): Number of solved or unsolved values should be cached
     // somewhere...
-    _, isAns := GetNumber(c.possibAns[i])
+    numRemaining, isAns := GetNumber(c.possibAns[i])
     if !isAns {
       unsolved++
+      possibilities += int32(numRemaining)
     }
   }
-  return unsolved
+  return unsolved, possibilities
 }
 
 // Get populated when Sudoku first runs.
@@ -160,7 +174,7 @@ func (c *CellState) pruneOther(index int, otherInds []int) bool {
 
 // IsSolved means every single cell has only one possibility.
 func (c *CellState) IsSolved() bool {
-  for i := 0; i < 80; i++ {
+  for i := 0; i < numSquares; i++ {
     // TODO(dlluncor): Really only want the cells which are not solved yet.
     _, isAns := GetNumber(c.possibAns[i])
     if !isAns {
@@ -181,7 +195,7 @@ func (c *CellState) DidISolveTheBoard() bool {
     }
     return len(numsMap) == 9
   }
-  for i := 0; i < 80; i++ {
+  for i := 0; i < numSquares; i++ {
     if hasNineNums(horizInds[i]) && hasNineNums(verticalInds[i]) && hasNineNums(quadrantInds[i]) {
       continue
     }
@@ -193,7 +207,7 @@ func (c *CellState) DidISolveTheBoard() bool {
 // Neighbors produces all neighbor states which result from making one move.
 func (c *CellState) Neighbors() []*CellState {
   neighStates := []*CellState{}
-  for i := 0; i < 80; i++ {
+  for i := 0; i < numSquares; i++ {
     // TODO(dlluncor): Really only want the cells which are not solved yet.
     possibs := c.possibAns[i]
     if len(*possibs) == 1 {
@@ -215,7 +229,7 @@ func (c *CellState) Neighbors() []*CellState {
 // prune numbers which are no longer possible given this new configuration.
 func (c *CellState) UpdatePossib() {
   hasNewAnswer := false
-  for i := 0; i < 80; i++ {
+  for i := 0; i < numSquares; i++ {
     // TODO(dlluncor): Only iterate over unsolved indices.
     // Is this cell already solved for? In which case, skip over it.
     _, isAns := GetNumber(c.possibAns[i])
@@ -270,6 +284,44 @@ func (c *CellState) Visualize() {
     }
     fmt.Printf("%v\n", rowInf)
   }
+}
+
+// Visualizes board and all possibilites.
+func (c *CellState) VisualizeAll() {
+  c.Visualize()
+  for row := 0; row < 9; row++ {
+    rowInf := []string{}
+    for col := 0; col < 9; col++ {
+      i := (row * 9) + col
+      possibs := *c.possibAns[i]
+      if len(possibs) == 1 {
+       curInfo := fmt.Sprintf("(%d)", possibs[0])
+       rowInf = append(rowInf, curInfo)
+      } else {
+       curInfo := fmt.Sprintf("(%v)", possibs)
+       rowInf = append(rowInf, curInfo)
+      }
+    }
+    fmt.Printf("%v\n", rowInf)
+  }
+}
+
+func (c *CellState) PrintAsInput() {
+  output := ""
+  for row := 0; row < 9; row++ {
+    rowInf := []string{}
+    for col := 0; col < 9; col++ {
+      i := (row * 9) + col
+      val, ok := GetNumber(c.possibAns[i])
+      curInfo := "."
+      if ok {
+       curInfo = fmt.Sprintf("%d", val)
+      }
+      rowInf = append(rowInf, curInfo)
+    }
+    output += strings.Join(rowInf, "")
+  }
+  fmt.Printf("%v\n", output)
 }
 
 func newCellState() *CellState {
@@ -372,7 +424,9 @@ func (s *SudokuB) Create(board string) *CellState {
 }
 
 func (s *SudokuB) Solve(r myio.Reader) {
-  sol := &SudokuSolver{}
+  sol := &SudokuSolver{
+    guess: int32(0),
+  }
   state0 := s.Create(r.Read())
   sol.Init(state0)
   idest, numGuesses := GraphSearch(sol.frontier, sol.explored, sol)
@@ -404,7 +458,11 @@ func Sudoku() {
   board.Init()
   T, _ := strconv.Atoi(r.Read())
   for i := 0; i < T; i++ {
+    before := time.Now()
     board.Solve(r)
+    after := time.Now()
+    delta := after.Sub(before)
+    fmt.Printf("Puzzle %d took %v\n", i, delta)
   }
   //PrintBoard(board.board)
   fmt.Println("End of sudoku program.")
