@@ -37,10 +37,10 @@ func GraphSearch(fronteir Fronteir, explored Explored, searcher Searcher) (inter
     	return nil, i
     }
     node := fronteir.RemoveChoice()
-    mnode := node.(*BNode)
+    /*mnode := node.(*BNode)
     if i % 10000 == 0 {
       fmt.Printf("At node. Cost: %v F: %v H: %v\n", mnode.cost, mnode.f, mnode.h)
-    }
+    }*/
     explored.Add(node) // We've now seen this node.
     if searcher.IsGoal(node) {
     	return node, i

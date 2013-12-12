@@ -11,7 +11,6 @@ import(
 
 type SNode struct {
   state *CellState
-  cost int32
   f int32 // how many hops to get to this state.
   h int32 // how far am I from the goal.
 }
@@ -28,16 +27,18 @@ type SFrontier struct {
 }
 
 func (s *SFrontier) IsEmpty() bool {
-  return true
+  return s.queue.Len() == 0
 }
 
 func (s *SFrontier) RemoveChoice() interface{} {
-  node := heap.Pop(s.queue).(*SNode)
+  item := heap.Pop(s.queue).(*container.Item)
+  node := item.Value.(*SNode)
   return node
 }
 
 func (s *SFrontier) Contains(node interface{}) bool {
-  return true
+  //TODO(dlluncor):
+  return false
 }
 
 func (s *SFrontier) Add(inode interface{}) {

@@ -292,9 +292,10 @@ func (s *SudokuB) Solve(r myio.Reader) {
   idest, numGuesses := GraphSearch(sol.frontier, sol.explored, sol)
   if idest != nil {
     dest := idest.(*SNode)
+    cost := dest.h + dest.f
     fmt.Printf("***********")
     fmt.Printf("Solved it with cost %v. f: %v. Guesses: %v\n", 
-               dest.cost, dest.f, numGuesses)
+               cost, dest.f, numGuesses)
     fmt.Printf("Path to get there:\n")
     //PrintPath(dest)
   } else {
