@@ -111,7 +111,6 @@ func SudokuHeuristic(s *CellState) int32{
 }
 
 func (s *SudokuSolver) NextActions(inode interface{}) []interface{} {
-  // TODO(dlluncor): If this is an unsolvable board, then continue no further.
   arr := make([]interface{}, 0)
   node := inode.(*SNode)  
   if node.state.IsInvalid() {
