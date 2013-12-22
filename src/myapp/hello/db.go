@@ -12,7 +12,7 @@ import (
 // TODO(dlluncor): Figure out how to get a map type in here. For now,
 // not worth it!!
 type MyGame struct {
-   States []string
+   States Set
    Tables []string  // Only 4.
    // Running total for the game. Token[0] corresponds to Points[0] for a user,
    // as does Users[0]
@@ -22,7 +22,7 @@ type MyGame struct {
    Points []int
    // Current Table Info.
    CurTable string
-   CurWords []string // List of words found this round.
+   CurWords Set // Set of words found this round.
    CurRound int // Starts off at 1, ends at 4. (not used kept by client!)
 
    LastRoundFetched int64  // When was the last round info fetched.
@@ -37,9 +37,10 @@ func defaultGame() *MyGame {
         Users:  []string{},
         Tokens: []string{},
         Points: []int{},
-        States: []string{},
         Tables: []string{},
     }
+    g.States = *NewSet()
+    g.CurWords = *NewSet()
     g.AddState("notStarted")
     return g
 }
@@ -48,32 +49,21 @@ func defaultGame() *MyGame {
 func (g *MyGame) Clear() {
   g.Points = []int{}
   g.Tables = []string{}
-  g.States = []string{}
+  g.States = *NewSet()
   g.CurTable = ""
-  g.CurWords = []string{}
+  g.CurWords = *NewSet()
   g.CurRound = -1
   for _, _ = range g.Users {
     g.Points = append(g.Points, 0)
   }
 }
 
-// TODO(dlluncor): Pretty inefficient, but oh well! Go is fast I think...
-func inArr(items []string, item string) bool {
-  has := false
-  for _, aItem := range items {
-    if aItem == item {
-        return true
-    }
-  }
-  return has
-}
-
 func (g *MyGame) AddState(state string) {
-  g.States = append(g.States, state)
+  g.States.Add(state)
 }
 
 func (g *MyGame) HadState(state string) bool {
-  return inArr(g.States, state)
+  return g.States.ItemPresent(state)
 }
 
 // Returns whether we've seen the user or not already.
@@ -140,7 +130,7 @@ func (g *MyGame) CreateTableInfo(round int) {
   // Keep track of a new slate of data for this particular round.
   g.CurTable = g.Tables[round-1]
   g.CurRound = round
-  g.CurWords = []string{}
+  g.CurWords = *NewSet()
 }
 
 // Get the length of our table encoded as 'abcdX\ndfdsX'
@@ -172,7 +162,7 @@ func (g *MyGame) GetTableInfo() *TableInfo {
 }
 
 func (g *MyGame) HasWord(word string) bool {
-  return inArr(g.CurWords, word)
+  return g.CurWords.ItemPresent(word)
 }
 
 
@@ -190,7 +180,8 @@ func (g *MyGame) AddWord(user, word string, points int) int {
   // aka, the words and who has found them.
   index := indexOf(g.Users, user)
   g.Points[index] = g.Points[index] + points
-  g.CurWords = append(g.CurWords, word)
+  // Change CurWords to set.
+  g.CurWords.Add(word)
   return g.Points[index]
 }
 
