@@ -1,6 +1,7 @@
 <html>
 <head>
   <link href="/static/common.css" rel="stylesheet" type="text/css"></link>
+  <script type="text/javascript" src="/static/common.js"></script>
   <title>Race Words</title>
 </head>
   <div>
@@ -23,7 +24,7 @@
       if (username == '') {
         username = 'anonymous' + Math.floor(Math.random() * 1000);
       }
-      localStorage.setItem('wr_username', username);
+      ctrl.setUserName(username);
       window.location = '/seeLounges';
     };
 

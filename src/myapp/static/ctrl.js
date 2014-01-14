@@ -1,6 +1,6 @@
 
 // Ajax with some printing.
-var Jax = {};
+var Jax = Jax || {};
 
 
 Jax.ajax = function(url, doneCallback) {
@@ -651,11 +651,11 @@ Console.prototype.multiPrint = function(str) {
   $('#multiPostRpcs').append('<div>Handle: ' + str + '</div>');
 };
 
-var ctrl = {
-  STOP_TIMERS: false,
-  table: null, // Current table user is part of.
-  console: null // devel console to print to.
-};
+var ctrl = ctrl || {};
+
+ctrl.STOP_TIMERS = false;
+ctrl.table = null; // Current table user is part of.
+ctrl.console = null; // devel console to print to.
 
 ctrl.stopTimers = function() {
   var text = 'Stop timers';
@@ -873,21 +873,6 @@ Table.prototype.create = function() {
   window.setInterval(reorderUsersOnLeft, 5000);
 }
 
-// Url: localhost:8081/match?hi=cheese&bye=my. qs('hi') -> 'cheese'
-function qs(key) {
-    key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
-    var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
-    return match && decodeURIComponent(match[1].replace(/\+/g, " "));
-};
-
-ctrl.getUserName = function() {
-  var user = localStorage.getItem('wr_username');
-  if (user == null) {
-    user = 'anonymous' + Math.floor(Math.random() * 1000);
-  }
-  return user;
-};
-
 ctrl.isMe = function(userName) {
   return ctrl.table.user == userName; 
 };
@@ -902,7 +887,7 @@ ctrl.init_ = function() {
 
     var token = $('#userToken').val();
 
-    ctrl.table = new Table(ctrl.getUserName(), qs('t'), token);
+    ctrl.table = new Table(ctrl.getUserName(false), qs('t'), token);
     ctrl.table.create();
 };
 

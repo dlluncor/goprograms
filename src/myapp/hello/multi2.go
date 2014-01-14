@@ -147,7 +147,7 @@ func leaving(w http.ResponseWriter, r *http.Request) {
   cid := ClientId{
     clientId:r.FormValue("from"),
   }
-  c.Infof("Client id leaving: %v", cid.clientId)
+  c.Infof("Client id form value that is leaving: %v.", cid.clientId)
   tableKey := cid.table()
   c.Infof("User %v has left table %v.", cid.user(), tableKey)
 

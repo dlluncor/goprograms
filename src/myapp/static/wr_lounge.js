@@ -1,5 +1,5 @@
 
-var ctrl = {};
+var ctrl = ctrl || {};
 
 
 ctrl.TABLES = {
@@ -135,7 +135,7 @@ ctrl.joinTableClicked = function(table) {
 };
 
 ctrl.init_ = function() {
-    $('#loginUser').html(localStorage.getItem('wr_username'));
+    $('#loginUser').html(ctrl.getUserName(true)); // Allows for dynamic creation and saving.
     var ll = new LoungeList($('#loungeList'));
     ctrl.getLoungesAndTables(ll.loungesCb.bind(ll));
 };

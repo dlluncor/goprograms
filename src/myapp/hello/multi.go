@@ -91,7 +91,18 @@ func handleWrPage(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
   queryMap := r.URL.Query()
   table := queryMap.Get("t")
-  id := queryMap.Get("u")
+  cookObj, err := r.Cookie("ww-user")
+  if err != nil {
+    c.Errorf("Error reading user cookie: %v", err)
+    return
+  }
+  id := cookObj.Value
+  c.Infof("User that just entered the page is: %v", id)
+  if len(id) == 0 {
+    c.Errorf("Could not find out who the user is!!!! Got as the user: %v", id)
+    return
+  }
+
   token, err := channel.Create(c, table+ "-" + id)
   err = tableTemplate.Execute(w, map[string]string{
     "userToken": token,
@@ -119,7 +130,6 @@ func createGame(c appengine.Context, tableKey string, g *MyGame) error {
 
 func opened(w http.ResponseWriter, r *http.Request) {
   c := appengine.NewContext(r)
-  c.Infof("Got a message from a client that they connected to a table.")
 
   // Make sure the table is in the database here and provide the entire state
   // to the user of what is going on right now.
@@ -129,6 +139,7 @@ func opened(w http.ResponseWriter, r *http.Request) {
   // current words found in the puzzle.
   g := defaultGame()
   tableKey := r.FormValue("g")
+  c.Infof("Got a message from a client that they connected to a table: %v", tableKey)
   token := r.FormValue("t")
   userExists := false
   err := datastore.RunInTransaction(c, func(c appengine.Context) error {
@@ -150,6 +161,7 @@ func opened(w http.ResponseWriter, r *http.Request) {
     return nil
   }, nil)
 
+  /*
   if !userExists {
     // Update the lounge with the number of current players for this table.
     // when a new player was added.
@@ -160,9 +172,11 @@ func opened(w http.ResponseWriter, r *http.Request) {
     }
     ChangeLounge(c, lounge, loungeChanger)
   }
+  */
 
   if err != nil {
     c.Errorf("Error in db with connect to table. %v", err)
+    return
   }
 
   g.SetNow()  // Let users who jump in randomly to figure out what time it is from

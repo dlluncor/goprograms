@@ -77,7 +77,7 @@ func getLoungeNamesDb(c appengine.Context) []string {
       return nil
   }, nil)
   if err != nil {
-    c.Infof("Problem with getting all the lounge names.")
+    c.Infof("Problem with getting all the lounge names. %v", err)
   }
   return ls.LoungeNames
 }
