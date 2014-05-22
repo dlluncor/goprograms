@@ -2,8 +2,9 @@ package main
 
 import(
   //"dlluncor/spoj"
-  "dlluncor/udacity"
+  //"dlluncor/udacity"
   //"dlluncor/server"
+  "dlluncor/ir"
 )
 
 func main() {
@@ -20,5 +21,6 @@ func main() {
   //spoj.Concurrency()
   //spoj.WordRacer()
   //spoj.Scrabble()
-  udacity.Sudoku()
+  //udacity.Sudoku()
+  ir.MainScorer()
 }
