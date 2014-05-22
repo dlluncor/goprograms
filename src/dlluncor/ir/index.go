@@ -85,7 +85,7 @@ Similar to f.lux on Windows or Red Shift on Linux.
 `},
 }
 
-func (i *Index) Find(q query) []*doc {
+func (i *Index) Find(q *query) []*doc {
   docs := []*doc{}
   for _, docM := range allDocs {
     docs = append(docs, &doc{

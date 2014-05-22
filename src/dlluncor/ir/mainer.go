@@ -3,6 +3,7 @@ package ir
 import(
   "fmt"
   "sort"
+  "os"
 )
 
 type query struct {
@@ -11,7 +12,7 @@ type query struct {
 }
 
 type doc struct {
-  score int /* returned by mustang after first pass. */
+  score float64 /* returned by mustang after first pass. */
   name string
   data *docMetadata
 }
@@ -20,16 +21,8 @@ type mustang struct {
   index Index
 }
 
-func (m *mustang) Retrieve(q query) []*doc {
+func (m *mustang) Retrieve(q *query) []*doc {
   return m.index.Find(q)
-}
-
-type ascorer struct {
-  ind int
-}
-
-func (a *ascorer) Score(d *doc) {
-  d.score = a.ind 
 }
 
 type docSorter struct {
@@ -49,16 +42,22 @@ func (d *docSorter) Less(i int, j int) bool {
 }
 
 func MainScorer() {
+  if len(os.Args) != 2 {
+    fmt.Printf(`Usage: ./cmd "Angry birds"` + "\n")
+    return
+  }
   fmt.Printf("Hi main scorer.\n")
-  q := query{
-    raw: "lucene",
+  rawQuery := os.Args[1]
+  q := &query{
+    raw: rawQuery,
     num: 10,
   }
   m := &mustang{}
   docs := m.Retrieve(q)
-  for i, doc := range docs {
-    as := &ascorer{i}
-    as.Score(doc)
+  for _, doc := range docs {
+    as := &ascorer{}
+    RegisterListeners(as)
+    as.Score(q, doc)
   }
   s := &docSorter{
     docs: docs,
@@ -68,6 +67,6 @@ func MainScorer() {
   fmt.Printf("***Results***\n")
   fmt.Printf("Pos\tName\tScore\n")
   for i, doc := range docs {
-    fmt.Printf("%d. %v\t%v\n", i, doc.name, doc.score)
+    fmt.Printf("%d. %v\t%.2f\n", i, doc.name, doc.score)
   }
 }
