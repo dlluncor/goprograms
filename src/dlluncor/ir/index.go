@@ -11,6 +11,19 @@ type docMetadata struct {
   description string
 }
 
+func (m *docMetadata) GetField(field string) string {
+  if field == "description" {
+    return m.description
+  }
+  if field == "id" {
+    return m.id
+  }
+  if field == "title" {
+    return m.title
+  }
+  panic("Unrecognized field.")
+}
+
 var allDocs = []*docMetadata{
   {
     title: "Google Play services",
