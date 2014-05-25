@@ -60,7 +60,7 @@ type mrCtrl struct{
   Spec *Spec
 }
 
-func (m *mrCtrl) Run() interface{} {
+func (m *mrCtrl) Run() reflect.Value {
   // Run mapper "in parallel".
   b := &buffer{}  // where to store the shuffle data locally.
   for _, in := range m.Spec.Input {
