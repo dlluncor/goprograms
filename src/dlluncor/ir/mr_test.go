@@ -25,7 +25,7 @@ func (m *tokenMapper) Map(i interface{}, emitFn EmitFn) {
 type sumReducer struct {
 }
 
-func (r *sumReducer) Reduce(k Key, vals []interface{}) interface{} {
+func (r *sumReducer) Reduce(k Key, vals []interface{}) reflect.Value {
   sum := int(0)
   for _, val := range vals {
     switch val.(type) {
@@ -35,7 +35,7 @@ func (r *sumReducer) Reduce(k Key, vals []interface{}) interface{} {
         panic("Cannot sum non-int.")
     }
   }
-  return sum 
+  return val(sum) 
 }
 
 func arr(in []string) []interface{} {
@@ -80,7 +80,7 @@ func TestMr(t *testing.T) {
     c.Spec = test.mrSpec
     out := c.Run()
     expected := test.output
-    actual := toMine(out)
+    actual := ((*out).Interface()).(map[Key]int)
     fmt.Printf("%v", reflect.TypeOf(out))
     if !reflect.DeepEqual(actual, expected) {
       t.Errorf("Output mismatch: Expected %v. Actual %v.", test.output, out)

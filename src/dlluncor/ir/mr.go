@@ -11,7 +11,12 @@ import (
 
 var (
   intType = reflect.TypeOf(1)
+  keyType = reflect.TypeOf(Key(""))
 )
+
+func val(in interface{}) reflect.Value {
+  return reflect.ValueOf(in)
+}
 
 type Key string
 
@@ -39,7 +44,7 @@ type Mapper interface {
 
 // Reducer and shuffling.
 type Reducer interface {
-  Reduce(k Key, vals[]interface{}) interface{}
+  Reduce(k Key, vals[]interface{}) reflect.Value
 }
 
 type Output struct {
@@ -60,7 +65,7 @@ type mrCtrl struct{
   Spec *Spec
 }
 
-func (m *mrCtrl) Run() reflect.Value {
+func (m *mrCtrl) Run() *reflect.Value {
   // Run mapper "in parallel".
   b := &buffer{}  // where to store the shuffle data locally.
   for _, in := range m.Spec.Input {
@@ -80,15 +85,15 @@ func (m *mrCtrl) Run() reflect.Value {
   }
  
   // Reduce.
-  output := make(map[Key]interface{})
+  output := reflect.MakeMap(reflect.MapOf(keyType, m.Spec.Output.v0))
   for k, values := range shuffled {
     reducer := m.Spec.Reducer
     out := reducer.Reduce(k, values)
-    output[k] = out
+    output.SetMapIndex(val(k), out)
   }
   switch m.Spec.Output.kind {
    case "map":
-     return output
+     return &output
    default:
      panic(fmt.Sprintf("Unsupported output to MR: %v", m.Spec.Output)) 
   }
