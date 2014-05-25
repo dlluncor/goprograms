@@ -22,5 +22,6 @@ func main() {
   //spoj.WordRacer()
   //spoj.Scrabble()
   //udacity.Sudoku()
-  ir.MainScorer()
+  ir.BuildIndex()
+  //ir.MainScorer()
 }

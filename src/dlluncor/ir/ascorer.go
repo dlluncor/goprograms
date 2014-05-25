@@ -99,6 +99,7 @@ func (s *bigram) Score(q *query, d *doc) score {
 }
 
 var allListeners = []listener{
+  // term.
   &unigram{"description"},
   &bigram{"description"},
   &unigram{"title"},
