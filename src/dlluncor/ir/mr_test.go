@@ -7,24 +7,6 @@ import(
   "fmt"
 )
 
-type Output interface {
-  Equals(i interface{}) (bool, error)
-}
-
-/*
-type wrapper struct {
-  i interface{}
-}
-
-func (w *wrapper) Equals(i interface{}) (bool, error) {
-  ok := reflect.DeepEqual(w.i, i)
-  if !ok {
-    return false, errors.New("Els not equal.")
-  }
-  return true, nil
-}
-*/
-
 type tokenMapper struct {
 }
 
@@ -73,9 +55,9 @@ var mrTests = []struct{
       Input: arr([]string{"hi there", "hi", "momma"}),
       Mapper: &tokenMapper{},
       Reducer: &sumReducer{},
-      Output: "map",
+      Output: Output{"map", intType},
     },
-    map[string]int{
+    map[Key]int{
       "hi": 2,
       "there": 1,
       "momma": 1,
@@ -84,10 +66,10 @@ var mrTests = []struct{
 }
 
 // Annoying with types!!!
-func toMine(in interface{}) map[string]int {
-  out := map[string]int{}
+func toMine(in interface{}) map[Key]int {
+  out := map[Key]int{}
   for k, v := range in.(map[Key]interface{}) {
-    out[string(k)] = v.(int)
+    out[k] = v.(int)
   }
   return out
 }

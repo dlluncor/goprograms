@@ -6,6 +6,11 @@ package ir
 
 import (
   "fmt"
+  "reflect"
+)
+
+var (
+  intType = reflect.TypeOf(1)
 )
 
 type Key string
@@ -37,13 +42,18 @@ type Reducer interface {
   Reduce(k Key, vals[]interface{}) interface{}
 }
 
+type Output struct {
+  kind string // e.g., "map"
+  v0 reflect.Type // e.g., Value produced by reducer.
+}
+
 // Full controller.
 
 type Spec struct{
   Input []interface{}
   Mapper Mapper // provide functions which return mappers and reducers?
   Reducer Reducer
-  Output string
+  Output Output 
 }
 
 type mrCtrl struct{
@@ -76,7 +86,7 @@ func (m *mrCtrl) Run() interface{} {
     out := reducer.Reduce(k, values)
     output[k] = out
   }
-  switch m.Spec.Output {
+  switch m.Spec.Output.kind {
    case "map":
      return output
    default:
