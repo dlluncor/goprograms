@@ -55,8 +55,56 @@ func (r *DocReducer) Reduce(k mr.Key, vals []interface{}) reflect.Value {
       case types.DocInfo:
         return mr.ToValue(val)
       default:
-        panic("Cannot sum non-int.")
+        panic("Cannot non DocInfo")
     }
   }
-  panic("Unreachable")
+  panic("Unreachable DocReducer Reduce")
+}
+
+// Per term information.
+type TermMapper struct {
+}
+
+func allWords(d *types.DocMetadata) []string {
+  ws := []string{}
+  ws = append(ws, sc.Tokenize(d.Description)...)  // dont remove stop words
+  ws = append(ws, sc.Tokenize(d.Title)...)  // dont remove stop words
+  return ws
+}
+
+func toTF(w string, d *types.DocMetadata) types.TF {
+  return types.TF{
+    Num: 1,
+  }
+}
+
+func (m *TermMapper) Map(i interface{}, emitFn mr.EmitFn) {
+  switch i.(type) {
+    case *types.DocMetadata:
+      d := i.(*types.DocMetadata)
+      words := allWords(d)
+      for _, word := range words {
+         emitFn.Emit(mr.Key(word), toTF(word, d))
+      }
+    default:
+      panic("Cant tokenize non string.")
+  }
+}
+
+type TermReducer struct {
+}
+
+// Reduce for each term will sum up all docs it was found in.
+func (r *TermReducer) Reduce(k mr.Key, vals []interface{}) reflect.Value {
+  t := types.TF{}
+  for _, val := range vals {
+    switch val.(type) {
+      case types.TF:
+      v := val.(types.TF)
+      t.Num = t.Num + v.Num
+      default:
+        panic("Cannot reduce TermReducer.")
+    }
+  }
+  return mr.ToValue(t)
 }

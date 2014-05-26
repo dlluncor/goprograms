@@ -7,7 +7,14 @@ type DocInfo struct {
 
 // TInfo describes information about a token in a document.
 type TInfo struct {
-  Num int // num occurences in doc
+  Num int // num occurences in one doc
+}
+
+// Info about a term across many docs.
+
+type TF struct {
+  Num int  // num occurences in many documents.
+  Term string  // the term itself when used for sorting.
 }
 
 // DocMetadata == document in index.
