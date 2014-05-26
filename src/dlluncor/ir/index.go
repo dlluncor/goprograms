@@ -1,28 +1,27 @@
 package ir
 
-import(
-  "dlluncor/ir/types"
+import (
+	"dlluncor/ir/types"
 )
 
 type Index struct {
-
 }
 
 var allDocs = []*types.DocMetadata{
-  {
-    Title: "Google Play services",
-    Id: "com.google.android.gms",
-    Description: `
+	{
+		Title: "Google Play services",
+		Id:    "com.google.android.gms",
+		Description: `
 Google Play services is used to update Google apps and apps from Google Play.
 This component provides core functionality like authentication to your Google services, synchronized contacts, access to all the latest user privacy settings, and higher quality, lower-powered location based services.
 Google Play services also enhances your app experience. It speeds up offline searches, provides more immersive maps, and improves gaming experiences.
 Apps may not work if you uninstall Google Play services.
     `,
-  },
-  {
-    Title: "Temple Run",
-    Id: "com.imangi.templerun",
-    Description: `
+	},
+	{
+		Title: "Temple Run",
+		Id:    "com.imangi.templerun",
+		Description: `
 The addictive mega-hit Temple Run is now out for Android! All your friends are playing it - can you beat their high scores?!
 You've stolen the cursed idol from the temple, and now you have to run for your life to escape the Evil Demon Monkeys nipping at your heels. Test your reflexes as you race down ancient temple walls and along sheer cliffs. Swipe to turn, jump and slide to avoid obstacles, collect coins and buy power ups, unlock new characters, and see how far you can run!
 "In every treasure hunting adventure movie there’s one scene in which the plucky hero finally gets his hands on the treasure but then has to navigate a maze of booby traps in order to get out alive. Temple Run is this scene and nothing else. And it’s amazing." - SlideToPlay.com
@@ -35,11 +34,11 @@ REVIEWS
 ★ One of TouchArcade's Best Games of the Month
 ★ Over 50 MILLION players worldwide!
     `,
-  },
-  {
-    Title: "Twilight",
-    Id: "com.urbandroid.lux",
-    Description: `
+	},
+	{
+		Title: "Twilight",
+		Id:    "com.urbandroid.lux",
+		Description: `
 Are you having troubles to fall asleep? Are your kids hyperactive when playing with the tablet before bed time?
 Are you using your smart phone or tablet in the late evening? Twilight may be a solution for you!
 Recent research suggests that exposure to blue light before sleep may distort your natural (circadian) rhythm and cause inability to fall asleep.
@@ -83,12 +82,12 @@ Similar to f.lux on Windows or Red Shift on Linux.
 }
 
 func (i *Index) Find(q *query) []*doc {
-  docs := []*doc{}
-  for _, docM := range allDocs {
-    docs = append(docs, &doc{
-      name: docM.Title,
-      data: docM,
-    })
-  }
-  return docs
+	docs := []*doc{}
+	for _, docM := range allDocs {
+		docs = append(docs, &doc{
+			name: docM.Title,
+			data: docM,
+		})
+	}
+	return docs
 }
