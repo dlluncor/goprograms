@@ -1,26 +1,31 @@
 package types
 
-// TInfo describes information about a token.
-type TInfo struct {
+// Info about a doc when indexing.
+type DocInfo struct {
+  Terms map[string]*TInfo
+}
 
+// TInfo describes information about a token in a document.
+type TInfo struct {
+  Num int // num occurences in doc
 }
 
 // DocMetadata == document in index.
 type DocMetadata struct {
-  title string
-  id string
-  description string
+  Title string
+  Id string
+  Description string
 }
 
 func (m *DocMetadata) GetField(field string) string {
   if field == "description" {
-    return m.description
+    return m.Description
   }
   if field == "id" {
-    return m.id
+    return m.Id
   }
   if field == "title" {
-    return m.title
+    return m.Title
   }
   panic("Unrecognized field.")
 }

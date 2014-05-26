@@ -2,6 +2,7 @@ package ir
 
 import(
   "strings"
+  sc "dlluncor/ir/score"
 )
 
 type listener interface {
@@ -60,8 +61,8 @@ func nGram(arr []string, i, len int) string {
 }
 
 func nGramMatch(qText, docText string, n int) []string {
-  qWords := strings.Split(qText, " ")
-  docWords := strings.Split(docText, " ")
+  qWords := sc.Tokenize(qText)
+  docWords := sc.Tokenize(docText)
    
   docMap := make(map[string]bool)
   for i := 0; i < len(docWords) - n + 1; i++ {

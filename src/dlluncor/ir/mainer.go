@@ -4,6 +4,8 @@ import(
   "fmt"
   "sort"
   "os"
+
+  "dlluncor/ir/types"
 )
 
 type query struct {
@@ -14,7 +16,7 @@ type query struct {
 type doc struct {
   score float64 /* returned by mustang after first pass. */
   name string
-  data *docMetadata
+  data *types.DocMetadata
 }
 
 type mustang struct {
