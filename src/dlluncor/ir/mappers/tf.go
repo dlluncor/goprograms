@@ -12,7 +12,7 @@ type DocMapper struct {
 
 func (m *DocMapper) Map(i interface{}, emitFn mr.EmitFn) {
   switch i.(type) {
-    case string:
+    case *docMetadata:
       s := i.(string)
       for _, w := range strings.Split(s, " ") {
         emitFn.Emit(mr.Key(w), 1)

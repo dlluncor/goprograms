@@ -1,30 +1,14 @@
 package ir
 
+import(
+  "dlluncor/ir/types"
+)
+
 type Index struct {
 
 }
 
-// docMetadata == document in index.
-type docMetadata struct {
-  title string
-  id string
-  description string
-}
-
-func (m *docMetadata) GetField(field string) string {
-  if field == "description" {
-    return m.description
-  }
-  if field == "id" {
-    return m.id
-  }
-  if field == "title" {
-    return m.title
-  }
-  panic("Unrecognized field.")
-}
-
-var allDocs = []*docMetadata{
+var allDocs = []*types.DocMetadata{
   {
     title: "Google Play services",
     id: "com.google.android.gms",
