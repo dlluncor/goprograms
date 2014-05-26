@@ -2,7 +2,6 @@ package ir
 
 import (
 	"fmt"
-	"os"
 	"sort"
 
 	"dlluncor/ir/types"
@@ -43,13 +42,14 @@ func (d *docSorter) Less(i int, j int) bool {
 	return d.docs[i].score > d.docs[j].score
 }
 
-func MainScorer() {
-	if len(os.Args) != 2 {
+// pos that your arguments start at.
+func MainScorer(pos int, args []string) {
+	if len(args) != 3 {
 		fmt.Printf(`Usage: ./cmd "Angry birds"` + "\n")
 		return
 	}
 	fmt.Printf("Hi main scorer.\n")
-	rawQuery := os.Args[1]
+	rawQuery := args[pos + 1]
 	q := &query{
 		raw: rawQuery,
 		num: 10,

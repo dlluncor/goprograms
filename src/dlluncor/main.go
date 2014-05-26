@@ -36,7 +36,8 @@ func main() {
 		udacity.Sudoku()
 	case "4":
 		ir.BuildIndex()
-		//ir.MainScorer()
+	case "5":
+		ir.MainScorer(1, os.Args)
 	default:
 		panic(fmt.Sprintf("Unrecognized program int: %v\n", prog))
 	}
