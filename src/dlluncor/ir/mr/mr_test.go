@@ -1,4 +1,4 @@
-package ir
+package mr
 
 import(
   "testing"
@@ -35,15 +35,7 @@ func (r *sumReducer) Reduce(k Key, vals []interface{}) reflect.Value {
         panic("Cannot sum non-int.")
     }
   }
-  return val(sum) 
-}
-
-func arr(in []string) []interface{} {
-  out := make([]interface{}, len(in))
-  for i, el := range in {
-    out[i] = el
-  }
-  return out
+  return ToValue(sum) 
 }
 
 var mrTests = []struct{
@@ -78,9 +70,7 @@ func forTestToType(in *reflect.Value) interface{} {
 
 func TestMr(t *testing.T) {
   for _, test := range mrTests {
-    c := &mrCtrl{}
-    c.Spec = test.mrSpec
-    out := c.Run()
+    out := Run(test.mrSpec)
     expected := test.output
     actual := forTestToType(out)
     fmt.Printf("%v, %v\n", reflect.TypeOf(actual), reflect.TypeOf(expected))

@@ -1,8 +1,7 @@
-// change to package mr
 // MapReduce
 // []V0 -> Map -> (K, V1)
 // {Key: []V1} -> Reduce -> Output(V2)
-package ir
+package mr
 
 import (
   "fmt"
@@ -14,7 +13,7 @@ var (
   keyType = reflect.TypeOf(Key(""))
 )
 
-func val(in interface{}) reflect.Value {
+func ToValue(in interface{}) reflect.Value {
   return reflect.ValueOf(in)
 }
 
@@ -38,38 +37,34 @@ type EmitFn interface {
   Emit(k Key, v interface{})  
 }
 
-type Mapper interface {
+type mapper interface {
   Map(v interface{}, fn EmitFn)
 }
 
 // Reducer and shuffling.
-type Reducer interface {
+type reducer interface {
   Reduce(k Key, vals[]interface{}) reflect.Value
 }
 
 type Output struct {
-  kind string // e.g., "map"
-  v0 reflect.Type // e.g., Value produced by reducer.
+  Kind string // e.g., "map"
+  V0 reflect.Type // e.g., Value produced by reducer.
 }
 
 // Full controller.
 
 type Spec struct{
   Input []interface{}
-  Mapper Mapper // provide functions which return mappers and reducers?
-  Reducer Reducer
+  Mapper mapper // provide functions which return mappers and reducers?
+  Reducer reducer
   Output Output 
 }
 
-type mrCtrl struct{
-  Spec *Spec
-}
-
-func (m *mrCtrl) Run() *reflect.Value {
+func Run(spec *Spec) *reflect.Value {
   // Run mapper "in parallel".
   b := &buffer{}  // where to store the shuffle data locally.
-  for _, in := range m.Spec.Input {
-    mpr := m.Spec.Mapper
+  for _, in := range spec.Input {
+    mpr := spec.Mapper
     mpr.Map(in, b)
   }
   // Shuffle.
@@ -85,17 +80,17 @@ func (m *mrCtrl) Run() *reflect.Value {
   }
  
   // Reduce.
-  output := reflect.MakeMap(reflect.MapOf(keyType, m.Spec.Output.v0))
+  output := reflect.MakeMap(reflect.MapOf(keyType, spec.Output.V0))
   for k, values := range shuffled {
-    reducer := m.Spec.Reducer
+    reducer := spec.Reducer
     out := reducer.Reduce(k, values)
-    output.SetMapIndex(val(k), out)
+    output.SetMapIndex(ToValue(k), out)
   }
-  switch m.Spec.Output.kind {
+  switch spec.Output.Kind {
    case "map":
      return &output
    default:
-     panic(fmt.Sprintf("Unsupported output to MR: %v", m.Spec.Output)) 
+     panic(fmt.Sprintf("Unsupported output to MR: %v", spec.Output)) 
   }
   return nil
 }
