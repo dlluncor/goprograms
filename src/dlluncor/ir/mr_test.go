@@ -65,13 +65,15 @@ var mrTests = []struct{
   },
 }
 
-// Annoying with types!!!
-func toMine(in interface{}) map[Key]int {
-  out := map[Key]int{}
-  for k, v := range in.(map[Key]interface{}) {
-    out[k] = v.(int)
+// Convert output so the test can work.
+func forTestToType(in *reflect.Value) interface{} {
+  inter := (*in).Interface()
+  switch inter.(type) {
+    case map[Key]int:
+      return inter.(map[Key]int)
+    default:
+      panic("Need to add this type manually.")
   }
-  return out
 }
 
 func TestMr(t *testing.T) {
@@ -80,8 +82,8 @@ func TestMr(t *testing.T) {
     c.Spec = test.mrSpec
     out := c.Run()
     expected := test.output
-    actual := ((*out).Interface()).(map[Key]int)
-    fmt.Printf("%v", reflect.TypeOf(out))
+    actual := forTestToType(out)
+    fmt.Printf("%v, %v\n", reflect.TypeOf(actual), reflect.TypeOf(expected))
     if !reflect.DeepEqual(actual, expected) {
       t.Errorf("Output mismatch: Expected %v. Actual %v.", test.output, out)
     }
