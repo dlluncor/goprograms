@@ -1,27 +1,43 @@
 package main
 
 import(
-  //"dlluncor/spoj"
-  //"dlluncor/udacity"
-  //"dlluncor/server"
+  "os"
+  "fmt"
+
+  "dlluncor/spoj"
+  "dlluncor/udacity"
+  "dlluncor/server"
   "dlluncor/ir"
 )
 
 func main() {
-  //spoj.Bitmap()
-  //spoj.Recaman()
-  //spoj.EditDistance()
-  //spoj.Party()
-  //spoj.GreatBall()
-  //spoj.Sqrt()
-  //spoj.MoveToInvert()
-  //udacity.Search()
-  //udacity.FifteenNums()
-  //server.Serve()
-  //spoj.Concurrency()
-  //spoj.WordRacer()
-  //spoj.Scrabble()
-  //udacity.Sudoku()
-  ir.BuildIndex()
-  //ir.MainScorer()
+  if len(os.Args) < 2 {
+    fmt.Printf(`Usage: ./cmd 0 {args for your program}`)
+  }
+  prog := os.Args[1]
+  switch prog {
+    case "0":
+      //spoj.Bitmap()
+      //spoj.Recaman()
+      //spoj.EditDistance()
+      //spoj.Party()
+      //spoj.GreatBall()
+      //spoj.Sqrt()
+      spoj.MoveToInvert()
+    case "1":
+      //udacity.Search()
+      //udacity.FifteenNums()
+    case "2":
+      server.Serve()
+      //spoj.Concurrency()
+      //spoj.WordRacer()
+      //spoj.Scrabble()
+    case "3":
+      udacity.Sudoku()
+    case "4":
+      ir.BuildIndex()
+      //ir.MainScorer()
+    default:
+      panic(fmt.Sprintf("Unrecognized program int: %v\n", prog))
+  }
 }
