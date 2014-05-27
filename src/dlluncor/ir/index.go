@@ -1,10 +1,33 @@
 package ir
 
 import (
+        //"fmt"
+        "log"
+
 	"dlluncor/ir/types"
+        "dlluncor/ir/mr"  // mr.Key
+	"dlluncor/ir/util"
 )
 
 type Index struct {
+}
+
+func (i *Index) Init(docInfFile string) {
+  var docInf map[mr.Key]types.DocInfo
+  util.DecodeFile(&docInf, types.DocInfFile)
+  // Fill doc metadata with information from MapReduce (term information).
+  //fmt.Printf("\n\nDocInf:%v\n", docInf)
+  for _, doc := range allDocs {
+    inf, ok := docInf[mr.Key(doc.Id)]
+    if ok {
+      doc.Inf = &inf
+    } else {
+      log.Fatalf("Could not find doc in indexing: %v", doc.Id)
+    }
+  }
+  //for _, doc := range allDocs {
+  //  fmt.Printf("\n\nDocMetadata: %v\n", *doc.Inf)
+  //}
 }
 
 var allDocs = []*types.DocMetadata{

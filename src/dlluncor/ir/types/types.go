@@ -24,6 +24,8 @@ type DocMetadata struct {
 	Title       string
 	Id          string
 	Description string
+        // Came from indexer MR.
+        Inf *DocInfo
 }
 
 func (m *DocMetadata) GetField(field string) string {
@@ -43,6 +45,7 @@ var (
   // Data files produced by index.
   base = "dlluncor/ir/data/"
   DFFile = base + "df.dat"  // Map of DF data keyed on term
+  DocInfFile = base + "docInf.dat"  // Map of DocInfo data keyed on docid
 )
 
 // - Querying 

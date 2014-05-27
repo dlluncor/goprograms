@@ -100,7 +100,7 @@ func (s *bigram) Score(q *types.Query, d *doc) score {
 	}
 }
 
-var allListeners = []listener{
+var simpleListeners = []listener{
 	// term.
 	&unigram{"description"},
 	&bigram{"description"},
@@ -109,5 +109,6 @@ var allListeners = []listener{
 }
 
 func RegisterListeners(a *ascorer) {
-	a.listeners = allListeners
+	a.listeners = append(a.listeners, simpleListeners...)
+        a.listeners = append(a.listeners, tfIdfListeners...)
 }

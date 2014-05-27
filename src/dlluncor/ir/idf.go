@@ -29,6 +29,7 @@ func (s sortT) Less(i, j int) bool { return s[i].Num < s[j].Num }
 // intermediate to write to disk
 type indexInfo struct {
  DF map[mr.Key]types.DF
+ DocInf map[mr.Key]types.DocInfo
 }
 
 func (i *indCounter) Count() *indexInfo {
@@ -39,8 +40,8 @@ func (i *indCounter) Count() *indexInfo {
 		Reducer: &mappers.DocReducer{},
 		Output:  mr.Output{"map", docInfoType},
 	}
-	out := (mr.Run(spec).Interface()).(map[mr.Key]types.DocInfo)
-	for id, inf := range out {
+	outDocInf := (mr.Run(spec).Interface()).(map[mr.Key]types.DocInfo)
+	for id, inf := range outDocInf {
 		fmt.Printf("\n*******\nDoc: %v\n", id)
 		for t, tInf := range inf.Terms {
 			fmt.Printf("%v: %v, ", t, tInf)
@@ -70,6 +71,7 @@ func (i *indCounter) Count() *indexInfo {
 	}
   return &indexInfo{
     DF: outDF,
+    DocInf: outDocInf,
   }
 }
 
@@ -77,10 +79,12 @@ func (i *indCounter) Count() *indexInfo {
 func (i *indCounter) Write(inf *indexInfo) {
   util.EncodeToFile(inf.DF, types.DFFile) 
   
-  var in map[mr.Key]types.DF
-  util.DecodeFile(&in, types.DFFile)
-  fmt.Println("***------------******") 
-  fmt.Printf("%v\n", in) 
+  //var in map[mr.Key]types.DF
+  //util.DecodeFile(&in, types.DFFile)
+  //fmt.Println("***------------******") 
+  //fmt.Printf("%v\n", in)
+
+  util.EncodeToFile(inf.DocInf, types.DocInfFile) 
 }
 
 func BuildIndex() {

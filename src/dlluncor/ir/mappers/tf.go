@@ -13,8 +13,15 @@ import (
 type DocMapper struct {
 }
 
+func allWords(d *types.DocMetadata) []string {
+	ws := []string{}
+	ws = append(ws, sc.Tokenize(d.Description)...) // dont remove stop words
+	ws = append(ws, sc.Tokenize(d.Title)...)       // dont remove stop words
+	return ws
+}
+
 func toDocInfo(d *types.DocMetadata) types.DocInfo {
-	words := sc.Tokenize(d.Description)
+	words := allWords(d)
 
 	terms := map[string]*types.TInfo{}
 	for _, w := range words {
@@ -62,13 +69,6 @@ func (r *DocReducer) Reduce(k mr.Key, vals []interface{}) reflect.Value {
 
 // Per term information.
 type TermMapper struct {
-}
-
-func allWords(d *types.DocMetadata) []string {
-	ws := []string{}
-	ws = append(ws, sc.Tokenize(d.Description)...) // dont remove stop words
-	ws = append(ws, sc.Tokenize(d.Title)...)       // dont remove stop words
-	return ws
 }
 
 func toDF(w string, d *types.DocMetadata) types.DF {

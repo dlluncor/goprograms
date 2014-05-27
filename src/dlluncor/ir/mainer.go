@@ -15,7 +15,7 @@ type doc struct {
 }
 
 type mustang struct {
-	index Index
+	index *Index
 }
 
 func (m *mustang) Retrieve(q *types.Query) []*doc {
@@ -41,12 +41,17 @@ func (d *docSorter) Less(i int, j int) bool {
 // MainScorer enters the Mustang scoring routine.
 // pos that your arguments start at.
 func MainScorer(pos int, args []string) {
+        // Check params.
 	if len(args) != 3 {
 		fmt.Printf(`Usage: ./cmd "Angry birds"` + "\n")
 		return
 	}
 	fmt.Printf("Hi main scorer.\n")
-        
+       
+        // Init index.
+        index := &Index{}
+        index.Init(types.DocInfFile)
+
         // Construct query.
 	rawQuery := args[pos + 1]
 	q := &types.Query{
@@ -58,7 +63,9 @@ func MainScorer(pos int, args []string) {
         qe.Annotate(q)
        
         // Fetch documents.
-	m := &mustang{}
+	m := &mustang{
+          index: index,
+        }
 	docs := m.Retrieve(q)
         
         // Score top k.
