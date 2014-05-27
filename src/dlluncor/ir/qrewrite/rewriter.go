@@ -6,7 +6,7 @@ import(
 )
 
 type Rewriter struct{
-  map[string]types.TF
+  tfMap map[string]types.TF
 }
 
 func (r *Rewriter) Init() {
@@ -22,7 +22,7 @@ func (r *Rewriter) Annotate(q *types.Query) {
     tf, ok := r.tfMap[term]
     if !ok {
       // How do we treat terms we have never seen before?
-      tf = TF{
+      tf = types.TF{
         Num: -1,
       }
     }
