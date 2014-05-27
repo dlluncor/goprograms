@@ -38,6 +38,12 @@ func (d *docSorter) Less(i int, j int) bool {
 	return d.docs[i].score > d.docs[j].score
 }
 
+// Issues:
+// No posting lists built.
+// Index does not lowercase, keep title / descrip information (sections).
+// Scoring does not know about edit distance, proximity of terms.
+// Index only contains 3 apps, which were manually added.
+
 // MainScorer enters the Mustang scoring routine.
 // pos that your arguments start at.
 func MainScorer(pos int, args []string) {
