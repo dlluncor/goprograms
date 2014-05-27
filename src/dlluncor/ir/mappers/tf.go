@@ -71,9 +71,10 @@ func allWords(d *types.DocMetadata) []string {
 	return ws
 }
 
-func toTF(w string, d *types.DocMetadata) types.TF {
-	return types.TF{
+func toDF(w string, d *types.DocMetadata) types.DF {
+	return types.DF{
 		Num: 1,
+                Term: w,
 	}
 }
 
@@ -83,7 +84,7 @@ func (m *TermMapper) Map(i interface{}, emitFn mr.EmitFn) {
 		d := i.(*types.DocMetadata)
 		words := allWords(d)
 		for _, word := range words {
-			emitFn.Emit(mr.Key(word), toTF(word, d))
+			emitFn.Emit(mr.Key(word), toDF(word, d))
 		}
 	default:
 		panic("Cant tokenize non string.")
@@ -95,11 +96,13 @@ type TermReducer struct {
 
 // Reduce for each term will sum up all docs it was found in.
 func (r *TermReducer) Reduce(k mr.Key, vals []interface{}) reflect.Value {
-	t := types.TF{}
+	t := types.DF{
+          Term: string(k), 
+        }
 	for _, val := range vals {
 		switch val.(type) {
-		case types.TF:
-			v := val.(types.TF)
+		case types.DF:
+			v := val.(types.DF)
 			t.Num = t.Num + v.Num
 		default:
 			panic("Cannot reduce TermReducer.")

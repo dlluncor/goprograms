@@ -9,13 +9,13 @@ type DocInfo struct {
 
 // TInfo describes information about a token in a document.
 type TInfo struct {
-	Num int // "df": num occurences in one doc
+	Num int // "tf": num occurences in one doc
 }
 
 // Info about a term across many docs.
 
-type TF struct {
-	Num  int    // num occurences in many documents.
+type DF struct {
+	Num  int    // "df", num occurences in many documents.
 	Term string // the term itself when used for sorting.
 }
 
@@ -39,10 +39,16 @@ func (m *DocMetadata) GetField(field string) string {
 	panic("Unrecognized field.")
 }
 
+var (
+  // Data files produced by index.
+  base = "dlluncor/ir/data/"
+  DFFile = base + "df.dat"  // Map of DF data keyed on term
+)
+
 // - Querying 
 type QNode struct {
   Token string // e.g., "angry"
-  TF TF 
+  DF DF 
 
   // Eventually can add children and have nested queries.
 }

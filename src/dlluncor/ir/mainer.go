@@ -53,8 +53,8 @@ func MainScorer(pos int, args []string) {
 		Raw: rawQuery,
 		Num: 10,
 	}
-        qe := &qrewrite.Rewriter{}
-        qe.Init()
+        qe := qrewrite.NewRewriter()
+        qe.Init(types.DFFile)
         qe.Annotate(q)
        
         // Fetch documents.

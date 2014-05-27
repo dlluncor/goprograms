@@ -3,17 +3,14 @@
 package ir
 
 import (
-        "bytes"
-        "encoding/gob"
 	"fmt"
-        "os"
-        "log"
 	"reflect"
 	"sort"
 
 	"dlluncor/ir/mappers"
 	"dlluncor/ir/mr"
 	"dlluncor/ir/types"
+        "dlluncor/ir/util"
 )
 
 type indCounter struct {
@@ -21,9 +18,9 @@ type indCounter struct {
 }
 
 var docInfoType = reflect.TypeOf(types.DocInfo{})
-var tfType = reflect.TypeOf(types.TF{})
+var tfType = reflect.TypeOf(types.DF{})
 
-type sortT []*types.TF
+type sortT []types.DF
 
 func (s sortT) Len() int           { return len(s) }
 func (s sortT) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
@@ -31,7 +28,7 @@ func (s sortT) Less(i, j int) bool { return s[i].Num < s[j].Num }
 
 // intermediate to write to disk
 type indexInfo struct {
- TF map[mr.Key]types.TF
+ DF map[mr.Key]types.DF
 }
 
 func (i *indCounter) Count() *indexInfo {
@@ -51,7 +48,7 @@ func (i *indCounter) Count() *indexInfo {
 		fmt.Printf("\n")
 	}
 
-        var outTF = make(map[mr.Key]types.TF)
+        var outDF = make(map[mr.Key]types.DF)
 	{
 		// Reduce word counts to idf scores.
 		spec := &mr.Spec{
@@ -60,14 +57,10 @@ func (i *indCounter) Count() *indexInfo {
 			Reducer: &mappers.TermReducer{},
 			Output:  mr.Output{"map", tfType},
 		}
-		outTF = (mr.Run(spec).Interface()).(map[mr.Key]types.TF)
-		ts := []*types.TF{}
-		for t, tf := range outTF {
-			newT := &types.TF{
-				Term: string(t),
-				Num:  tf.Num,
-			}
-			ts = append(ts, newT)
+		outDF = (mr.Run(spec).Interface()).(map[mr.Key]types.DF)
+		ts := []types.DF{}
+		for _, tf := range outDF {
+			ts = append(ts, tf) 
 		}
 		sort.Sort(sortT(ts))
 		fmt.Printf("\n\n*********Terms:\n")
@@ -76,32 +69,16 @@ func (i *indCounter) Count() *indexInfo {
 		}
 	}
   return &indexInfo{
-    TF: outTF,
-  }
-}
-
-func check(err error) {
-  if err != nil {
-    log.Fatalf("%v\n", err)
+    DF: outDF,
   }
 }
 
 // Write writes out the index to disk.
 func (i *indCounter) Write(inf *indexInfo) {
-  var network bytes.Buffer
-  enc := gob.NewEncoder(&network)
-
-  // Term metadata for QRewrite.
-  check(enc.Encode(inf))
-  f, err := os.Create("qReWrite.dat")
-  check(err)
-  defer f.Close()
-  f.Write(network.Bytes())
-
+  util.EncodeToFile(inf.DF, types.DFFile) 
   
-  var in indexInfo
-  dec := gob.NewDecoder(&network)
-  check(dec.Decode(&in))
+  var in map[mr.Key]types.DF
+  util.DecodeFile(&in, types.DFFile)
   fmt.Println("***------------******") 
   fmt.Printf("%v\n", in) 
 }
