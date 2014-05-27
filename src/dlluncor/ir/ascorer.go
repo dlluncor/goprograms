@@ -2,11 +2,12 @@ package ir
 
 import (
 	sc "dlluncor/ir/score"
+        "dlluncor/ir/types"
 	"strings"
 )
 
 type listener interface {
-	Score(q *query, d *doc) score
+	Score(q *types.Query, d *doc) score
 }
 
 type ascorer struct {
@@ -18,7 +19,7 @@ type score struct {
 	value  float64
 }
 
-func (a *ascorer) Score(q *query, d *doc) {
+func (a *ascorer) Score(q *types.Query, d *doc) {
 	scores := []score{}
 	for _, lis := range a.listeners {
 		scores = append(scores, lis.Score(q, d))
@@ -35,8 +36,8 @@ type unigram struct {
 	docField string
 }
 
-func (s *unigram) Score(q *query, d *doc) score {
-	matches := nGramMatch(q.raw, d.data.GetField(s.docField), 1)
+func (s *unigram) Score(q *types.Query, d *doc) score {
+	matches := nGramMatch(q.Raw, d.data.GetField(s.docField), 1)
 	value := 0.0
 	for i := 0; i < len(matches); i++ {
 		value += 3.0
@@ -86,8 +87,8 @@ type bigram struct {
 	docField string
 }
 
-func (s *bigram) Score(q *query, d *doc) score {
-	matches := nGramMatch(q.raw, d.data.GetField(s.docField), 2)
+func (s *bigram) Score(q *types.Query, d *doc) score {
+	matches := nGramMatch(q.Raw, d.data.GetField(s.docField), 2)
 	value := 0.0
 	for i := 0; i < len(matches); i++ {
 		value += 4.0

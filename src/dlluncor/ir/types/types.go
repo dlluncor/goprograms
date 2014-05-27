@@ -1,5 +1,7 @@
 package types
 
+// - Indexing.
+
 // Info about a doc when indexing.
 type DocInfo struct {
 	Terms map[string]*TInfo
@@ -35,4 +37,11 @@ func (m *DocMetadata) GetField(field string) string {
 		return m.Title
 	}
 	panic("Unrecognized field.")
+}
+
+// - Querying 
+
+type Query struct {
+	Raw string
+	Num int
 }

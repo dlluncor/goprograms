@@ -5,12 +5,8 @@ import (
 	"sort"
 
 	"dlluncor/ir/types"
+        "dlluncor/ir/qrewrite"
 )
-
-type query struct {
-	raw string
-	num int
-}
 
 type doc struct {
 	score float64 /* returned by mustang after first pass. */
@@ -22,7 +18,7 @@ type mustang struct {
 	index Index
 }
 
-func (m *mustang) Retrieve(q *query) []*doc {
+func (m *mustang) Retrieve(q *types.Query) []*doc {
 	return m.index.Find(q)
 }
 
@@ -42,6 +38,7 @@ func (d *docSorter) Less(i int, j int) bool {
 	return d.docs[i].score > d.docs[j].score
 }
 
+// MainScorer enters the Mustang scoring routine.
 // pos that your arguments start at.
 func MainScorer(pos int, args []string) {
 	if len(args) != 3 {
@@ -49,23 +46,33 @@ func MainScorer(pos int, args []string) {
 		return
 	}
 	fmt.Printf("Hi main scorer.\n")
+        
+        // Construct query.
 	rawQuery := args[pos + 1]
-	q := &query{
-		raw: rawQuery,
-		num: 10,
+	q := &types.Query{
+		Raw: rawQuery,
+		Num: 10,
 	}
+        qe := &qrewrite.Rewriter{}
+        qe.Init()
+        qe.Annotate(q)
+       
+        // Fetch documents.
 	m := &mustang{}
 	docs := m.Retrieve(q)
+        
+        // Score top k.
 	for _, doc := range docs {
 		as := &ascorer{}
 		RegisterListeners(as)
 		as.Score(q, doc)
 	}
+
+	// Print results.
 	s := &docSorter{
 		docs: docs,
 	}
 	sort.Sort(s)
-	// Print.
 	fmt.Printf("***Results***\n")
 	fmt.Printf("Pos\tName\tScore\n")
 	for i, doc := range docs {
