@@ -9,7 +9,7 @@ type DocInfo struct {
 
 // TInfo describes information about a token in a document.
 type TInfo struct {
-	Num int // num occurences in one doc
+	Num int // "df": num occurences in one doc
 }
 
 // Info about a term across many docs.
@@ -40,8 +40,15 @@ func (m *DocMetadata) GetField(field string) string {
 }
 
 // - Querying 
+type QNode struct {
+  Token string // e.g., "angry"
+  TF TF 
+
+  // Eventually can add children and have nested queries.
+}
 
 type Query struct {
-	Raw string
-	Num int
+	Raw string  // e.g., "angry birds"
+	Num int  // e.g., number to return
+        Nodes []QNode
 }
