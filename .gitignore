@@ -2,4 +2,4 @@
 pkg/
 bin/
 main
-src/dlluncor/ir
+src/dlluncor/ir/

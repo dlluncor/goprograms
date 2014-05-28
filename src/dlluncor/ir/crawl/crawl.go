@@ -17,6 +17,6 @@ func start() {
 }
 
 func Crawl() {
-  fmt.Printf("About to crawl apps.  \n")
+  fmt.Printf("About to crawl apps. \n")
   start()
 }
