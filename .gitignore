@@ -1,6 +1,5 @@
 *.swp
-src/
-src2/
 pkg/
 bin/
 main
+src/dlluncor/ir/
