@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"dlluncor/ir"
-        "dlluncor/ir/crawl"
-
 	"dlluncor/server"
 	"dlluncor/spoj"
 	"dlluncor/udacity"
@@ -36,15 +33,6 @@ func main() {
 		//spoj.Scrabble()
 	case "3":
 		udacity.Sudoku()
-	case "4":
-        case "index":
-		ir.BuildIndex()
-	case "5":
-        case "scorer":
-		ir.MainScorer(1, os.Args)
-        case "6":
-        case "crawl":
-                crawl.Crawl()
 	default:
 		panic(fmt.Sprintf("Unrecognized program arg: %v\n", prog))
 	}
